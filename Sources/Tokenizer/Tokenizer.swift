@@ -35,7 +35,7 @@ public struct Tokenizer {
         case (.data, _):
             // emit the current input character as a character token
             break
-        default:
+        case _:
             preconditionFailure("Not implemented")
         }
     }
