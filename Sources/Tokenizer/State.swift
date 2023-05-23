@@ -71,7 +71,7 @@ enum State {
     case cdataSection
     case cdataSectionBracket
     case cdataSectionEnd
-    case characterReference
+    // case characterReference
     case namedCharacterReference
     case ambiguousAmpersand
     case numericCharacterReference
