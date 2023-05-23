@@ -1,6 +1,8 @@
 // TODO: Consider to use enum or protocol
 public enum Token {
     case char(Character)
+    case tag(String)
+    case comment(String)
     case eof
     case error(ParseError)
 }
