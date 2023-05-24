@@ -255,3 +255,33 @@ public struct Tokenizer<Sink: TokenSink> {
         self.sink.process(.eof)
     }
 }
+
+#if TESTING_ENABLED
+    import Foundation
+    import PlaygroundTester
+
+    // TODO: Make TestSink a struct
+    final class TestSink {
+        var tokens = [Token]()
+    }
+
+    extension TestSink: TokenSink {
+        func process(_ token: Token) {
+            self.tokens.append(token)
+        }
+    }
+
+    @objcMembers
+    final class TokenizerTests: TestCase {
+        func testTokenizeBasicHTML() {
+            let html = "<html>hi</html>"
+
+            let sink = TestSink()
+            var tokenizer = Tokenizer(sink: sink)
+            var iter = html.makeIterator()
+            tokenizer.tokenize(&iter)
+
+            AssertEqual([.tag("html"), "h", "i", .tag("html"), .eof], other: sink.tokens)
+        }
+    }
+#endif

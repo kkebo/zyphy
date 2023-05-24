@@ -32,15 +32,28 @@ let package = Package(
             ]
         )
     ],
+    dependencies: [
+        .package(url: "https://github.com/Losiowaty/PlaygroundTester", "0.3.1"..<"0.4.0")
+    ],
     targets: [
         .executableTarget(
             name: "AppModule",
             dependencies: [
-                "Tokenizer"
+                "Tokenizer",
+                .product(name: "PlaygroundTester", package: "PlaygroundTester")
+            ],
+            swiftSettings: [
+                .define("TESTING_ENABLED", .when(configuration: .debug))
             ]
         ),
         .target(
-            name: "Tokenizer"
+            name: "Tokenizer",
+            dependencies: [
+                .product(name: "PlaygroundTester", package: "PlaygroundTester")
+            ],
+            swiftSettings: [
+                .define("TESTING_ENABLED", .when(configuration: .debug))
+            ]
         )
     ]
 )

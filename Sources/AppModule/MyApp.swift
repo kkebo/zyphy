@@ -1,10 +1,19 @@
+import PlaygroundTester
 import SwiftUI
 
 @main
-struct MyApp: App {
+struct MyApp {
+    init() {
+        PlaygroundTester.PlaygroundTesterConfiguration.isTesting = true
+    }
+}
+
+extension MyApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            PlaygroundTester.PlaygroundTesterWrapperView {
+                ContentView()
+            }
         }
     }
 }
