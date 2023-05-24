@@ -19,14 +19,140 @@ public struct Tokenizer<Sink: TokenSink> {
 
     // TODO: Consider input type
     public mutating func tokenize(_ input: inout String.Iterator) {
-        while true {
+        loop: while true {
             self.charRefTokenzier?.tokenize(&input)
 
-            guard let c = self.getChar(from: &input) else { break }
-            self.consume(c)
+            switch self.state {
+            case .data: while true {
+                switch self.getChar(from: &input) {
+                case "&": self.consumeCharRef(); continue loop
+                case "<": self.go(to: .tagOpen); continue loop
+                case "\0": self.emit(.error(.unexpectedNull), "\0");
+                case nil: self.emit(.eof); break loop
+                case let c?: self.emit(c)
+                }
+            }
+            case .rcdata: while true {
+                switch self.getChar(from: &input) {
+                case "&": self.consumeCharRef(); continue loop
+                case "<": self.go(to: .rcdataLessThanSign); continue loop
+                case "\0": self.emit(.error(.unexpectedNull), "\u{FFFD}")
+                case nil: self.emit(.eof); break loop
+                case let c?: self.emit(c)
+                }
+            }
+            case .rawtext: while true {
+                switch self.getChar(from: &input) {
+                case "<": self.go(to: .rawtextLessThanSign); continue loop
+                case "\0": self.emit(.error(.unexpectedNull), "\u{FFFD}")
+                case nil: self.emit(.eof); break loop
+                case let c?: self.emit(c)
+                }
+            }
+            case .scriptData: while true {
+                switch self.getChar(from: &input) {
+                case "<": self.go(to: .scriptDatalessThanSign); continue loop
+                case "\0": self.emit(.error(.unexpectedNull), "\u{FFFD}")
+                case nil: self.emit(.eof); break loop
+                case let c?: self.emit(c)
+                }
+            }
+            case .plaintext: while true {
+                switch self.getChar(from: &input) {
+                case "\0": self.emit(.error(.unexpectedNull), "\u{FFFD}")
+                case nil: self.emit(.eof); break loop
+                case let c?: self.emit(c)
+                }
+            }
+            case .tagOpen: while true {
+                switch self.getChar(from: &input) {
+                case "!": self.go(to: .markupDeclarationOpen); continue loop
+                case "/": self.go(to: .endTagOpen); continue loop
+                case "?":
+                    self.emit(.error(.unexpectedQuestionMark))
+                    self.createComment(with: "?")
+                    self.go(to: .bogusComment); continue loop
+                case nil: self.emit(.error(.eofBeforeTagName), "<", .eof); break loop
+                case let c? where c.isASCII && c.isLetter:
+                    self.createStartTag(with: c.lowercased())
+                    self.go(to: .tagName); continue loop
+                case let c?:
+                    self.emit(.error(.invalidFirstCharacter), "<")
+                    self.reconsume(c, in: .data); continue loop
+                }
+            }
+            case .endTagOpen: while true {
+                switch self.getChar(from: &input) {
+                case ">":
+                    self.emit(.error(.missingEndTagName))
+                    self.go(to: .data); continue loop
+                case "\0":
+                    self.emit(.error(.invalidFirstCharacter), .error(.unexpectedNull))
+                    self.createComment(with: "\u{FFFD}")
+                    self.go(to: .bogusComment); continue loop
+                case nil: self.emit(.error(.eofBeforeTagName), "<", "/", .eof); break loop
+                case let c? where c.isASCII && c.isLetter:
+                    self.createEndTag(with: c.lowercased())
+                    self.go(to: .tagName); continue loop
+                case let c?:
+                    self.emit(.error(.invalidFirstCharacter))
+                    self.createComment(with: c)
+                    self.go(to: .bogusComment); continue loop
+                }
+            }
+            case .tagName: while true {
+                switch self.getChar(from: &input) {
+                case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeAttributeName); continue loop
+                case "/": self.go(to: .selfClosingStartTag); continue loop
+                case ">": self.emitTagAndGo(to: .data); continue loop
+                case "\0":
+                    self.emit(.error(.unexpectedNull))
+                    self.appendTagName("\u{FFFD}" as Character)
+                case nil: self.emit(.error(.eofInTag), .eof); break loop
+                case let c? where c.isASCII && c.isUppercase: self.appendTagName(c.lowercased())
+                case let c?: self.appendTagName(c)
+                }
+            }
+            case .rcdataLessThanSign: while true {
+                switch self.getChar(from: &input) {
+                case "/":
+                    // TODO: Set the temporary buffer to the empty string
+                    self.go(to: .rcdataEndTagOpen); continue loop
+                case nil: self.emit("<", .eof); break loop
+                case let c?:
+                    self.emit("<")
+                    self.reconsume(c, in: .rcdata); continue loop
+                }
+            }
+            case .rcdataEndTagOpen: while true {
+                switch self.getChar(from: &input) {
+                case let c? where c.isASCII && c.isLetter:
+                    self.createEndTag(with: c)
+                    self.go(to: .rcdataEndTagName); continue loop
+                case nil: self.emit("<", "/", .eof); break loop
+                case let c?:
+                    self.emit("<", "/")
+                    self.reconsume(c, in: .rcdata); continue loop
+                }
+            }
+            case .rcdataEndTagName: while true {
+                // FIXME: Implement
+                preconditionFailure("Not implemented")
+            }
+            case .bogusComment: while true {
+                switch self.getChar(from: &input) {
+                case ">": self.emitCommentAndGo(to: .data); continue loop
+                case "\0":
+                    self.emit(.error(.unexpectedNull))
+                    self.appendComment("\u{FFFD}" as Character)
+                case nil: self.emitCommentAndEOF(); break loop
+                case let c?: self.appendComment(c)
+                }
+            }
+            case _:
+                preconditionFailure("Not implemented")
+            }
         }
-
-        self.consumeEOF()
     }
 
     @inline(__always)
@@ -36,141 +162,6 @@ public struct Tokenizer<Sink: TokenSink> {
             return reconsumeChar
         } else {
             return input.next()
-        }
-    }
-
-    @inline(__always)
-    private mutating func consume(_ c: Character) {
-        switch self.state {
-        case .data:
-            switch c {
-            case "&": self.consumeCharRef()
-            case "<": self.go(to: .tagOpen)
-            case "\0": self.emit(.error(.unexpectedNull), "\0")
-            case let c: self.emit(c)
-            }
-        case .rcdata:
-            switch c {
-            case "&": self.consumeCharRef()
-            case "<": self.go(to: .rcdataLessThanSign)
-            case "\0": self.emit(.error(.unexpectedNull), "\u{FFFD}")
-            case let c: self.emit(c)
-            }
-        case .rawtext:
-            switch c {
-            case "<": self.go(to: .rawtextLessThanSign)
-            case "\0": self.emit(.error(.unexpectedNull), "\u{FFFD}")
-            case let c: self.emit(c)
-            }
-        case .scriptData:
-            switch c {
-            case "<": self.go(to: .scriptDatalessThanSign)
-            case "\0": self.emit(.error(.unexpectedNull), "\u{FFFD}")
-            case let c: self.emit(c)
-            }
-        case .plaintext:
-            switch c {
-            case "\0": self.emit(.error(.unexpectedNull), "\u{FFFD}")
-            case let c: self.emit(c)
-            }
-        case .tagOpen:
-            switch c {
-            case "!": self.go(to: .markupDeclarationOpen)
-            case "/": self.go(to: .endTagOpen)
-            case "?":
-                self.emit(.error(.unexpectedQuestionMark))
-                self.createComment(with: "?")
-                self.go(to: .bogusComment)
-            case let c where c.isASCII && c.isLetter:
-                self.createStartTag(with: c.lowercased())
-                self.go(to: .tagName)
-            case let c:
-                self.emit(.error(.invalidFirstCharacter), "<")
-                self.reconsume(c, in: .data)
-            }
-        case .endTagOpen:
-            switch c {
-            case ">":
-                self.emit(.error(.missingEndTagName))
-                self.go(to: .data)
-            case "\0":
-                self.emit(.error(.invalidFirstCharacter), .error(.unexpectedNull))
-                self.createComment(with: "\u{FFFD}")
-                self.go(to: .bogusComment)
-            case let c where c.isASCII && c.isLetter:
-                self.createEndTag(with: c.lowercased())
-                self.go(to: .tagName)
-            case let c:
-                self.emit(.error(.invalidFirstCharacter))
-                self.createComment(with: c)
-                self.go(to: .bogusComment)
-            }
-        case .tagName:
-            switch c {
-            case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeAttributeName)
-            case "/": self.go(to: .selfClosingStartTag)
-            case ">":
-                self.emitTag()
-                self.go(to: .data)
-            case "\0":
-                self.emit(.error(.unexpectedNull))
-                self.appendTagName("\u{FFFD}" as Character)
-            case let c where c.isASCII && c.isUppercase:
-                self.appendTagName(c.lowercased())
-            case let c: self.appendTagName(c)
-            }
-        case .rcdataLessThanSign:
-            switch c {
-            case "/":
-                // TODO: Set the temporary buffer to the empty string
-                self.go(to: .rcdataEndTagOpen)
-            case let c:
-                self.emit("<")
-                self.reconsume(c, in: .rcdata)
-            }
-        case .rcdataEndTagOpen:
-            switch c {
-            case let c where c.isASCII && c.isLetter:
-                self.createEndTag(with: c)
-                self.go(to: .rcdataEndTagName)
-            case let c:
-                self.emit("<", "/")
-                self.reconsume(c, in: .rcdata)
-            }
-        case .rcdataEndTagName:
-            // FIXME: Implement
-            preconditionFailure("Not implemented")
-        case .bogusComment:
-            switch c {
-            case ">":
-                self.emitComment()
-                self.go(to: .data)
-            case "\0":
-                self.emit(.error(.unexpectedNull))
-                self.appendComment("\u{FFFD}" as Character)
-            case let c: self.appendComment(c)
-            }
-        case _:
-            preconditionFailure("Not implemented")
-        }
-    }
-
-    @inline(__always)
-    private mutating func consumeEOF() {
-        switch self.state {
-        case .data, .rcdata, .rawtext, .scriptData, .plaintext:
-            self.emit(.eof)
-        case .tagOpen:
-            self.emit(.error(.eofBeforeTagName), "<", .eof)
-        case .endTagOpen:
-            self.emit(.error(.eofBeforeTagName), "<", "/", .eof)
-        case .tagName:
-            self.emit(.error(.eofInTag), .eof)
-        case .bogusComment:
-            self.emitComment()
-            self.emit(.eof)
-        case _:
-            preconditionFailure("Not implemented")
         }
     }
 
@@ -247,12 +238,20 @@ public struct Tokenizer<Sink: TokenSink> {
     }
 
     @inline(__always)
-    private mutating func emitTag() {
+    private mutating func emitTagAndGo(to state: State) {
         self.sink.process(.tag(self.currentTagName))
+        self.state = state
     }
 
     @inline(__always)
-    private mutating func emitComment() {
+    private mutating func emitCommentAndGo(to state: State) {
         self.sink.process(.comment(self.currentComment))
+        self.state = state
+    }
+
+    @inline(__always)
+    private mutating func emitCommentAndEOF() {
+        self.sink.process(.comment(self.currentComment))
+        self.sink.process(.eof)
     }
 }
