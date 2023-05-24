@@ -239,7 +239,7 @@ public struct Tokenizer<Sink: TokenSink> {
 
     @inline(__always)
     private mutating func emitTagAndGo(to state: State) {
-        self.sink.process(.tag(self.currentTagName))
+        self.sink.process(.tag(self.currentTagName, kind: self.currentTagKind))
         self.state = state
     }
 
@@ -281,7 +281,10 @@ public struct Tokenizer<Sink: TokenSink> {
             var iter = html.makeIterator()
             tokenizer.tokenize(&iter)
 
-            AssertEqual([.tag("html"), "h", "i", .tag("html"), .eof], other: sink.tokens)
+            AssertEqual(
+                [.tag("html", kind: .start), "h", "i", .tag("html", kind: .end), .eof],
+                other: sink.tokens
+            )
         }
     }
 #endif
