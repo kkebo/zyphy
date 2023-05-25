@@ -52,7 +52,13 @@ let package = Package(
                 .product(name: "PlaygroundTester", package: "PlaygroundTester")
             ],
             swiftSettings: [
-                .define("TESTING_ENABLED", .when(configuration: .debug))
+                .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
+                .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
+                .define("TESTING_ENABLED", .when(configuration: .debug)),
+                .enableUpcomingFeature("BareSlashRegexLiterals"),
+                .enableUpcomingFeature("StrictConcurrency"),
+                .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("ImplicitOpenExistentials")
             ]
         )
     ]
