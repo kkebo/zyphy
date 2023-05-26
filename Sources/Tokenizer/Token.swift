@@ -1,7 +1,7 @@
 // TODO: Consider to use enum or protocol
 public enum Token {
     case char(Character)
-    case tag(String, kind: TagKind)
+    case tag(Tag)
     case comment(String)
     case eof
     case error(ParseError)

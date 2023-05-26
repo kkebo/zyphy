@@ -5,6 +5,9 @@ public struct Tokenizer<Sink: TokenSink> {
     var charRefTokenzier: Optional<CharRefTokenizer>
     var currentTagName: String
     var currentTagKind: TagKind
+    var currentAttrName: String
+    var currentAttrValue: String
+    var currentAttrs: [Attribute]
     var currentComment: String
 
     public init(sink: Sink) {
@@ -14,6 +17,9 @@ public struct Tokenizer<Sink: TokenSink> {
         self.charRefTokenzier = nil
         self.currentTagName = ""
         self.currentTagKind = .start
+        self.currentAttrName = ""
+        self.currentAttrValue = ""
+        self.currentAttrs = []
         self.currentComment = ""
     }
 
@@ -74,10 +80,10 @@ public struct Tokenizer<Sink: TokenSink> {
                     self.go(to: .bogusComment); continue loop
                 case nil: self.emit(.error(.eofBeforeTagName), "<", .eof); break loop
                 case let c? where c.isASCII && c.isLetter:
-                    self.createStartTag(with: c.lowercased())
+                    self.createTag(with: c.lowercased(), kind: .start)
                     self.go(to: .tagName); continue loop
                 case let c?:
-                    self.emit(.error(.invalidFirstCharacter), "<")
+                    self.emit(.error(.invalidFirstChar), "<")
                     self.reconsume(c, in: .data); continue loop
                 }
             }
@@ -87,15 +93,15 @@ public struct Tokenizer<Sink: TokenSink> {
                     self.emit(.error(.missingEndTagName))
                     self.go(to: .data); continue loop
                 case "\0":
-                    self.emit(.error(.invalidFirstCharacter), .error(.unexpectedNull))
+                    self.emit(.error(.invalidFirstChar), .error(.unexpectedNull))
                     self.createComment(with: "\u{FFFD}")
                     self.go(to: .bogusComment); continue loop
                 case nil: self.emit(.error(.eofBeforeTagName), "<", "/", .eof); break loop
                 case let c? where c.isASCII && c.isLetter:
-                    self.createEndTag(with: c.lowercased())
+                    self.createTag(with: c.lowercased(), kind: .end)
                     self.go(to: .tagName); continue loop
                 case let c?:
-                    self.emit(.error(.invalidFirstCharacter))
+                    self.emit(.error(.invalidFirstChar))
                     self.createComment(with: c)
                     self.go(to: .bogusComment); continue loop
                 }
@@ -107,7 +113,7 @@ public struct Tokenizer<Sink: TokenSink> {
                 case ">": self.emitTagAndGo(to: .data); continue loop
                 case "\0":
                     self.emit(.error(.unexpectedNull))
-                    self.appendTagName("\u{FFFD}" as Character)
+                    self.appendTagName("\u{FFFD}")
                 case nil: self.emit(.error(.eofInTag), .eof); break loop
                 case let c? where c.isASCII && c.isUppercase: self.appendTagName(c.lowercased())
                 case let c?: self.appendTagName(c)
@@ -127,7 +133,7 @@ public struct Tokenizer<Sink: TokenSink> {
             case .rcdataEndTagOpen: while true {
                 switch self.getChar(from: &input) {
                 case let c? where c.isASCII && c.isLetter:
-                    self.createEndTag(with: c)
+                    self.createTag(with: c, kind: .end)
                     self.go(to: .rcdataEndTagName); continue loop
                 case nil: self.emit("<", "/", .eof); break loop
                 case let c?:
@@ -139,12 +145,172 @@ public struct Tokenizer<Sink: TokenSink> {
                 // FIXME: Implement
                 preconditionFailure("Not implemented")
             }
+            case .beforeAttributeName: while true {
+                switch self.getChar(from: &input) {
+                case "\t", "\n", "\u{0C}", " ": break
+                case "/": self.go(to: .selfClosingStartTag); continue loop
+                case ">": self.emitTagAndGo(to: .data)
+                case "=":
+                    self.emit(.error(.unexpectedEqualsSign))
+                    self.createAttr(with: "=")
+                    self.go(to: .attributeName); continue loop
+                case "\0":
+                    self.emit(.error(.unexpectedNull))
+                    self.createAttr(with: "\u{FFFD}")
+                    self.go(to: .attributeName); continue loop
+                case "\"":
+                    self.emit(.error(.unexpectedCharInAttrName))
+                    self.createAttr(with: "\"")
+                    self.go(to: .attributeName); continue loop
+                case "'":
+                    self.emit(.error(.unexpectedCharInAttrName))
+                    self.createAttr(with: "'")
+                    self.go(to: .attributeName); continue loop
+                case "<":
+                    self.emit(.error(.unexpectedCharInAttrName))
+                    self.createAttr(with: "<")
+                    self.go(to: .attributeName); continue loop
+                case nil: self.emit(.error(.eofInTag), .eof); break loop
+                case let c? where c.isASCII && c.isUppercase:
+                    self.createAttr(with: c.lowercased())
+                    self.go(to: .attributeName); continue loop
+                case let c?:
+                    self.createAttr(with: c)
+                    self.go(to: .attributeName); continue loop
+                }
+            }
+            case .attributeName: while true {
+                switch self.getChar(from: &input) {
+                case "\t", "\n", "\u{0C}", " ": break
+                case "/": self.go(to: .selfClosingStartTag); continue loop
+                case ">": self.emitTagAndGo(to: .data); continue loop
+                case "=": self.go(to: .beforeAttributeValue); continue loop
+                case "\0":
+                    self.emit(.error(.unexpectedNull))
+                    self.appendAttrName("\u{FFFD}")
+                case "\"":
+                    self.emit(.error(.unexpectedCharInAttrName))
+                    self.appendAttrName("\"")
+                case "'":
+                    self.emit(.error(.unexpectedCharInAttrName))
+                    self.appendAttrName("'")
+                case "<":
+                    self.emit(.error(.unexpectedCharInAttrName))
+                    self.appendAttrName("<")
+                case nil: self.emit(.error(.eofInTag), .eof); break loop
+                case let c? where c.isASCII && c.isUppercase: self.appendAttrName(c.lowercased())
+                case let c?: self.appendAttrName(c)
+                }
+            }
+            case .afterAttributeName: while true {
+                switch self.getChar(from: &input) {
+                case "\t", "\n", "\u{0C}", " ": break
+                case "/": self.go(to: .selfClosingStartTag); continue loop
+                case ">": self.emitTagAndGo(to: .data); continue loop
+                case "=": self.go(to: .beforeAttributeValue); continue loop
+                case "\0":
+                    self.emit(.error(.unexpectedNull))
+                    self.createAttr(with: "\u{FFFD}")
+                    self.go(to: .attributeName); continue loop
+                case "\"":
+                    self.emit(.error(.unexpectedCharInAttrName))
+                    self.createAttr(with: "\"")
+                    self.go(to: .attributeName); continue loop
+                case "'":
+                    self.emit(.error(.unexpectedCharInAttrName))
+                    self.createAttr(with: "'")
+                    self.go(to: .attributeName); continue loop
+                case "<":
+                    self.emit(.error(.unexpectedCharInAttrName))
+                    self.createAttr(with: "<")
+                    self.go(to: .attributeName); continue loop
+                case nil: self.emit(.error(.eofInTag), .eof); break loop
+                case let c? where c.isASCII && c.isUppercase:
+                    self.createAttr(with: c.lowercased())
+                    self.go(to: .attributeName); continue loop
+                case let c?:
+                    self.createAttr(with: c)
+                    self.go(to: .attributeName); continue loop
+                }
+            }
+            case .beforeAttributeValue: while true {
+                switch self.getChar(from: &input) {
+                case "\t", "\n", "\u{0C}", " ": break
+                case "\"": self.go(to: .attributeValueDoubleQuoted); continue loop
+                case "'": self.go(to: .attributeValueSingleQuoted); continue loop
+                case ">":
+                    self.emit(.error(.missingAttrValue))
+                    self.emitTagAndGo(to: .data); continue loop
+                case nil: self.emit(.error(.eofInTag), .eof); break loop
+                case let c?: self.reconsume(c, in: .attributeValueUnquoted); continue loop
+                }
+            }
+            case .attributeValueDoubleQuoted: while true {
+                switch self.getChar(from: &input) {
+                case "\"": self.go(to: .afterAttributeValueQuoted); continue loop
+                case "&": self.consumeCharRef(); continue loop
+                case "\0":
+                    self.emit(.error(.unexpectedNull))
+                    self.appendAttrValue("\u{FFFD}")
+                case nil: self.emit(.error(.eofInTag), .eof); break loop
+                case let c?: self.appendAttrValue(c)
+                }
+            }
+            case .attributeValueSingleQuoted: while true {
+                switch self.getChar(from: &input) {
+                case "'": self.go(to: .afterAttributeValueQuoted); continue loop
+                case "&": self.consumeCharRef(); continue loop
+                case "\0":
+                    self.emit(.error(.unexpectedNull))
+                    self.appendAttrValue("\u{FFFD}")
+                case nil: self.emit(.error(.eofInTag), .eof); break loop
+                case let c?: self.appendAttrValue(c)
+                }
+            }
+            case .attributeValueUnquoted: while true {
+                switch self.getChar(from: &input) {
+                case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeAttributeName); continue loop
+                case "&": self.consumeCharRef(); continue loop
+                case ">": self.emitTagAndGo(to: .data); continue loop
+                case "\0":
+                    self.emit(.error(.unexpectedNull))
+                    self.appendAttrValue("\u{FFFD}")
+                case nil: self.emit(.error(.eofInTag), .eof); break loop
+                case "\"":
+                    self.emit(.error(.unexpectedCharInUnquotedAttrValue))
+                    self.appendAttrValue("\"")
+                case "'":
+                    self.emit(.error(.unexpectedCharInUnquotedAttrValue))
+                    self.appendAttrValue("'")
+                case "<":
+                    self.emit(.error(.unexpectedCharInUnquotedAttrValue))
+                    self.appendAttrValue("\"")
+                case "=":
+                    self.emit(.error(.unexpectedCharInUnquotedAttrValue))
+                    self.appendAttrValue("\"")
+                case "`":
+                    self.emit(.error(.unexpectedCharInUnquotedAttrValue))
+                    self.appendAttrValue("\"")
+                case let c?: self.appendAttrValue(c)
+                }
+            }
+            case .afterAttributeValueQuoted: while true {
+                switch self.getChar(from: &input) {
+                case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeAttributeName); continue loop
+                case "/": self.go(to: .selfClosingStartTag); continue loop
+                case ">": self.emitTagAndGo(to: .data); continue loop
+                case nil: self.emit(.error(.eofInTag), .eof); break loop
+                case let c?:
+                    self.emit(.error(.missingWhitespaceBetweenAttrs))
+                    self.reconsume(c, in: .beforeAttributeName); continue loop
+                }
+            }
             case .bogusComment: while true {
                 switch self.getChar(from: &input) {
                 case ">": self.emitCommentAndGo(to: .data); continue loop
                 case "\0":
                     self.emit(.error(.unexpectedNull))
-                    self.appendComment("\u{FFFD}" as Character)
+                    self.appendComment("\u{FFFD}")
                 case nil: self.emitCommentAndEOF(); break loop
                 case let c?: self.appendComment(c)
                 }
@@ -192,27 +358,18 @@ public struct Tokenizer<Sink: TokenSink> {
     }
 
     @inline(__always)
-    private mutating func createStartTag(with c: Character) {
+    private mutating func createTag(with c: Character, kind: TagKind) {
         self.currentTagName = String(c)
-        self.currentTagKind = .start
+        self.currentTagKind = kind
+        self.currentAttrs.removeAll()
     }
 
+    @_disfavoredOverload
     @inline(__always)
-    private mutating func createStartTag(with s: String) {
+    private mutating func createTag(with s: String, kind: TagKind) {
         self.currentTagName = s
-        self.currentTagKind = .start
-    }
-
-    @inline(__always)
-    private mutating func createEndTag(with c: Character) {
-        self.currentTagName = String(c)
-        self.currentTagKind = .end
-    }
-
-    @inline(__always)
-    private mutating func createEndTag(with s: String) {
-        self.currentTagName = s
-        self.currentTagKind = .end
+        self.currentTagKind = kind
+        self.currentAttrs.removeAll()
     }
 
     @inline(__always)
@@ -220,9 +377,47 @@ public struct Tokenizer<Sink: TokenSink> {
         self.currentTagName.append(c)
     }
 
+    @_disfavoredOverload
     @inline(__always)
     private mutating func appendTagName(_ s: String) {
         self.currentTagName.append(s)
+    }
+
+    @inline(__always)
+    private mutating func createAttr(with c: Character) {
+        self.pushAttr()
+        self.currentAttrName = String(c)
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func createAttr(with s: String) {
+        self.pushAttr()
+        self.currentAttrName = s
+    }
+
+    @inline(__always)
+    private mutating func appendAttrName(_ c: Character) {
+        self.currentAttrName.append(c)
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func appendAttrName(_ s: String) {
+        self.currentAttrName.append(s)
+    }
+
+    @inline(__always)
+    private mutating func appendAttrValue(_ c: Character) {
+        self.currentAttrValue.append(c)
+    }
+
+    @inline(__always)
+    private mutating func pushAttr() {
+        guard !self.currentAttrName.isEmpty else { return }
+        self.currentAttrs.append(.init(name: self.currentAttrName, value: self.currentAttrValue))
+        self.currentAttrName.removeAll()
+        self.currentAttrValue.removeAll()
     }
 
     @inline(__always)
@@ -239,7 +434,16 @@ public struct Tokenizer<Sink: TokenSink> {
 
     @inline(__always)
     private mutating func emitTagAndGo(to state: State) {
-        self.sink.process(.tag(self.currentTagName, kind: self.currentTagKind))
+        self.pushAttr()
+        self.sink.process(
+            .tag(
+                Tag(
+                    name: self.currentTagName,
+                    kind: self.currentTagKind,
+                    attributes: self.currentAttrs
+                )
+            )
+        )
         self.state = state
     }
 
@@ -274,17 +478,63 @@ public struct Tokenizer<Sink: TokenSink> {
     @objcMembers
     final class TokenizerTests: TestCase {
         func testTokenizeBasicHTML() {
-            let html = "<html>hi</html>"
+            let html = #"""
+            <html lang="en">
+            <head>
+            <meta charset="UTF-8">
+            <title>title</title>
+            </head>
+            <body>
+            hi
+            </body>
+            </html>
+            """#
 
             let sink = TestSink()
             var tokenizer = Tokenizer(sink: sink)
             var iter = html.makeIterator()
             tokenizer.tokenize(&iter)
 
-            AssertEqual(
-                [.tag("html", kind: .start), "h", "i", .tag("html", kind: .end), .eof],
-                other: sink.tokens
-            )
+            let tokens: [Token] = [
+                .tag(
+                    Tag(
+                        name: "html",
+                        kind: .start,
+                        attributes: [.init(name: "lang", value: "en")]
+                    )
+                ),
+                "\n",
+                .tag(Tag(name: "head", kind: .start)),
+                "\n",
+                .tag(
+                    Tag(
+                        name: "meta",
+                        kind: .start,
+                        attributes: [.init(name: "charset", value: "UTF-8")]
+                    )
+                ),
+                "\n",
+                .tag(Tag(name: "title", kind: .start)),
+                "t",
+                "i",
+                "t",
+                "l",
+                "e",
+                .tag(Tag(name: "title", kind: .end)),
+                "\n",
+                .tag(Tag(name: "head", kind: .end)),
+                "\n",
+                .tag(Tag(name: "body", kind: .start)),
+                "\n",
+                "h",
+                "i",
+                "\n",
+                .tag(Tag(name: "body", kind: .end)),
+                "\n",
+                .tag(Tag(name: "html", kind: .end)),
+                .eof,
+            ]
+            AssertEqual(tokens, other: sink.tokens)
         }
     }
 #endif
