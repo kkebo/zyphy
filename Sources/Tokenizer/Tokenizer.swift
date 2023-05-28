@@ -8,6 +8,7 @@ public struct Tokenizer<Sink: TokenSink> {
     var currentAttrName: String
     var currentAttrValue: String
     var currentAttrs: [Attribute]
+    var currentTagSelfClosing: Bool
     var currentComment: String
 
     public init(sink: Sink) {
@@ -20,6 +21,7 @@ public struct Tokenizer<Sink: TokenSink> {
         self.currentAttrName = ""
         self.currentAttrValue = ""
         self.currentAttrs = []
+        self.currentTagSelfClosing = false
         self.currentComment = ""
     }
 
@@ -305,6 +307,17 @@ public struct Tokenizer<Sink: TokenSink> {
                     self.reconsume(c, in: .beforeAttributeName); continue loop
                 }
             }
+            case .selfClosingStartTag: while true {
+                switch self.getChar(from: &input) {
+                case ">":
+                    self.currentTagSelfClosing = true
+                    self.emitTagAndGo(to: .data); continue loop
+                case nil: self.emit(.error(.eofInTag), .eof); break loop
+                case let c?:
+                    self.emit(.error(.unexpectedSolidus))
+                    self.reconsume(c, in: .beforeAttributeName); continue loop
+                }
+            }
             case .bogusComment: while true {
                 switch self.getChar(from: &input) {
                 case ">": self.emitCommentAndGo(to: .data); continue loop
@@ -362,6 +375,7 @@ public struct Tokenizer<Sink: TokenSink> {
         self.currentTagName = String(c)
         self.currentTagKind = kind
         self.currentAttrs.removeAll()
+        self.currentTagSelfClosing = false
     }
 
     @_disfavoredOverload
@@ -370,6 +384,7 @@ public struct Tokenizer<Sink: TokenSink> {
         self.currentTagName = s
         self.currentTagKind = kind
         self.currentAttrs.removeAll()
+        self.currentTagSelfClosing = false
     }
 
     @inline(__always)
@@ -440,7 +455,8 @@ public struct Tokenizer<Sink: TokenSink> {
                 Tag(
                     name: self.currentTagName,
                     kind: self.currentTagKind,
-                    attrs: self.currentAttrs
+                    attrs: self.currentAttrs,
+                    selfClosing: self.currentTagSelfClosing
                 )
             )
         )
@@ -481,7 +497,7 @@ public struct Tokenizer<Sink: TokenSink> {
             let html = #"""
             <html lang="en">
             <head>
-            <meta charset="UTF-8">
+            <meta charset="UTF-8" />
             <title>title</title>
             </head>
             <body>
@@ -510,7 +526,8 @@ public struct Tokenizer<Sink: TokenSink> {
                     Tag(
                         name: "meta",
                         kind: .start,
-                        attrs: [.init(name: "charset", value: "UTF-8")]
+                        attrs: [.init(name: "charset", value: "UTF-8")],
+                        selfClosing: true
                     )
                 ),
                 "\n",

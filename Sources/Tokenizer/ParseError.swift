@@ -4,6 +4,7 @@ public enum ParseError {
     case unexpectedEqualsSign
     case unexpectedCharInAttrName
     case unexpectedCharInUnquotedAttrValue
+    case unexpectedSolidus
     case invalidFirstChar
     case eofBeforeTagName
     case eofInTag
