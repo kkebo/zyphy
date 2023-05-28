@@ -440,7 +440,7 @@ public struct Tokenizer<Sink: TokenSink> {
                 Tag(
                     name: self.currentTagName,
                     kind: self.currentTagKind,
-                    attributes: self.currentAttrs
+                    attrs: self.currentAttrs
                 )
             )
         )
@@ -500,7 +500,7 @@ public struct Tokenizer<Sink: TokenSink> {
                     Tag(
                         name: "html",
                         kind: .start,
-                        attributes: [.init(name: "lang", value: "en")]
+                        attrs: [.init(name: "lang", value: "en")]
                     )
                 ),
                 "\n",
@@ -510,7 +510,7 @@ public struct Tokenizer<Sink: TokenSink> {
                     Tag(
                         name: "meta",
                         kind: .start,
-                        attributes: [.init(name: "charset", value: "UTF-8")]
+                        attrs: [.init(name: "charset", value: "UTF-8")]
                     )
                 ),
                 "\n",
