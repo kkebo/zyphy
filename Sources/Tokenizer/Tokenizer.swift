@@ -10,6 +10,7 @@ public struct Tokenizer<Sink: TokenSink> {
     var currentAttrs: [Attribute]
     var currentTagSelfClosing: Bool
     var currentComment: String
+    var currentDOCTYPE: Optional<String>
 
     public init(sink: Sink) {
         self.sink = sink
@@ -23,6 +24,7 @@ public struct Tokenizer<Sink: TokenSink> {
         self.currentAttrs = []
         self.currentTagSelfClosing = false
         self.currentComment = ""
+        self.currentDOCTYPE = nil
     }
 
     // TODO: Consider input type
@@ -328,6 +330,146 @@ public struct Tokenizer<Sink: TokenSink> {
                 case let c?: self.appendComment(c)
                 }
             }
+            case .markupDeclarationOpen: while true {
+                if self.startsExact(&input, with: "--") == true {
+                    self.clearComment()
+                    self.go(to: .commentStart); continue loop
+                } else if self.starts(&input, with: "doctype") == true {
+                    self.go(to: .doctype); continue loop
+                } else if self.startsExact(&input, with: "[CDATA[") == true {
+                    if false {
+                        // TODO: If there is an adjusted current node and it is not an element in the HTML namespace, then switch to the CDATA section state.
+                        self.go(to: .cdataSection); continue loop
+                    } else {
+                        self.emit(.error(.cdataInHTML))
+                        self.createComment(with: "[CDATA[")
+                        self.go(to: .bogusComment); continue loop
+                    }
+                } else {
+                    self.emit(.error(.incorrectlyOpenedComment))
+                    self.clearComment()
+                    self.go(to: .bogusComment); continue loop
+                }
+            }
+            case .doctype: while true {
+                switch self.getChar(from: &input) {
+                case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeDOCTYPEName); continue loop
+                case ">": self.reconsume(">", in: .beforeDOCTYPEName); continue loop
+                case nil:
+                    self.emit(.error(.eofInDOCTYPE))
+                    self.createDOCTYPE()
+                    // TODO: Set its force-quirks flag to on
+                    self.emitDOCTYPEAndEOF(); break loop
+                case let c?:
+                    self.emit(.error(.missingWhitespaceBeforeDOCTYPEName))
+                    self.reconsume(c, in: .beforeDOCTYPEName); continue loop
+                }
+            }
+            case .beforeDOCTYPEName: while true {
+                switch self.getChar(from: &input) {
+                case "\t", "\n", "\u{0C}", " ": break
+                case "\0":
+                    self.emit(.error(.unexpectedNull))
+                    self.createDOCTYPE(with: "\u{FFFD}")
+                    self.go(to: .doctypeName); continue loop
+                case ">":
+                    self.emit(.error(.missingDOTYPEName))
+                    self.createDOCTYPE()
+                    // TODO: Set its force-quirks flag to on
+                    self.emitDOCTYPEAndGo(to: .data); continue loop
+                case nil:
+                    self.emit(.error(.eofInDOCTYPE))
+                    self.createDOCTYPE()
+                    // TODO: Set its force-quirks flag to on
+                    self.emitDOCTYPEAndEOF(); break loop
+                case let c? where c.isASCII && c.isUppercase:
+                    self.createDOCTYPE(with: c.lowercased())
+                    self.go(to: .doctypeName); continue loop
+                case let c?:
+                    self.createDOCTYPE(with: c)
+                    self.go(to: .doctypeName); continue loop
+                }
+            }
+            case .doctypeName: while true {
+                switch self.getChar(from: &input) {
+                case "\t", "\n", "\u{0C}", " ": self.go(to: .afterDOCTYPEName); continue loop
+                case ">": self.emitDOCTYPEAndGo(to: .data); continue loop
+                case "\0":
+                    self.emit(.error(.unexpectedNull))
+                    self.appendDOCTYPEName("\u{FFFD}")
+                case nil:
+                    self.emit(.error(.eofInDOCTYPE))
+                    // TODO: Set the current DOCTYPE token's force-quirks flag to on
+                    self.emitDOCTYPEAndEOF(); break loop
+                case let c? where c.isASCII && c.isUppercase: self.appendDOCTYPEName(c.lowercased())
+                case let c?: self.appendDOCTYPEName(c)
+                }
+            }
+            case .afterDOCTYPEName: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .afterDOCTYPEPublicKeyword: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .beforeDOCTYPEPublicIdentifier: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .doctypePublicIdentifierDoubleQuoted: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .doctypePublicIdentifierSingleQuoted: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .afterDOCTYPEPublicIdentifier: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .betweenDOCTYPEPublicAndSystemIdentifiers: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .afterDOCTYPESystemKeyword: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .beforeDOCTYPESystemIdentifier: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .doctypeSystemIdentifierDoubleQuoted: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .doctypeSystemIdentifierSingleQuoted: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .afterDOCTYPESystemIdentifier: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
+            case .bogusDOCTYPE: while true {
+                switch self.getChar(from: &input) {
+                case _: preconditionFailure("Not implemented")
+                }
+            }
             case _:
                 preconditionFailure("Not implemented")
             }
@@ -342,6 +484,42 @@ public struct Tokenizer<Sink: TokenSink> {
         } else {
             return input.next()
         }
+    }
+
+    private mutating func startsExact(
+        _ input: inout String.Iterator,
+        with pattern: some StringProtocol
+    ) -> Bool? {
+        let initial = input
+        for pc in pattern {
+            guard let c = input.next() else {
+                input = initial
+                return nil
+            }
+            guard c == pc else {
+                input = initial
+                return false
+            }
+        }
+        return true
+    }
+
+    private mutating func starts(
+        _ input: inout String.Iterator,
+        with pattern: some StringProtocol
+    ) -> Bool? {
+        let initial = input
+        for pc in pattern {
+            guard let c = input.next() else {
+                input = initial
+                return nil
+            }
+            guard c.lowercased() == pc.lowercased() else {
+                input = initial
+                return false
+            }
+        }
+        return true
     }
 
     @inline(__always)
@@ -361,8 +539,19 @@ public struct Tokenizer<Sink: TokenSink> {
     }
 
     @inline(__always)
+    private mutating func clearComment() {
+        self.currentComment = ""
+    }
+
+    @inline(__always)
     private mutating func createComment(with c: Character) {
         self.currentComment = String(c)
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func createComment(with s: String) {
+        self.currentComment = s
     }
 
     @inline(__always)
@@ -436,6 +625,39 @@ public struct Tokenizer<Sink: TokenSink> {
     }
 
     @inline(__always)
+    private mutating func createDOCTYPE() {
+        self.currentDOCTYPE = nil
+    }
+
+    @inline(__always)
+    private mutating func createDOCTYPE(with c: Character) {
+        self.currentDOCTYPE = String(c)
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func createDOCTYPE(with s: String) {
+        self.currentDOCTYPE = s
+    }
+
+    @inline(__always)
+    private mutating func appendDOCTYPEName(_ c: Character) {
+        switch self.currentDOCTYPE {
+        case .some: self.currentDOCTYPE?.append(c)
+        case .none: self.currentDOCTYPE = String(c)
+        }
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func appendDOCTYPEName(_ s: String) {
+        switch self.currentDOCTYPE {
+        case .some: self.currentDOCTYPE?.append(s)
+        case .none: self.currentDOCTYPE = s
+        }
+    }
+
+    @inline(__always)
     private mutating func emit(_ tokens: Token...) {
         for token in tokens {
             self.sink.process(token)
@@ -474,6 +696,18 @@ public struct Tokenizer<Sink: TokenSink> {
         self.sink.process(.comment(self.currentComment))
         self.sink.process(.eof)
     }
+
+    @inline(__always)
+    private mutating func emitDOCTYPEAndGo(to state: State) {
+        self.sink.process(.doctype(self.currentDOCTYPE))
+        self.state = state
+    }
+
+    @inline(__always)
+    private mutating func emitDOCTYPEAndEOF() {
+        self.sink.process(.doctype(self.currentDOCTYPE))
+        self.sink.process(.eof)
+    }
 }
 
 #if TESTING_ENABLED
@@ -495,6 +729,7 @@ public struct Tokenizer<Sink: TokenSink> {
     final class TokenizerTests: TestCase {
         func testTokenizeBasicHTML() {
             let html = #"""
+            <!DOCTYPE html>
             <html lang="en">
             <head>
             <meta charset="UTF-8" />
@@ -512,6 +747,8 @@ public struct Tokenizer<Sink: TokenSink> {
             tokenizer.tokenize(&iter)
 
             let tokens: [Token] = [
+                .doctype("html"),
+                "\n",
                 .tag(
                     Tag(
                         name: "html",
