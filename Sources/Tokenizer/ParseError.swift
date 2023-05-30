@@ -1,21 +1,53 @@
 public enum ParseError {
-    case unexpectedNull
-    case unexpectedQuestionMark
-    case unexpectedEqualsSign
+    case abruptClosingComment
+    case abruptDOCTYPEPublicID
+    case abruptDOCTYPESystemID
+    case absenceDigits
+    case cdataInHTML
+    case charRefOutOfRange
+    case controlCharInInput
+    case controlCharRef
+    case endTagWithAttrs
+    case duplicateAttr
+    case endTagWithTrailingSolidus
+    case eofBeforeTagName
+    case eofInCDATA
+    case eofInComment
+    case eofInDOCTYPE
+    case eofInScriptComment
+    case eofInTag
+    case incorrectlyClosedComment
+    case incorrectlyOpenedComment
+    case invalidCharSequence
+    case invalidFirstChar
+    case missingAttrValue
+    case missingDOCTYPEName
+    case missingDOCTYPEPublicID
+    case missingDOCTYPESystemID
+    case missingEndTagName
+    case missingQuoteBeforeDOCTYPEPublicID
+    case missingQuoteBeforeDOCTYPESystemID
+    case missingSemicolon
+    case missingSpaceAfterDOCTYPEPublicKeyword
+    case missingSpaceAfterDOCTYPESystemKeyword
+    case missingSpaceBeforeDOCTYPEName
+    case missingSpaceBetweenAttrs
+    case missingSpaceBetweenDOCTYPEIDs
+    case nestedComment
+    case noncharacterCharRef
+    case noncharacterInInput
+    case nonVoidStartTagWithTrailingSolidus
+    case nullCharRef
+    case surrogateCharRef
+    case surrogateInInput
+    case unexpectedCharAfterDOCTYPE
     case unexpectedCharInAttrName
     case unexpectedCharInUnquotedAttrValue
+    case unexpectedEqualsSign
+    case unexpectedNull
+    case unexpectedQuestionMark
     case unexpectedSolidus
-    case invalidFirstChar
-    case eofBeforeTagName
-    case eofInTag
-    case eofInDOCTYPE
-    case missingEndTagName
-    case missingAttrValue
-    case missingWhitespaceBetweenAttrs
-    case missingWhitespaceBeforeDOCTYPEName
-    case missingDOTYPEName
-    case cdataInHTML
-    case incorrectlyOpenedComment
+    case unknownNamedCharRef
 }
 
 extension ParseError: Error {}

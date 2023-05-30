@@ -305,7 +305,7 @@ public struct Tokenizer<Sink: TokenSink> {
                 case ">": self.emitTagAndGo(to: .data); continue loop
                 case nil: self.emit(.error(.eofInTag), .eof); break loop
                 case let c?:
-                    self.emit(.error(.missingWhitespaceBetweenAttrs))
+                    self.emit(.error(.missingSpaceBetweenAttrs))
                     self.reconsume(c, in: .beforeAttributeName); continue loop
                 }
             }
@@ -361,7 +361,7 @@ public struct Tokenizer<Sink: TokenSink> {
                     // TODO: Set its force-quirks flag to on
                     self.emitDOCTYPEAndEOF(); break loop
                 case let c?:
-                    self.emit(.error(.missingWhitespaceBeforeDOCTYPEName))
+                    self.emit(.error(.missingSpaceBeforeDOCTYPEName))
                     self.reconsume(c, in: .beforeDOCTYPEName); continue loop
                 }
             }
@@ -373,7 +373,7 @@ public struct Tokenizer<Sink: TokenSink> {
                     self.createDOCTYPE(with: "\u{FFFD}")
                     self.go(to: .doctypeName); continue loop
                 case ">":
-                    self.emit(.error(.missingDOTYPEName))
+                    self.emit(.error(.missingDOCTYPEName))
                     self.createDOCTYPE()
                     // TODO: Set its force-quirks flag to on
                     self.emitDOCTYPEAndGo(to: .data); continue loop
