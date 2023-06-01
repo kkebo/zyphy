@@ -5,15 +5,15 @@ public struct Tag {
     public var selfClosing: Bool
 
     public init(
-        name: String,
-        kind: TagKind,
-        attrs: [Attribute] = [],
-        selfClosing: Bool = false
+        name: __owned String,
+        kind: __owned TagKind,
+        attrs: __owned [Attribute] = [],
+        selfClosing: __owned Bool = false
     ) {
-        self.name = name
-        self.kind = kind
-        self.attrs = attrs
-        self.selfClosing = selfClosing
+        self.name = _move name
+        self.kind = _move kind
+        self.attrs = _move attrs
+        self.selfClosing = _move selfClosing
     }
 }
 
