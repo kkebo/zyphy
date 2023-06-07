@@ -1,5 +1,5 @@
 public struct Tokenizer<Sink: TokenSink> {
-    var sink: Sink
+    public var sink: Sink
     var state: State
     var reconsumeChar: Optional<Character>
     var charRefTokenzier: Optional<CharRefTokenizer>
