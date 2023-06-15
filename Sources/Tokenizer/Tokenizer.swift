@@ -451,8 +451,28 @@ public struct Tokenizer<Sink: TokenSink> {
                 }
             }
             case .afterDOCTYPEName: while true {
-                switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
+                if self.starts(&input, with: "public") == true {
+                    self.go(to: .afterDOCTYPEPublicKeyword); continue loop
+                } else if self.starts(&input, with: "system") == true {
+                    self.go(to: .afterDOCTYPESystemKeyword); continue loop
+                } else {
+                    switch self.getChar(from: &input) {
+                    case "\t", "\n", "\u{0C}", " ": break
+                    case ">": self.emitDOCTYPEAndGo(to: .data); continue loop
+                    case "\0":
+                        self.emitError(.invalidCharSequence)
+                        // TODO: Set the current DOCTYPE token's force-quirks flag to on
+                        self.emitError(.unexpectedNull)
+                        self.go(to: .bogusDOCTYPE); continue loop
+                    case nil:
+                        self.emitError(.eofInDOCTYPE)
+                        // TODO: Set the current DOCTYPE token's force-quirks flag to on
+                        self.emitDOCTYPEAndEOF(); break loop
+                    case _:
+                        self.emitError(.invalidCharSequence)
+                        // TODO: Set the current DOCTYPE token's force-quirks flag to on
+                        self.go(to: .bogusDOCTYPE); continue loop
+                    }
                 }
             }
             case .afterDOCTYPEPublicKeyword: while true {
@@ -512,7 +532,10 @@ public struct Tokenizer<Sink: TokenSink> {
             }
             case .bogusDOCTYPE: while true {
                 switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
+                case ">": self.emitDOCTYPEAndGo(to: .data); continue loop
+                case "\0": self.emitError(.unexpectedNull)
+                case nil: self.emitDOCTYPEAndEOF(); break loop
+                case _: break
                 }
             }
             case _:
