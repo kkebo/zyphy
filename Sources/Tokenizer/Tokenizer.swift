@@ -2,7 +2,7 @@ public struct Tokenizer<Sink: TokenSink> {
     public var sink: Sink
     var state: State
     var reconsumeChar: Optional<Character>
-    var charRefTokenzier: Optional<CharRefTokenizer>
+    var charRefTokenizer: Optional<CharRefTokenizer>
     var currentTagName: String
     var currentTagKind: TagKind
     var currentAttrName: String
@@ -16,7 +16,7 @@ public struct Tokenizer<Sink: TokenSink> {
         self.sink = _move sink
         self.state = .data
         self.reconsumeChar = nil
-        self.charRefTokenzier = nil
+        self.charRefTokenizer = nil
         self.currentTagName = ""
         self.currentTagKind = .start
         self.currentAttrName = ""
@@ -30,7 +30,7 @@ public struct Tokenizer<Sink: TokenSink> {
     // TODO: Consider input type
     public mutating func tokenize(_ input: inout String.Iterator) {
         loop: while true {
-            self.charRefTokenzier?.tokenize(&input)
+            self.charRefTokenizer?.tokenize(&input)
 
             switch self.state {
             case .data: while true {
@@ -606,7 +606,7 @@ public struct Tokenizer<Sink: TokenSink> {
 
     @inline(__always)
     private mutating func consumeCharRef() {
-        self.charRefTokenzier = .init()
+        self.charRefTokenizer = .init()
     }
 
     @inline(__always)
