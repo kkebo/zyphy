@@ -407,7 +407,7 @@ public struct Tokenizer<Sink: TokenSink> {
                 input = _move initial
                 return nil
             }
-            guard c == pc else {
+            guard _move c == _move pc else {
                 input = _move initial
                 return false
             }
