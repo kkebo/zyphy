@@ -84,7 +84,7 @@ public struct Tokenizer<Sink: TokenSink> {
             }
             case .endTagOpen: while true {
                 switch self.getChar(from: &input) {
-                case ">": self.emit(.error(.missingEndTagName), goTo: .data); continue loop
+                case ">": self.emitError(.missingEndTagName, goTo: .data); continue loop
                 case "\0": self.emitErrors(.invalidFirstChar, .unexpectedNull, createCommentWith: "\u{FFFD}", goTo: .bogusComment); continue loop
                 case nil: self.emit(.error(.eofBeforeTagName), "<", "/", .eof); break loop
                 case let c? where c.isASCII && c.isLetter: self.createEndTag(with: c.lowercased(), goTo: .tagName); continue loop
@@ -259,7 +259,7 @@ public struct Tokenizer<Sink: TokenSink> {
                     self.createDOCTYPE()
                     // TODO: Set its force-quirks flag to on
                     self.emitDOCTYPEAndEOF(); break loop
-                case let c?: self.emit(.error(.missingSpaceBeforeDOCTYPEName), reconsume: c, in: .beforeDOCTYPEName); continue loop
+                case let c?: self.emitError(.missingSpaceBeforeDOCTYPEName, reconsume: c, in: .beforeDOCTYPEName); continue loop
                 }
             }
             case .beforeDOCTYPEName: while true {
@@ -439,13 +439,8 @@ public struct Tokenizer<Sink: TokenSink> {
     }
 
     @inline(__always)
-    private mutating func emitError(
-        _ error: __owned ParseError,
-        createDOCTYPEWith c: __owned Character,
-        goTo state: __owned State
-    ) {
+    private mutating func emitError(_ error: __owned ParseError, goTo state: __owned State) {
         self.sink.process(.error(_move error))
-        self.currentDOCTYPE = String(_move c)
         self.state = _move state
     }
 
@@ -698,6 +693,17 @@ public struct Tokenizer<Sink: TokenSink> {
         goTo state: __owned State
     ) {
         self.currentDOCTYPE = _move s
+        self.state = _move state
+    }
+
+    @inline(__always)
+    private mutating func emitError(
+        _ error: __owned ParseError,
+        createDOCTYPEWith c: __owned Character,
+        goTo state: __owned State
+    ) {
+        self.sink.process(.error(_move error))
+        self.currentDOCTYPE = String(_move c)
         self.state = _move state
     }
 
