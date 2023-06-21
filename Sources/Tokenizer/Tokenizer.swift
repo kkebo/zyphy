@@ -9,7 +9,7 @@ public struct Tokenizer<Sink: TokenSink> {
     var currentAttrValue: String
     var currentAttrs: [Attribute]
     var currentComment: String
-    var currentDOCTYPE: Optional<String>
+    var currentDOCTYPE: DOCTYPE
 
     public init(sink: __owned Sink) {
         self.sink = _move sink
@@ -22,7 +22,7 @@ public struct Tokenizer<Sink: TokenSink> {
         self.currentAttrValue = ""
         self.currentAttrs = []
         self.currentComment = ""
-        self.currentDOCTYPE = nil
+        self.currentDOCTYPE = .init()
     }
 
     // TODO: Consider input type
@@ -254,11 +254,7 @@ public struct Tokenizer<Sink: TokenSink> {
                 switch self.getChar(from: &input) {
                 case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeDOCTYPEName); continue loop
                 case ">": self.reconsume(">", in: .beforeDOCTYPEName); continue loop
-                case nil:
-                    self.emitError(.eofInDOCTYPE)
-                    self.createDOCTYPE()
-                    // TODO: Set its force-quirks flag to on
-                    self.emitDOCTYPEAndEOF(); break loop
+                case nil: self.emitErrorNewForceQuirksDOCTYPEAndEOF(.eofInDOCTYPE); break loop
                 case let c?: self.emitError(.missingSpaceBeforeDOCTYPEName, reconsume: c, in: .beforeDOCTYPEName); continue loop
                 }
             }
@@ -266,16 +262,8 @@ public struct Tokenizer<Sink: TokenSink> {
                 switch self.getChar(from: &input) {
                 case "\t", "\n", "\u{0C}", " ": break
                 case "\0": self.emitError(.unexpectedNull, createDOCTYPEWith: "\u{FFFD}", goTo: .doctypeName); continue loop
-                case ">":
-                    self.emitError(.missingDOCTYPEName)
-                    self.createDOCTYPE()
-                    // TODO: Set its force-quirks flag to on
-                    self.emitDOCTYPEAndGo(to: .data); continue loop
-                case nil:
-                    self.emitError(.eofInDOCTYPE)
-                    self.createDOCTYPE()
-                    // TODO: Set its force-quirks flag to on
-                    self.emitDOCTYPEAndEOF(); break loop
+                case ">": self.emitError(.missingDOCTYPEName, emitNewForceQuirksDOCTYPEAndGoTo: .data); continue loop
+                case nil: self.emitErrorNewForceQuirksDOCTYPEAndEOF(.eofInDOCTYPE); break loop
                 case let c? where c.isASCII && c.isUppercase: self.createDOCTYPE(with: c.lowercased(), goTo: .doctypeName); continue loop
                 case let c?: self.createDOCTYPE(with: c, goTo: .doctypeName); continue loop
                 }
@@ -285,10 +273,7 @@ public struct Tokenizer<Sink: TokenSink> {
                 case "\t", "\n", "\u{0C}", " ": self.go(to: .afterDOCTYPEName); continue loop
                 case ">": self.emitDOCTYPEAndGo(to: .data); continue loop
                 case "\0": self.emitError(.unexpectedNull, appendDOCTYPEName: "\u{FFFD}")
-                case nil:
-                    self.emitError(.eofInDOCTYPE)
-                    // TODO: Set the current DOCTYPE token's force-quirks flag to on
-                    self.emitDOCTYPEAndEOF(); break loop
+                case nil: self.emitErrorForceQuirksDOCTYPEAndEOF(.eofInDOCTYPE); break loop
                 case let c? where c.isASCII && c.isUppercase: self.appendDOCTYPEName(c.lowercased())
                 case let c?: self.appendDOCTYPEName(c)
                 }
@@ -302,19 +287,9 @@ public struct Tokenizer<Sink: TokenSink> {
                     switch self.getChar(from: &input) {
                     case "\t", "\n", "\u{0C}", " ": break
                     case ">": self.emitDOCTYPEAndGo(to: .data); continue loop
-                    case "\0":
-                        self.emitError(.invalidCharSequence)
-                        // TODO: Set the current DOCTYPE token's force-quirks flag to on
-                        self.emitError(.unexpectedNull)
-                        self.go(to: .bogusDOCTYPE); continue loop
-                    case nil:
-                        self.emitError(.eofInDOCTYPE)
-                        // TODO: Set the current DOCTYPE token's force-quirks flag to on
-                        self.emitDOCTYPEAndEOF(); break loop
-                    case _:
-                        self.emitError(.invalidCharSequence)
-                        // TODO: Set the current DOCTYPE token's force-quirks flag to on
-                        self.go(to: .bogusDOCTYPE); continue loop
+                    case "\0": self.emitErrors(.invalidCharSequence, .unexpectedNull, forceQuirksAndGoTo: .bogusDOCTYPE); continue loop
+                    case nil: self.emitErrorForceQuirksDOCTYPEAndEOF(.eofInDOCTYPE); break loop
+                    case _: self.emitError(.invalidCharSequence, forceQuirksAndGoTo: .bogusDOCTYPE); continue loop
                     }
                 }
             }
@@ -674,7 +649,7 @@ public struct Tokenizer<Sink: TokenSink> {
 
     @inline(__always)
     private mutating func createDOCTYPE() {
-        self.currentDOCTYPE = nil
+        self.currentDOCTYPE = .init()
     }
 
     @inline(__always)
@@ -682,7 +657,7 @@ public struct Tokenizer<Sink: TokenSink> {
         with c: __owned Character,
         goTo state: __owned State
     ) {
-        self.currentDOCTYPE = String(_move c)
+        self.currentDOCTYPE = .init(name: String(_move c))
         self.state = _move state
     }
 
@@ -692,7 +667,7 @@ public struct Tokenizer<Sink: TokenSink> {
         with s: __owned String,
         goTo state: __owned State
     ) {
-        self.currentDOCTYPE = _move s
+        self.currentDOCTYPE = .init(name: _move s)
         self.state = _move state
     }
 
@@ -703,24 +678,24 @@ public struct Tokenizer<Sink: TokenSink> {
         goTo state: __owned State
     ) {
         self.sink.process(.error(_move error))
-        self.currentDOCTYPE = String(_move c)
+        self.currentDOCTYPE = .init(name: String(_move c))
         self.state = _move state
     }
 
     @inline(__always)
     private mutating func appendDOCTYPEName(_ c: __owned Character) {
-        switch self.currentDOCTYPE {
-        case .some: self.currentDOCTYPE?.append(_move c)
-        case .none: self.currentDOCTYPE = String(_move c)
+        switch self.currentDOCTYPE.name {
+        case .some: self.currentDOCTYPE.name?.append(_move c)
+        case .none: self.currentDOCTYPE.name = String(_move c)
         }
     }
 
     @_disfavoredOverload
     @inline(__always)
     private mutating func appendDOCTYPEName(_ s: __owned String) {
-        switch self.currentDOCTYPE {
-        case .some: self.currentDOCTYPE?.append(_move s)
-        case .none: self.currentDOCTYPE = _move s
+        switch self.currentDOCTYPE.name {
+        case .some: self.currentDOCTYPE.name?.append(_move s)
+        case .none: self.currentDOCTYPE.name = _move s
         }
     }
 
@@ -730,10 +705,32 @@ public struct Tokenizer<Sink: TokenSink> {
         appendDOCTYPEName c: __owned Character
     ) {
         self.sink.process(.error(_move error))
-        switch self.currentDOCTYPE {
-        case .some: self.currentDOCTYPE?.append(_move c)
-        case .none: self.currentDOCTYPE = String(_move c)
+        switch self.currentDOCTYPE.name {
+        case .some: self.currentDOCTYPE.name?.append(_move c)
+        case .none: self.currentDOCTYPE.name = String(_move c)
         }
+    }
+
+    @inline(__always)
+    private mutating func emitError(
+        _ error: __owned ParseError,
+        forceQuirksAndGoTo state: __owned State
+    ) {
+        self.sink.process(.error(_move error))
+        self.currentDOCTYPE.forceQuirks = true
+        self.state = _move state
+    }
+
+    @inline(__always)
+    private mutating func emitErrors(
+        _ errors: ParseError...,
+        forceQuirksAndGoTo state: __owned State
+    ) {
+        for error in errors {
+            self.sink.process(.error(_move error))
+        }
+        self.currentDOCTYPE.forceQuirks = true
+        self.state = _move state
     }
 
     @inline(__always)
@@ -838,8 +835,33 @@ public struct Tokenizer<Sink: TokenSink> {
     }
 
     @inline(__always)
+    private mutating func emitError(
+        _ error: __owned ParseError,
+        emitNewForceQuirksDOCTYPEAndGoTo state: __owned State
+    ) {
+        self.sink.process(.error(_move error))
+        self.sink.process(.doctype(.init(forceQuirks: true)))
+        self.state = _move state
+    }
+
+    @inline(__always)
     private mutating func emitDOCTYPEAndEOF() {
         self.sink.process(.doctype(self.currentDOCTYPE))
+        self.sink.process(.eof)
+    }
+
+    @inline(__always)
+    private mutating func emitErrorForceQuirksDOCTYPEAndEOF(_ error: __owned ParseError) {
+        self.sink.process(.error(_move error))
+        self.currentDOCTYPE.forceQuirks = true
+        self.sink.process(.doctype(self.currentDOCTYPE))
+        self.sink.process(.eof)
+    }
+
+    @inline(__always)
+    private mutating func emitErrorNewForceQuirksDOCTYPEAndEOF(_ error: __owned ParseError) {
+        self.sink.process(.error(_move error))
+        self.sink.process(.doctype(.init(forceQuirks: true)))
         self.sink.process(.eof)
     }
 }
@@ -880,7 +902,7 @@ public struct Tokenizer<Sink: TokenSink> {
             tokenizer.tokenize(&iter)
 
             let tokens: [Token] = [
-                .doctype("html"),
+                .doctype(.init(name: "html")),
                 "\n",
                 .tag(
                     Tag(
