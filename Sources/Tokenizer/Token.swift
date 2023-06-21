@@ -1,4 +1,3 @@
-// TODO: Consider to use enum or protocol
 public enum Token {
     case char(Character)
     case tag(Tag)
