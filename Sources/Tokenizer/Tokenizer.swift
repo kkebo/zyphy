@@ -312,7 +312,17 @@ public struct Tokenizer<Sink: TokenSink> {
             }
             case .beforeDOCTYPEPublicIdentifier: while true {
                 switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
+                case "\t", "\n", "\u{0C}", " ": break
+                case "\"":
+                    // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
+                    self.go(to: .doctypePublicIdentifierDoubleQuoted); continue loop
+                case "'":
+                    // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
+                    self.go(to: .doctypePublicIdentifierSingleQuoted); continue loop
+                case ">": self.go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPETo: .data); continue loop
+                case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); break loop
+                case "\0": self.go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirksTo: .bogusDOCTYPE); continue loop
+                case _: self.go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirksTo: .bogusDOCTYPE); continue loop
                 }
             }
             case .doctypePublicIdentifierDoubleQuoted: while true {
