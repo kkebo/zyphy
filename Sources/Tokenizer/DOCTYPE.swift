@@ -6,8 +6,8 @@ public struct DOCTYPE {
         name: __owned Optional<String> = nil,
         forceQuirks: __owned Bool = false
     ) {
-        self.name = _move name
-        self.forceQuirks = _move forceQuirks
+        self.name = consume name
+        self.forceQuirks = consume forceQuirks
     }
 }
 
