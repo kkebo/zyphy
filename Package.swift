@@ -20,7 +20,6 @@ let tokenizerTarget = Target.target(
 
 let package = Package(
     name: "Browser.swiftpm",
-    platforms: [],
     dependencies: [
         .package(url: "https://github.com/Losiowaty/PlaygroundTester", "0.3.1"..<"0.4.0")
     ],
@@ -32,7 +31,7 @@ let package = Package(
 #if canImport(AppleProductTypes)
     import AppleProductTypes
 
-    package.platforms? += [
+    package.platforms = [
         .iOS("16.1")
     ]
 
