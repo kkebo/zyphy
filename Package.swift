@@ -5,14 +5,36 @@
 // Do not edit it by hand because the contents will be replaced.
 
 import PackageDescription
-import AppleProductTypes
+
+let tokenizerTarget = Target.target(
+    name: "Tokenizer",
+    swiftSettings: [
+        .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
+        .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
+        .unsafeFlags(["-Xfrontend", "-strict-concurrency=complete"]),
+        .enableUpcomingFeature("BareSlashRegexLiterals"),
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("ImplicitOpenExistentials"),
+    ]
+)
 
 let package = Package(
     name: "My App",
     platforms: [
         .iOS("16.1")
     ],
-    products: [
+    dependencies: [
+        .package(url: "https://github.com/Losiowaty/PlaygroundTester", "0.3.1"..<"0.4.0")
+    ],
+    targets: [
+        tokenizerTarget
+    ]
+)
+
+#if canImport(AppleProductTypes)
+    import AppleProductTypes
+
+    package.products += [
         .iOSApplication(
             name: "My App",
             targets: ["AppModule"],
@@ -22,44 +44,34 @@ let package = Package(
             accentColor: .presetColor(.blue),
             supportedDeviceFamilies: [
                 .pad,
-                .phone
+                .phone,
             ],
             supportedInterfaceOrientations: [
                 .portrait,
                 .landscapeRight,
                 .landscapeLeft,
-                .portraitUpsideDown(.when(deviceFamilies: [.pad]))
+                .portraitUpsideDown(.when(deviceFamilies: [.pad])),
             ]
         )
-    ],
-    dependencies: [
-        .package(url: "https://github.com/Losiowaty/PlaygroundTester", "0.3.1"..<"0.4.0")
-    ],
-    targets: [
+    ]
+
+    package.targets += [
         .executableTarget(
             name: "AppModule",
             dependencies: [
                 "Tokenizer",
-                .product(name: "PlaygroundTester", package: "PlaygroundTester")
+                .product(name: "PlaygroundTester", package: "PlaygroundTester"),
             ],
             swiftSettings: [
                 .define("TESTING_ENABLED", .when(configuration: .debug))
             ]
-        ),
-        .target(
-            name: "Tokenizer",
-            dependencies: [
-                .product(name: "PlaygroundTester", package: "PlaygroundTester")
-            ],
-            swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
-                .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
-                .unsafeFlags(["-Xfrontend", "-strict-concurrency=complete"]),
-                .define("TESTING_ENABLED", .when(configuration: .debug)),
-                .enableUpcomingFeature("BareSlashRegexLiterals"),
-                .enableUpcomingFeature("ExistentialAny"),
-                .enableUpcomingFeature("ImplicitOpenExistentials")
-            ]
         )
     ]
-)
+
+    tokenizerTarget.dependencies += [
+        .product(name: "PlaygroundTester", package: "PlaygroundTester")
+    ]
+    tokenizerTarget.swiftSettings += [
+        .define("TESTING_ENABLED", .when(configuration: .debug))
+    ]
+#endif
