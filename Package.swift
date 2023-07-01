@@ -71,7 +71,7 @@ let package = Package(
     tokenizerTarget.dependencies += [
         .product(name: "PlaygroundTester", package: "PlaygroundTester")
     ]
-    tokenizerTarget.swiftSettings += [
+    tokenizerTarget.swiftSettings? += [
         .define("TESTING_ENABLED", .when(configuration: .debug))
     ]
 #endif

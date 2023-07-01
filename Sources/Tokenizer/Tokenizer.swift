@@ -26,7 +26,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     // TODO: Consider input type
-    public consuming func tokenize(_ input: inout String.Iterator) {
+    public mutating func tokenize(_ input: inout String.Iterator) {
         loop: while true {
             self.charRefTokenizer?.tokenize(&input)
 
