@@ -1,4 +1,4 @@
-public struct Tokenizer<Sink: TokenSink> {
+public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     public var sink: Sink
     var state: State
     var reconsumeChar: Optional<Character>
@@ -26,7 +26,7 @@ public struct Tokenizer<Sink: TokenSink> {
     }
 
     // TODO: Consider input type
-    public mutating func tokenize(_ input: inout String.Iterator) {
+    public consuming func tokenize(_ input: inout String.Iterator) {
         loop: while true {
             self.charRefTokenizer?.tokenize(&input)
 
