@@ -12,7 +12,7 @@ public struct Tokenizer<Sink: TokenSink> {
     var currentDOCTYPE: DOCTYPE
 
     public init(sink: __owned Sink) {
-        self.sink = _move sink
+        self.sink = consume sink
         self.state = .data
         self.reconsumeChar = nil
         self.charRefTokenizer = nil
@@ -399,13 +399,13 @@ public struct Tokenizer<Sink: TokenSink> {
         with pattern: __owned some StringProtocol
     ) -> Bool? {
         let initial = input
-        for pc in _move pattern {
+        for pc in consume pattern {
             guard let c = input.next() else {
-                input = _move initial
+                input = consume initial
                 return nil
             }
-            guard _move c == _move pc else {
-                input = _move initial
+            guard consume c == consume pc else {
+                input = consume initial
                 return false
             }
         }
@@ -417,13 +417,13 @@ public struct Tokenizer<Sink: TokenSink> {
         with pattern: __owned some StringProtocol
     ) -> Bool? {
         let initial = input
-        for pc in _move pattern {
+        for pc in consume pattern {
             guard let c = input.next() else {
-                input = _move initial
+                input = consume initial
                 return nil
             }
             guard c.lowercased() == pc.lowercased() else {
-                input = _move initial
+                input = consume initial
                 return false
             }
         }
@@ -432,19 +432,19 @@ public struct Tokenizer<Sink: TokenSink> {
 
     @inline(__always)
     private mutating func go(to state: __owned State) {
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
     private mutating func go(error: __owned ParseError, to state: __owned State) {
-        self.sink.process(.error(_move error))
-        self.state = _move state
+        self.sink.process(.error(consume error))
+        self.state = consume state
     }
 
     @inline(__always)
     private mutating func go(reconsume c: __owned Character, to state: __owned State) {
-        self.reconsumeChar = _move c
-        self.state = _move state
+        self.reconsumeChar = consume c
+        self.state = consume state
     }
 
     @inline(__always)
@@ -454,10 +454,10 @@ public struct Tokenizer<Sink: TokenSink> {
         reconsume c: __owned Character,
         to state: __owned State
     ) {
-        self.sink.process(.error(_move error))
-        self.sink.process(.char(_move char))
-        self.reconsumeChar = _move c
-        self.state = _move state
+        self.sink.process(.error(consume error))
+        self.sink.process(.char(consume char))
+        self.reconsumeChar = consume c
+        self.state = consume state
     }
 
     @inline(__always)
@@ -466,9 +466,9 @@ public struct Tokenizer<Sink: TokenSink> {
         reconsume c: __owned Character,
         to state: __owned State
     ) {
-        self.sink.process(.char(_move char))
-        self.reconsumeChar = _move c
-        self.state = _move state
+        self.sink.process(.char(consume char))
+        self.reconsumeChar = consume c
+        self.state = consume state
     }
 
     @inline(__always)
@@ -478,10 +478,10 @@ public struct Tokenizer<Sink: TokenSink> {
         reconsume c: __owned Character,
         to state: __owned State
     ) {
-        self.sink.process(.char(_move char1))
-        self.sink.process(.char(_move char2))
-        self.reconsumeChar = _move c
-        self.state = _move state
+        self.sink.process(.char(consume char1))
+        self.sink.process(.char(consume char2))
+        self.reconsumeChar = consume c
+        self.state = consume state
     }
 
     @inline(__always)
@@ -490,9 +490,9 @@ public struct Tokenizer<Sink: TokenSink> {
         reconsume c: __owned Character,
         to state: __owned State
     ) {
-        self.sink.process(.error(_move error))
-        self.reconsumeChar = _move c
-        self.state = _move state
+        self.sink.process(.error(consume error))
+        self.reconsumeChar = consume c
+        self.state = consume state
     }
 
     @inline(__always)
@@ -505,15 +505,15 @@ public struct Tokenizer<Sink: TokenSink> {
         error: __owned ParseError,
         clearCommentTo state: __owned State
     ) {
-        self.sink.process(.error(_move error))
+        self.sink.process(.error(consume error))
         self.currentComment = ""
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
     private mutating func goClearComment(to state: __owned State) {
         self.currentComment = ""
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
@@ -523,10 +523,10 @@ public struct Tokenizer<Sink: TokenSink> {
         createCommentWith c: __owned Character,
         to state: __owned State
     ) {
-        self.sink.process(.error(_move error1))
-        self.sink.process(.error(_move error2))
-        self.currentComment = String(_move c)
-        self.state = _move state
+        self.sink.process(.error(consume error1))
+        self.sink.process(.error(consume error2))
+        self.currentComment = String(consume c)
+        self.state = consume state
     }
 
     @inline(__always)
@@ -535,9 +535,9 @@ public struct Tokenizer<Sink: TokenSink> {
         createCommentWith c: __owned Character,
         to state: __owned State
     ) {
-        self.sink.process(.error(_move error))
-        self.currentComment = String(_move c)
-        self.state = _move state
+        self.sink.process(.error(consume error))
+        self.currentComment = String(consume c)
+        self.state = consume state
     }
 
     @_disfavoredOverload
@@ -547,78 +547,78 @@ public struct Tokenizer<Sink: TokenSink> {
         createCommentWith s: __owned String,
         to state: __owned State
     ) {
-        self.sink.process(.error(_move error))
-        self.currentComment = _move s
-        self.state = _move state
+        self.sink.process(.error(consume error))
+        self.currentComment = consume s
+        self.state = consume state
     }
 
     @inline(__always)
     private mutating func appendComment(_ c: __owned Character) {
-        self.currentComment.append(_move c)
+        self.currentComment.append(consume c)
     }
 
     @inline(__always)
     private mutating func go(error: __owned ParseError, appendComment c: __owned Character) {
-        self.sink.process(.error(_move error))
-        self.currentComment.append(_move c)
+        self.sink.process(.error(consume error))
+        self.currentComment.append(consume c)
     }
 
     @_disfavoredOverload
     @inline(__always)
     private mutating func go(createStartTagWith s: __owned String, to state: __owned State) {
-        self.currentTagName = _move s
+        self.currentTagName = consume s
         self.currentTagKind = .start
         self.currentAttrs.removeAll()
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
     private mutating func go(createEndTagWith c: __owned Character, to state: __owned State) {
-        self.currentTagName = String(_move c)
+        self.currentTagName = String(consume c)
         self.currentTagKind = .end
         self.currentAttrs.removeAll()
-        self.state = _move state
+        self.state = consume state
     }
 
     @_disfavoredOverload
     @inline(__always)
     private mutating func go(createEndTagWith s: __owned String, to state: __owned State) {
-        self.currentTagName = _move s
+        self.currentTagName = consume s
         self.currentTagKind = .end
         self.currentAttrs.removeAll()
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
     private mutating func appendTagName(_ c: __owned Character) {
-        self.currentTagName.append(_move c)
+        self.currentTagName.append(consume c)
     }
 
     @_disfavoredOverload
     @inline(__always)
     private mutating func appendTagName(_ s: __owned String) {
-        self.currentTagName.append(_move s)
+        self.currentTagName.append(consume s)
     }
 
     @inline(__always)
     private mutating func go(error: __owned ParseError, appendTagName c: __owned Character) {
-        self.sink.process(.error(_move error))
-        self.currentTagName.append(_move c)
+        self.sink.process(.error(consume error))
+        self.currentTagName.append(consume c)
     }
 
     @inline(__always)
     private mutating func go(createAttrWith c: __owned Character, to state: __owned State) {
         self.pushAttr()
-        self.currentAttrName = String(_move c)
-        self.state = _move state
+        self.currentAttrName = String(consume c)
+        self.state = consume state
     }
 
     @_disfavoredOverload
     @inline(__always)
     private mutating func go(createAttrWith s: __owned String, to state: __owned State) {
         self.pushAttr()
-        self.currentAttrName = _move s
-        self.state = _move state
+        self.currentAttrName = consume s
+        self.state = consume state
     }
 
     @inline(__always)
@@ -627,21 +627,21 @@ public struct Tokenizer<Sink: TokenSink> {
         createAttrWith c: __owned Character,
         to state: __owned State
     ) {
-        self.sink.process(.error(_move error))
+        self.sink.process(.error(consume error))
         self.pushAttr()
-        self.currentAttrName = String(_move c)
-        self.state = _move state
+        self.currentAttrName = String(consume c)
+        self.state = consume state
     }
 
     @inline(__always)
     private mutating func appendAttrName(_ c: __owned Character) {
-        self.currentAttrName.append(_move c)
+        self.currentAttrName.append(consume c)
     }
 
     @_disfavoredOverload
     @inline(__always)
     private mutating func appendAttrName(_ s: __owned String) {
-        self.currentAttrName.append(_move s)
+        self.currentAttrName.append(consume s)
     }
 
     @inline(__always)
@@ -649,13 +649,13 @@ public struct Tokenizer<Sink: TokenSink> {
         error: __owned ParseError,
         appendAttrName c: __owned Character
     ) {
-        self.sink.process(.error(_move error))
-        self.currentAttrName.append(_move c)
+        self.sink.process(.error(consume error))
+        self.currentAttrName.append(consume c)
     }
 
     @inline(__always)
     private mutating func appendAttrValue(_ c: __owned Character) {
-        self.currentAttrValue.append(_move c)
+        self.currentAttrValue.append(consume c)
     }
 
     @inline(__always)
@@ -663,8 +663,8 @@ public struct Tokenizer<Sink: TokenSink> {
         error: __owned ParseError,
         appendAttrValue c: __owned Character
     ) {
-        self.sink.process(.error(_move error))
-        self.currentAttrValue.append(_move c)
+        self.sink.process(.error(consume error))
+        self.currentAttrValue.append(consume c)
     }
 
     @inline(__always)
@@ -685,8 +685,8 @@ public struct Tokenizer<Sink: TokenSink> {
         createDOCTYPEWith c: __owned Character,
         to state: __owned State
     ) {
-        self.currentDOCTYPE = .init(name: String(_move c))
-        self.state = _move state
+        self.currentDOCTYPE = .init(name: String(consume c))
+        self.state = consume state
     }
 
     @_disfavoredOverload
@@ -695,8 +695,8 @@ public struct Tokenizer<Sink: TokenSink> {
         createDOCTYPEWith s: __owned String,
         to state: __owned State
     ) {
-        self.currentDOCTYPE = .init(name: _move s)
-        self.state = _move state
+        self.currentDOCTYPE = .init(name: consume s)
+        self.state = consume state
     }
 
     @inline(__always)
@@ -705,16 +705,16 @@ public struct Tokenizer<Sink: TokenSink> {
         createDOCTYPEWith c: __owned Character,
         to state: __owned State
     ) {
-        self.sink.process(.error(_move error))
-        self.currentDOCTYPE = .init(name: String(_move c))
-        self.state = _move state
+        self.sink.process(.error(consume error))
+        self.currentDOCTYPE = .init(name: String(consume c))
+        self.state = consume state
     }
 
     @inline(__always)
     private mutating func appendDOCTYPEName(_ c: __owned Character) {
         switch self.currentDOCTYPE.name {
-        case .some: self.currentDOCTYPE.name?.append(_move c)
-        case .none: self.currentDOCTYPE.name = String(_move c)
+        case .some: self.currentDOCTYPE.name?.append(consume c)
+        case .none: self.currentDOCTYPE.name = String(consume c)
         }
     }
 
@@ -722,8 +722,8 @@ public struct Tokenizer<Sink: TokenSink> {
     @inline(__always)
     private mutating func appendDOCTYPEName(_ s: __owned String) {
         switch self.currentDOCTYPE.name {
-        case .some: self.currentDOCTYPE.name?.append(_move s)
-        case .none: self.currentDOCTYPE.name = _move s
+        case .some: self.currentDOCTYPE.name?.append(consume s)
+        case .none: self.currentDOCTYPE.name = consume s
         }
     }
 
@@ -732,10 +732,10 @@ public struct Tokenizer<Sink: TokenSink> {
         error: __owned ParseError,
         appendDOCTYPEName c: __owned Character
     ) {
-        self.sink.process(.error(_move error))
+        self.sink.process(.error(consume error))
         switch self.currentDOCTYPE.name {
-        case .some: self.currentDOCTYPE.name?.append(_move c)
-        case .none: self.currentDOCTYPE.name = String(_move c)
+        case .some: self.currentDOCTYPE.name?.append(consume c)
+        case .none: self.currentDOCTYPE.name = String(consume c)
         }
     }
 
@@ -744,9 +744,9 @@ public struct Tokenizer<Sink: TokenSink> {
         error: __owned ParseError,
         forceQuirksTo state: __owned State
     ) {
-        self.sink.process(.error(_move error))
+        self.sink.process(.error(consume error))
         self.currentDOCTYPE.forceQuirks = true
-        self.state = _move state
+        self.state = consume state
     }
 
     @_disfavoredOverload
@@ -756,15 +756,15 @@ public struct Tokenizer<Sink: TokenSink> {
         _ error2: __owned ParseError,
         forceQuirksTo state: __owned State
     ) {
-        self.sink.process(.error(_move error1))
-        self.sink.process(.error(_move error2))
+        self.sink.process(.error(consume error1))
+        self.sink.process(.error(consume error2))
         self.currentDOCTYPE.forceQuirks = true
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
     private mutating func emitError(_ error: __owned ParseError) {
-        self.sink.process(.error(_move error))
+        self.sink.process(.error(consume error))
     }
 
     @inline(__always)
@@ -774,13 +774,13 @@ public struct Tokenizer<Sink: TokenSink> {
 
     @inline(__always)
     private mutating func emit(_ c: __owned Character) {
-        self.sink.process(.char(_move c))
+        self.sink.process(.char(consume c))
     }
 
     @inline(__always)
     private mutating func emit(_ c: __owned Character, _ token: __owned Token) {
-        self.sink.process(.char(_move c))
-        self.sink.process(_move token)
+        self.sink.process(.char(consume c))
+        self.sink.process(consume token)
     }
 
     @inline(__always)
@@ -789,30 +789,30 @@ public struct Tokenizer<Sink: TokenSink> {
         _ c2: __owned Character,
         _ token: __owned Token
     ) {
-        self.sink.process(.char(_move c1))
-        self.sink.process(.char(_move c2))
-        self.sink.process(_move token)
+        self.sink.process(.char(consume c1))
+        self.sink.process(.char(consume c2))
+        self.sink.process(consume token)
     }
 
     @inline(__always)
     private mutating func go(error: __owned ParseError, emit char: __owned Character) {
-        self.sink.process(.error(_move error))
-        self.sink.process(.char(_move char))
+        self.sink.process(.error(consume error))
+        self.sink.process(.char(consume char))
     }
 
     @inline(__always)
     private mutating func go(error: __owned ParseError, emit char1: __owned Character, _ char2: __owned Character) {
-        self.sink.process(.error(_move error))
-        self.sink.process(.char(_move char1))
-        self.sink.process(.char(_move char2))
+        self.sink.process(.error(consume error))
+        self.sink.process(.char(consume char1))
+        self.sink.process(.char(consume char2))
     }
 
     @_disfavoredOverload
     @inline(__always)
     private mutating func go(error: __owned ParseError, emit char: __owned Character, _ token: __owned Token) {
-        self.sink.process(.error(_move error))
-        self.sink.process(.char(_move char))
-        self.sink.process(_move token)
+        self.sink.process(.error(consume error))
+        self.sink.process(.char(consume char))
+        self.sink.process(consume token)
     }
 
     @_disfavoredOverload
@@ -823,17 +823,17 @@ public struct Tokenizer<Sink: TokenSink> {
         _ char2: __owned Character,
         _ token: __owned Token
     ) {
-        self.sink.process(.error(_move error))
-        self.sink.process(.char(_move char1))
-        self.sink.process(.char(_move char2))
-        self.sink.process(_move token)
+        self.sink.process(.error(consume error))
+        self.sink.process(.char(consume char1))
+        self.sink.process(.char(consume char2))
+        self.sink.process(consume token)
     }
 
     @_disfavoredOverload
     @inline(__always)
     private mutating func go(error: __owned ParseError, emit token: __owned Token) {
-        self.sink.process(.error(_move error))
-        self.sink.process(_move token)
+        self.sink.process(.error(consume error))
+        self.sink.process(consume token)
     }
 
     @inline(__always)
@@ -849,12 +849,12 @@ public struct Tokenizer<Sink: TokenSink> {
                 )
             )
         )
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
     private mutating func go(error: __owned ParseError, emitTagTo state: __owned State) {
-        self.sink.process(.error(_move error))
+        self.sink.process(.error(consume error))
         self.pushAttr()
         self.sink.process(
             .tag(
@@ -866,7 +866,7 @@ public struct Tokenizer<Sink: TokenSink> {
                 )
             )
         )
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
@@ -882,13 +882,13 @@ public struct Tokenizer<Sink: TokenSink> {
                 )
             )
         )
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
     private mutating func goEmitComment(to state: __owned State) {
         self.sink.process(.comment(self.currentComment))
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
@@ -900,7 +900,7 @@ public struct Tokenizer<Sink: TokenSink> {
     @inline(__always)
     private mutating func goEmitDOCTYPE(to state: __owned State) {
         self.sink.process(.doctype(self.currentDOCTYPE))
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
@@ -908,10 +908,10 @@ public struct Tokenizer<Sink: TokenSink> {
         error: __owned ParseError,
         emitForceQuirksDOCTYPETo state: __owned State
     ) {
-        self.sink.process(.error(_move error))
+        self.sink.process(.error(consume error))
         self.currentDOCTYPE.forceQuirks = true
         self.sink.process(.doctype(self.currentDOCTYPE))
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
@@ -919,9 +919,9 @@ public struct Tokenizer<Sink: TokenSink> {
         error: __owned ParseError,
         emitNewForceQuirksDOCTYPETo state: __owned State
     ) {
-        self.sink.process(.error(_move error))
+        self.sink.process(.error(consume error))
         self.sink.process(.doctype(.init(forceQuirks: true)))
-        self.state = _move state
+        self.state = consume state
     }
 
     @inline(__always)
@@ -954,7 +954,7 @@ public struct Tokenizer<Sink: TokenSink> {
 
     extension TestSink: TokenSink {
         mutating func process(_ token: __owned Token) {
-            self.tokens.append(_move token)
+            self.tokens.append(consume token)
         }
     }
 
@@ -975,7 +975,7 @@ public struct Tokenizer<Sink: TokenSink> {
             """#
 
             let sink = TestSink()
-            var tokenizer = Tokenizer(sink: _move sink)
+            var tokenizer = Tokenizer(sink: consume sink)
             var iter = html.makeIterator()
             tokenizer.tokenize(&iter)
 

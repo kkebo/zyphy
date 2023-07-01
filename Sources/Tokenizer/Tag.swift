@@ -10,10 +10,10 @@ public struct Tag {
         attrs: __owned [Attribute] = [],
         selfClosing: __owned Bool = false
     ) {
-        self.name = _move name
-        self.kind = _move kind
-        self.attrs = _move attrs
-        self.selfClosing = _move selfClosing
+        self.name = consume name
+        self.kind = consume kind
+        self.attrs = consume attrs
+        self.selfClosing = consume selfClosing
     }
 }
 

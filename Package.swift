@@ -55,7 +55,6 @@ let package = Package(
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-Xfrontend", "-strict-concurrency=complete"]),
-                .unsafeFlags(["-Xfrontend", "-enable-experimental-move-only"]),
                 .define("TESTING_ENABLED", .when(configuration: .debug)),
                 .enableUpcomingFeature("BareSlashRegexLiterals"),
                 .enableUpcomingFeature("ExistentialAny"),

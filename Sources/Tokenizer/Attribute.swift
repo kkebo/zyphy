@@ -3,8 +3,8 @@ public struct Attribute {
     public var value: String
 
     public init(name: __owned String, value: __owned String) {
-        self.name = _move name
-        self.value = _move value
+        self.name = consume name
+        self.value = consume value
     }
 }
 
