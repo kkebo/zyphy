@@ -22,10 +22,6 @@ extension GoMacro: CodeItemMacro {
                     precondition(argList.count == 2)
                     items += ["self.go(\(argList))", "return .continue"]
                     break loop
-                case "emitTag":
-                    precondition(argList.count == 1)
-                    items += ["self.go(to: \(arg.expression))", "self.emitTag()", "return .continue"]
-                    break loop
                 case "emit":
                     if arg.expression.as(MemberAccessExprSyntax.self)?.name.text == "eof" {
                         precondition(argList.count == 1)
@@ -55,11 +51,39 @@ extension GoMacro: CodeItemMacro {
                 case "createComment":
                     items += ["self.createComment(with: \(arg.expression))"]
                     argList = argList.removingFirst()
+                case "appendComment":
+                    items += ["self.currentComment.append(\(arg.expression))"]
+                    argList = argList.removingFirst()
+                case "clearComment":
+                    items += ["self.currentComment.removeAll()", "self.go(to: \(arg.expression))", "return .continue"]
+                    argList = argList.removingFirst()
                 case "createStartTag":
                     items += ["self.createStartTag(with: \(arg.expression))"]
                     argList = argList.removingFirst()
                 case "createEndTag":
                     items += ["self.createEndTag(with: \(arg.expression))"]
+                    argList = argList.removingFirst()
+                case "appendTagName":
+                    items += ["self.currentTagName.append(\(arg.expression))"]
+                    argList = argList.removingFirst()
+                case "createAttr":
+                    items += ["self.createAttr(with: \(arg.expression))"]
+                    argList = argList.removingFirst()
+                case "appendAttrName":
+                    items += ["self.currentAttrName.append(\(arg.expression))"]
+                    argList = argList.removingFirst()
+                case "appendAttrValue":
+                    items += ["self.currentAttrValue.append(\(arg.expression))"]
+                    argList = argList.removingFirst()
+                case "emitTag":
+                    precondition(argList.count == 1)
+                    items += ["self.go(to: \(arg.expression))", "self.emitTag()", "return .continue"]
+                    break loop
+                case "createDOCTYPE":
+                    items += ["self.createDOCTYPE(with: \(arg.expression))"]
+                    argList = argList.removingFirst()
+                case "appendDOCTYPEName":
+                    items += ["self.appendDOCTYPEName(\(arg.expression))"]
                     argList = argList.removingFirst()
                 case let label:
                     preconditionFailure("not supported: \(String(describing: label))")
