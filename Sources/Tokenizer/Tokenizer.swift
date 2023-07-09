@@ -6,6 +6,8 @@
 @freestanding(codeItem) macro go(error: ParseError..., createComment s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., appendComment c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., clearComment state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., emitComment state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro goEmitCommentAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createStartTag s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createEndTag c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createEndTag s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -17,9 +19,12 @@
 @freestanding(codeItem) macro go(error: ParseError..., appendAttrName s: String) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., appendAttrValue c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emitTag state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., emitSelfClosingTag state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createDOCTYPE c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createDOCTYPE s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., appendDOCTYPEName c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., emitDOCTYPE state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro goEmitDOCTYPEAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro goConsumeCharRef() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 
 public struct Tokenizer<Sink: TokenSink>: ~Copyable {
@@ -253,16 +258,16 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .selfClosingStartTag: while true {
             switch self.getChar(from: &input) {
-            case ">": self.goEmitSelfClosingTag(to: .data); return .continue
+            case ">": #go(emitSelfClosingTag: .data)
             case nil: #go(error: .eofInTag, emit: .eof)
             case let c?: #go(error: .unexpectedSolidus, reconsume: c, to: .beforeAttributeName)
             }
         }
         case .bogusComment: while true {
             switch self.getChar(from: &input) {
-            case ">": self.goEmitComment(to: .data); return .continue
+            case ">": #go(emitComment: .data)
             case "\0": #go(error: .unexpectedNull, appendComment: "\u{FFFD}")
-            case nil: self.emitCommentAndEOF(); return .suspend
+            case nil: #goEmitCommentAndEOF
             case let c?: #go(appendComment: c)
             }
         }
@@ -303,7 +308,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .doctypeName: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .afterDOCTYPEName)
-            case ">": self.goEmitDOCTYPE(to: .data); return .continue
+            case ">": #go(emitDOCTYPE: .data)
             case "\0": #go(error: .unexpectedNull, appendDOCTYPEName: "\u{FFFD}")
             case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); return .suspend
             case let c? where c.isASCII && c.isUppercase: self.appendDOCTYPEName(c.lowercased())
@@ -318,7 +323,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             } else {
                 switch self.getChar(from: &input) {
                 case "\t", "\n", "\u{0C}", " ": break
-                case ">": self.goEmitDOCTYPE(to: .data); return .continue
+                case ">": #go(emitDOCTYPE: .data)
                 case "\0": self.go(error: .invalidCharSequence, .unexpectedNull, forceQuirksTo: .bogusDOCTYPE); return .continue
                 case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); return .suspend
                 case _: self.go(error: .invalidCharSequence, forceQuirksTo: .bogusDOCTYPE); return .continue
@@ -404,9 +409,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .bogusDOCTYPE: while true {
             switch self.getChar(from: &input) {
-            case ">": self.goEmitDOCTYPE(to: .data); return .continue
+            case ">": #go(emitDOCTYPE: .data)
             case "\0": self.emitError(.unexpectedNull)
-            case nil: self.emitDOCTYPEAndEOF(); return .suspend
+            case nil: #goEmitDOCTYPEAndEOF
             case _: break
             }
         }
@@ -613,7 +618,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func goEmitSelfClosingTag(to state: __owned State) {
+    private mutating func emitSelfClosingTag() {
         self.pushAttr()
         self.sink.process(
             .tag(
@@ -625,25 +630,16 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 )
             )
         )
-        self.state = consume state
     }
 
     @inline(__always)
-    private mutating func goEmitComment(to state: __owned State) {
+    private mutating func emitComment() {
         self.sink.process(.comment(self.currentComment))
-        self.state = consume state
     }
 
     @inline(__always)
-    private mutating func emitCommentAndEOF() {
-        self.sink.process(.comment(self.currentComment))
-        self.sink.process(.eof)
-    }
-
-    @inline(__always)
-    private mutating func goEmitDOCTYPE(to state: __owned State) {
+    private mutating func emitDOCTYPE() {
         self.sink.process(.doctype(self.currentDOCTYPE))
-        self.state = consume state
     }
 
     @inline(__always)
@@ -665,12 +661,6 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         self.sink.process(.error(consume error))
         self.sink.process(.doctype(.init(forceQuirks: true)))
         self.state = consume state
-    }
-
-    @inline(__always)
-    private mutating func emitDOCTYPEAndEOF() {
-        self.sink.process(.doctype(self.currentDOCTYPE))
-        self.sink.process(.eof)
     }
 
     @inline(__always)

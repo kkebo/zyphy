@@ -55,8 +55,13 @@ extension GoMacro: CodeItemMacro {
                     items += ["self.currentComment.append(\(arg.expression))"]
                     argList = argList.removingFirst()
                 case "clearComment":
+                    precondition(argList.count == 1)
                     items += ["self.currentComment.removeAll()", "self.go(to: \(arg.expression))", "return .continue"]
-                    argList = argList.removingFirst()
+                    break loop
+                case "emitComment":
+                    precondition(argList.count == 1)
+                    items += ["self.emitComment()", "self.go(to: \(arg.expression))", "return .continue"]
+                    break loop
                 case "createStartTag":
                     items += ["self.createStartTag(with: \(arg.expression))"]
                     argList = argList.removingFirst()
@@ -79,17 +84,29 @@ extension GoMacro: CodeItemMacro {
                     precondition(argList.count == 1)
                     items += ["self.go(to: \(arg.expression))", "self.emitTag()", "return .continue"]
                     break loop
+                case "emitSelfClosingTag":
+                    precondition(argList.count == 1)
+                    items += ["self.go(to: \(arg.expression))", "self.emitSelfClosingTag()", "return .continue"]
+                    break loop
                 case "createDOCTYPE":
                     items += ["self.createDOCTYPE(with: \(arg.expression))"]
                     argList = argList.removingFirst()
                 case "appendDOCTYPEName":
                     items += ["self.appendDOCTYPEName(\(arg.expression))"]
                     argList = argList.removingFirst()
+                case "emitDOCTYPE":
+                    precondition(argList.count == 1)
+                    items += ["self.emitDOCTYPE()", "self.go(to: \(arg.expression))", "return .continue"]
+                    break loop
                 case let label:
                     preconditionFailure("not supported: \(String(describing: label))")
                 }
             }
             return items
+        case "goEmitCommentAndEOF":
+            return ["self.emitComment()", "self.emitEOF()", "return .suspend"]
+        case "goEmitDOCTYPEAndEOF":
+            return ["self.emitDOCTYPE()", "self.emitEOF()", "return .suspend"]
         case "goConsumeCharRef":
             return ["self.consumeCharRef()", "return .continue"]
         case let name:
