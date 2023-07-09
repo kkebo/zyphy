@@ -4,10 +4,22 @@
 @freestanding(codeItem) macro go(error: ParseError..., emit token: Token..., reconsume c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createComment c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createComment s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., appendComment c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., clearComment state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createStartTag s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createEndTag c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createEndTag s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., appendTagName c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., appendTagName s: String) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., createAttr c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., createAttr s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., appendAttrName c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., appendAttrName s: String) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., appendAttrValue c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emitTag state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., createDOCTYPE c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., createDOCTYPE s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., appendDOCTYPEName c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro goConsumeCharRef() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 
 public struct Tokenizer<Sink: TokenSink>: ~Copyable {
@@ -116,10 +128,10 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
             case "/": #go(to: .selfClosingStartTag)
             case ">": #go(emitTag: .data)
-            case "\0": self.go(error: .unexpectedNull, appendTagName: "\u{FFFD}")
+            case "\0": #go(error: .unexpectedNull, appendTagName: "\u{FFFD}")
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c? where c.isASCII && c.isUppercase: self.appendTagName(c.lowercased())
-            case let c?: self.appendTagName(c)
+            case let c? where c.isASCII && c.isUppercase: #go(appendTagName: c.lowercased())
+            case let c?: #go(appendTagName: c)
             }
         }
         case .rcdataLessThanSign: while true {
@@ -147,14 +159,14 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "\t", "\n", "\u{0C}", " ": break
             case "/": #go(to: .selfClosingStartTag)
             case ">": #go(emitTag: .data)
-            case "=": self.go(error: .unexpectedEqualsSign, createAttrWith: "=", to: .attributeName); return .continue
-            case "\0": self.go(error: .unexpectedNull, createAttrWith: "\u{FFFD}", to: .attributeName); return .continue
-            case "\"": self.go(error: .unexpectedCharInAttrName, createAttrWith: "\"", to: .attributeName); return .continue
-            case "'": self.go(error: .unexpectedCharInAttrName, createAttrWith: "'", to: .attributeName); return .continue
-            case "<": self.go(error: .unexpectedCharInAttrName, createAttrWith: "<", to: .attributeName); return .continue
+            case "=": #go(error: .unexpectedEqualsSign, createAttr: "=", to: .attributeName)
+            case "\0": #go(error: .unexpectedNull, createAttr: "\u{FFFD}", to: .attributeName)
+            case "\"": #go(error: .unexpectedCharInAttrName, createAttr: "\"", to: .attributeName)
+            case "'": #go(error: .unexpectedCharInAttrName, createAttr: "'", to: .attributeName)
+            case "<": #go(error: .unexpectedCharInAttrName, createAttr: "<", to: .attributeName)
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c? where c.isASCII && c.isUppercase: self.go(createAttrWith: c.lowercased(), to: .attributeName); return .continue
-            case let c?: self.go(createAttrWith: c, to: .attributeName); return .continue
+            case let c? where c.isASCII && c.isUppercase: #go(createAttr: c.lowercased(), to: .attributeName)
+            case let c?: #go(createAttr: c, to: .attributeName)
             }
         }
         case .attributeName: while true {
@@ -163,13 +175,13 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "/": #go(to: .selfClosingStartTag)
             case ">": #go(emitTag: .data)
             case "=": #go(to: .beforeAttributeValue)
-            case "\0": self.go(error: .unexpectedNull, appendAttrName: "\u{FFFD}")
-            case "\"": self.go(error: .unexpectedCharInAttrName, appendAttrName: "\"")
-            case "'": self.go(error: .unexpectedCharInAttrName, appendAttrName: "'")
-            case "<": self.go(error: .unexpectedCharInAttrName, appendAttrName: "<")
+            case "\0": #go(error: .unexpectedNull, appendAttrName: "\u{FFFD}")
+            case "\"": #go(error: .unexpectedCharInAttrName, appendAttrName: "\"")
+            case "'": #go(error: .unexpectedCharInAttrName, appendAttrName: "'")
+            case "<": #go(error: .unexpectedCharInAttrName, appendAttrName: "<")
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c? where c.isASCII && c.isUppercase: self.appendAttrName(c.lowercased())
-            case let c?: self.appendAttrName(c)
+            case let c? where c.isASCII && c.isUppercase: #go(appendAttrName: c.lowercased())
+            case let c?: #go(appendAttrName: c)
             }
         }
         case .afterAttributeName: while true {
@@ -178,13 +190,13 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "/": #go(to: .selfClosingStartTag)
             case ">": #go(emitTag: .data)
             case "=": #go(to: .beforeAttributeValue)
-            case "\0": self.go(error: .unexpectedNull, createAttrWith: "\u{FFFD}", to: .attributeName); return .continue
-            case "\"": self.go(error: .unexpectedCharInAttrName, createAttrWith: "\"", to: .attributeName); return .continue
-            case "'": self.go(error: .unexpectedCharInAttrName, createAttrWith: "'", to: .attributeName); return .continue
-            case "<": self.go(error: .unexpectedCharInAttrName, createAttrWith: "<", to: .attributeName); return .continue
+            case "\0": #go(error: .unexpectedNull, createAttr: "\u{FFFD}", to: .attributeName)
+            case "\"": #go(error: .unexpectedCharInAttrName, createAttr: "\"", to: .attributeName)
+            case "'": #go(error: .unexpectedCharInAttrName, createAttr: "'", to: .attributeName)
+            case "<": #go(error: .unexpectedCharInAttrName, createAttr: "<", to: .attributeName)
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c? where c.isASCII && c.isUppercase: self.go(createAttrWith: c.lowercased(), to: .attributeName); return .continue
-            case let c?: self.go(createAttrWith: c, to: .attributeName); return .continue
+            case let c? where c.isASCII && c.isUppercase: #go(createAttr: c.lowercased(), to: .attributeName)
+            case let c?: #go(createAttr: c, to: .attributeName)
             }
         }
         case .beforeAttributeValue: while true {
@@ -201,18 +213,18 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch self.getChar(from: &input) {
             case "\"": #go(to: .afterAttributeValueQuoted)
             case "&": #goConsumeCharRef
-            case "\0": self.go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
+            case "\0": #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c?: self.appendAttrValue(c)
+            case let c?: #go(appendAttrValue: c)
             }
         }
         case .attributeValueSingleQuoted: while true {
             switch self.getChar(from: &input) {
             case "'": #go(to: .afterAttributeValueQuoted)
             case "&": #goConsumeCharRef
-            case "\0": self.go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
+            case "\0": #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c?: self.appendAttrValue(c)
+            case let c?: #go(appendAttrValue: c)
             }
         }
         case .attributeValueUnquoted: while true {
@@ -220,14 +232,14 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
             case "&": #goConsumeCharRef
             case ">": #go(emitTag: .data)
-            case "\0": self.go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
+            case "\0": #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
             case nil: #go(error: .eofInTag, emit: .eof)
-            case "\"": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
-            case "'": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "'")
-            case "<": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
-            case "=": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
-            case "`": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
-            case let c?: self.appendAttrValue(c)
+            case "\"": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
+            case "'": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "'")
+            case "<": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
+            case "=": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
+            case "`": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
+            case let c?: #go(appendAttrValue: c)
             }
         }
         case .afterAttributeValueQuoted: while true {
@@ -249,14 +261,14 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .bogusComment: while true {
             switch self.getChar(from: &input) {
             case ">": self.goEmitComment(to: .data); return .continue
-            case "\0": self.go(error: .unexpectedNull, appendComment: "\u{FFFD}")
+            case "\0": #go(error: .unexpectedNull, appendComment: "\u{FFFD}")
             case nil: self.emitCommentAndEOF(); return .suspend
-            case let c?: self.appendComment(c)
+            case let c?: #go(appendComment: c)
             }
         }
         case .markupDeclarationOpen: while true {
             if self.startsExact(&input, with: "--") == true {
-                self.goClearComment(to: .commentStart); return .continue
+                #go(clearComment: .commentStart)
             } else if self.starts(&input, with: "doctype") == true {
                 #go(to: .doctype)
             } else if self.startsExact(&input, with: "[CDATA[") == true {
@@ -267,7 +279,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                     #go(error: .cdataInHTML, createComment: "[CDATA[", to: .bogusComment)
                 }
             } else {
-                self.go(error: .incorrectlyOpenedComment, clearCommentTo: .bogusComment); return .continue
+                #go(error: .incorrectlyOpenedComment, clearComment: .bogusComment)
             }
         }
         case .doctype: while true {
@@ -281,18 +293,18 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .beforeDOCTYPEName: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
-            case "\0": self.go(error: .unexpectedNull, createDOCTYPEWith: "\u{FFFD}", to: .doctypeName); return .continue
+            case "\0": #go(error: .unexpectedNull, createDOCTYPE: "\u{FFFD}", to: .doctypeName)
             case ">": self.go(error: .missingDOCTYPEName, emitNewForceQuirksDOCTYPETo: .data); return .continue
             case nil: self.emitError(.eofInDOCTYPE); self.emitNewForceQuirksDOCTYPEAndEOF(); return .suspend
-            case let c? where c.isASCII && c.isUppercase: self.go(createDOCTYPEWith: c.lowercased(), to: .doctypeName); return .continue
-            case let c?: self.go(createDOCTYPEWith: c, to: .doctypeName); return .continue
+            case let c? where c.isASCII && c.isUppercase: #go(createDOCTYPE: c.lowercased(), to: .doctypeName)
+            case let c?: #go(createDOCTYPE: c, to: .doctypeName)
             }
         }
         case .doctypeName: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .afterDOCTYPEName)
             case ">": self.goEmitDOCTYPE(to: .data); return .continue
-            case "\0": self.go(error: .unexpectedNull, appendDOCTYPEName: "\u{FFFD}")
+            case "\0": #go(error: .unexpectedNull, appendDOCTYPEName: "\u{FFFD}")
             case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); return .suspend
             case let c? where c.isASCII && c.isUppercase: self.appendDOCTYPEName(c.lowercased())
             case let c?: self.appendDOCTYPEName(c)
@@ -477,33 +489,6 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func go(
-        error: __owned ParseError,
-        clearCommentTo state: __owned State
-    ) {
-        self.sink.process(.error(consume error))
-        self.currentComment = ""
-        self.state = consume state
-    }
-
-    @inline(__always)
-    private mutating func goClearComment(to state: __owned State) {
-        self.currentComment = ""
-        self.state = consume state
-    }
-
-    @inline(__always)
-    private mutating func appendComment(_ c: __owned Character) {
-        self.currentComment.append(consume c)
-    }
-
-    @inline(__always)
-    private mutating func go(error: __owned ParseError, appendComment c: __owned Character) {
-        self.sink.process(.error(consume error))
-        self.currentComment.append(consume c)
-    }
-
-    @inline(__always)
     private mutating func createStartTag(with s: __owned String) {
         self.currentTagName = consume s
         self.currentTagKind = .start
@@ -526,81 +511,16 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func appendTagName(_ c: __owned Character) {
-        self.currentTagName.append(consume c)
-    }
-
-    @_disfavoredOverload
-    @inline(__always)
-    private mutating func appendTagName(_ s: __owned String) {
-        self.currentTagName.append(consume s)
-    }
-
-    @inline(__always)
-    private mutating func go(error: __owned ParseError, appendTagName c: __owned Character) {
-        self.sink.process(.error(consume error))
-        self.currentTagName.append(consume c)
-    }
-
-    @inline(__always)
-    private mutating func go(createAttrWith c: __owned Character, to state: __owned State) {
+    private mutating func createAttr(with c: __owned Character) {
         self.pushAttr()
         self.currentAttrName = String(consume c)
-        self.state = consume state
     }
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func go(createAttrWith s: __owned String, to state: __owned State) {
+    private mutating func createAttr(with s: __owned String) {
         self.pushAttr()
         self.currentAttrName = consume s
-        self.state = consume state
-    }
-
-    @inline(__always)
-    private mutating func go(
-        error: __owned ParseError,
-        createAttrWith c: __owned Character,
-        to state: __owned State
-    ) {
-        self.sink.process(.error(consume error))
-        self.pushAttr()
-        self.currentAttrName = String(consume c)
-        self.state = consume state
-    }
-
-    @inline(__always)
-    private mutating func appendAttrName(_ c: __owned Character) {
-        self.currentAttrName.append(consume c)
-    }
-
-    @_disfavoredOverload
-    @inline(__always)
-    private mutating func appendAttrName(_ s: __owned String) {
-        self.currentAttrName.append(consume s)
-    }
-
-    @inline(__always)
-    private mutating func go(
-        error: __owned ParseError,
-        appendAttrName c: __owned Character
-    ) {
-        self.sink.process(.error(consume error))
-        self.currentAttrName.append(consume c)
-    }
-
-    @inline(__always)
-    private mutating func appendAttrValue(_ c: __owned Character) {
-        self.currentAttrValue.append(consume c)
-    }
-
-    @inline(__always)
-    private mutating func go(
-        error: __owned ParseError,
-        appendAttrValue c: __owned Character
-    ) {
-        self.sink.process(.error(consume error))
-        self.currentAttrValue.append(consume c)
     }
 
     @inline(__always)
@@ -612,38 +532,14 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func createDOCTYPE() {
-        self.currentDOCTYPE = .init()
-    }
-
-    @inline(__always)
-    private mutating func go(
-        createDOCTYPEWith c: __owned Character,
-        to state: __owned State
-    ) {
+    private mutating func createDOCTYPE(with c: __owned Character) {
         self.currentDOCTYPE = .init(name: String(consume c))
-        self.state = consume state
     }
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func go(
-        createDOCTYPEWith s: __owned String,
-        to state: __owned State
-    ) {
+    private mutating func createDOCTYPE(with s: __owned String) {
         self.currentDOCTYPE = .init(name: consume s)
-        self.state = consume state
-    }
-
-    @inline(__always)
-    private mutating func go(
-        error: __owned ParseError,
-        createDOCTYPEWith c: __owned Character,
-        to state: __owned State
-    ) {
-        self.sink.process(.error(consume error))
-        self.currentDOCTYPE = .init(name: String(consume c))
-        self.state = consume state
     }
 
     @inline(__always)
@@ -660,18 +556,6 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         switch self.currentDOCTYPE.name {
         case .some: self.currentDOCTYPE.name?.append(consume s)
         case .none: self.currentDOCTYPE.name = consume s
-        }
-    }
-
-    @inline(__always)
-    private mutating func go(
-        error: __owned ParseError,
-        appendDOCTYPEName c: __owned Character
-    ) {
-        self.sink.process(.error(consume error))
-        switch self.currentDOCTYPE.name {
-        case .some: self.currentDOCTYPE.name?.append(consume c)
-        case .none: self.currentDOCTYPE.name = String(consume c)
         }
     }
 
