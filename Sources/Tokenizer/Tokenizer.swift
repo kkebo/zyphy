@@ -23,8 +23,13 @@
 @freestanding(codeItem) macro go(error: ParseError..., createDOCTYPE c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createDOCTYPE s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., appendDOCTYPEName c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., forceQuirks state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emitDOCTYPE state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., emitForceQuirksDOCTYPE state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., emitNewForceQuirksDOCTYPE state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro goEmitDOCTYPEAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro goEmitForceQuirksDOCTYPEAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro goEmitNewForceQuirksDOCTYPEAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro goConsumeCharRef() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 
 public struct Tokenizer<Sink: TokenSink>: ~Copyable {
@@ -291,7 +296,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEName)
             case ">": #go(reconsume: ">", to: .beforeDOCTYPEName)
-            case nil: self.emitError(.eofInDOCTYPE); self.emitNewForceQuirksDOCTYPEAndEOF(); return .suspend
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitNewForceQuirksDOCTYPEAndEOF
             case let c?: #go(error: .missingSpaceBeforeDOCTYPEName, reconsume: c, to: .beforeDOCTYPEName)
             }
         }
@@ -299,8 +304,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case "\0": #go(error: .unexpectedNull, createDOCTYPE: "\u{FFFD}", to: .doctypeName)
-            case ">": self.go(error: .missingDOCTYPEName, emitNewForceQuirksDOCTYPETo: .data); return .continue
-            case nil: self.emitError(.eofInDOCTYPE); self.emitNewForceQuirksDOCTYPEAndEOF(); return .suspend
+            case ">": #go(error: .missingDOCTYPEName, emitNewForceQuirksDOCTYPE: .data)
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitNewForceQuirksDOCTYPEAndEOF
             case let c? where c.isASCII && c.isUppercase: #go(createDOCTYPE: c.lowercased(), to: .doctypeName)
             case let c?: #go(createDOCTYPE: c, to: .doctypeName)
             }
@@ -310,7 +315,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "\t", "\n", "\u{0C}", " ": #go(to: .afterDOCTYPEName)
             case ">": #go(emitDOCTYPE: .data)
             case "\0": #go(error: .unexpectedNull, appendDOCTYPEName: "\u{FFFD}")
-            case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); return .suspend
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case let c? where c.isASCII && c.isUppercase: self.appendDOCTYPEName(c.lowercased())
             case let c?: self.appendDOCTYPEName(c)
             }
@@ -324,9 +329,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 switch self.getChar(from: &input) {
                 case "\t", "\n", "\u{0C}", " ": break
                 case ">": #go(emitDOCTYPE: .data)
-                case "\0": self.go(error: .invalidCharSequence, .unexpectedNull, forceQuirksTo: .bogusDOCTYPE); return .continue
-                case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); return .suspend
-                case _: self.go(error: .invalidCharSequence, forceQuirksTo: .bogusDOCTYPE); return .continue
+                case "\0": #go(error: .invalidCharSequence, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
+                case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+                case _: #go(error: .invalidCharSequence, forceQuirks: .bogusDOCTYPE)
                 }
             }
         }
@@ -341,10 +346,10 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 self.emitError(.missingSpaceAfterDOCTYPEPublicKeyword)
                 // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
                 #go(to: .doctypePublicIdentifierSingleQuoted)
-            case ">": self.go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPETo: .data); return .continue
-            case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); return .suspend
-            case "\0": self.go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirksTo: .bogusDOCTYPE); return .continue
-            case _: self.go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirksTo: .bogusDOCTYPE); return .continue
+            case ">": #go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+            case "\0": #go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
+            case _: #go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirks: .bogusDOCTYPE)
             }
         }
         case .beforeDOCTYPEPublicIdentifier: while true {
@@ -356,10 +361,10 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "'":
                 // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
                 #go(to: .doctypePublicIdentifierSingleQuoted)
-            case ">": self.go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPETo: .data); return .continue
-            case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); return .suspend
-            case "\0": self.go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirksTo: .bogusDOCTYPE); return .continue
-            case _: self.go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirksTo: .bogusDOCTYPE); return .continue
+            case ">": #go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+            case "\0": #go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
+            case _: #go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirks: .bogusDOCTYPE)
             }
         }
         case .doctypePublicIdentifierDoubleQuoted: while true {
@@ -537,6 +542,11 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
+    private mutating func createDOCTYPE() {
+        self.currentDOCTYPE = .init()
+    }
+
+    @inline(__always)
     private mutating func createDOCTYPE(with c: __owned Character) {
         self.currentDOCTYPE = .init(name: String(consume c))
     }
@@ -565,26 +575,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func go(
-        error: __owned ParseError,
-        forceQuirksTo state: __owned State
-    ) {
-        self.sink.process(.error(consume error))
+    private mutating func forceQuirks() {
         self.currentDOCTYPE.forceQuirks = true
-        self.state = consume state
-    }
-
-    @_disfavoredOverload
-    @inline(__always)
-    private mutating func go(
-        error error1: __owned ParseError,
-        _ error2: __owned ParseError,
-        forceQuirksTo state: __owned State
-    ) {
-        self.sink.process(.error(consume error1))
-        self.sink.process(.error(consume error2))
-        self.currentDOCTYPE.forceQuirks = true
-        self.state = consume state
     }
 
     @inline(__always)
@@ -640,40 +632,6 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func emitDOCTYPE() {
         self.sink.process(.doctype(self.currentDOCTYPE))
-    }
-
-    @inline(__always)
-    private mutating func go(
-        error: __owned ParseError,
-        emitForceQuirksDOCTYPETo state: __owned State
-    ) {
-        self.sink.process(.error(consume error))
-        self.currentDOCTYPE.forceQuirks = true
-        self.sink.process(.doctype(self.currentDOCTYPE))
-        self.state = consume state
-    }
-
-    @inline(__always)
-    private mutating func go(
-        error: __owned ParseError,
-        emitNewForceQuirksDOCTYPETo state: __owned State
-    ) {
-        self.sink.process(.error(consume error))
-        self.sink.process(.doctype(.init(forceQuirks: true)))
-        self.state = consume state
-    }
-
-    @inline(__always)
-    private mutating func emitForceQuirksDOCTYPEAndEOF() {
-        self.currentDOCTYPE.forceQuirks = true
-        self.sink.process(.doctype(self.currentDOCTYPE))
-        self.sink.process(.eof)
-    }
-
-    @inline(__always)
-    private mutating func emitNewForceQuirksDOCTYPEAndEOF() {
-        self.sink.process(.doctype(.init(forceQuirks: true)))
-        self.sink.process(.eof)
     }
 }
 
