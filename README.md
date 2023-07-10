@@ -10,7 +10,13 @@ TODO (The main blocker is the lack of macros support in Linux.)
 
 ### macOS
 
-Install Xcode 15 or later, and run the following command to build the source code.
+You need:
+
+- Xcode 15 or later
+- jemalloc (for benchmarking)
+  - `brew install jemalloc`
+
+And then, run the following command to build the source code.
 
 ```shell
 swift build
