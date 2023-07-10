@@ -20,11 +20,24 @@ let tokenizerTarget = Target.target(
 
 let package = Package(
     name: "Browser.swiftpm",
+    platforms: [.macOS(.v13), .iOS(.v16)],
     dependencies: [
-        .package(url: "https://github.com/Losiowaty/PlaygroundTester", "0.3.1"..<"0.4.0")
+        .package(url: "https://github.com/Losiowaty/PlaygroundTester", "0.3.1"..<"0.4.0"),
+        .package(url: "https://github.com/ordo-one/package-benchmark", "1.6.5"..<"1.7.0"),
     ],
     targets: [
-        tokenizerTarget
+        tokenizerTarget,
+        .executableTarget(
+            name: "MyBenchmark",
+            dependencies: [
+                .product(name: "Benchmark", package: "package-benchmark"),
+                "Tokenizer",
+            ],
+            path: "Benchmarks/MyBenchmark",
+            plugins: [
+                .plugin(name: "BenchmarkPlugin", package: "package-benchmark")
+            ]
+        ),
     ]
 )
 
