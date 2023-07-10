@@ -28,359 +28,366 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     // TODO: Consider input type
     public mutating func tokenize(_ input: inout String.Iterator) {
         loop: while true {
-            self.charRefTokenizer?.tokenize(&input)
+            switch self.step(&input) {
+            case .continue: break
+            case .suspend: break loop
+            }
+        }
+    }
 
-            switch self.state {
-            case .data: while true {
-                switch self.getChar(from: &input) {
-                case "&": self.consumeCharRef(); continue loop
-                case "<": self.go(to: .tagOpen); continue loop
-                case "\0": self.go(error: .unexpectedNull, emit: "\0")
-                case nil: self.emitEOF(); break loop
-                case let c?: self.emit(c)
-                }
+    private mutating func step(_ input: inout String.Iterator) -> ProcessResult {
+        self.charRefTokenizer?.tokenize(&input)
+
+        switch self.state {
+        case .data: while true {
+            switch self.getChar(from: &input) {
+            case "&": self.consumeCharRef(); return .continue
+            case "<": self.go(to: .tagOpen); return .continue
+            case "\0": self.go(error: .unexpectedNull, emit: "\0")
+            case nil: self.emitEOF(); return .suspend
+            case let c?: self.emit(c)
             }
-            case .rcdata: while true {
-                switch self.getChar(from: &input) {
-                case "&": self.consumeCharRef(); continue loop
-                case "<": self.go(to: .rcdataLessThanSign); continue loop
-                case "\0": self.go(error: .unexpectedNull, emit: "\u{FFFD}")
-                case nil: self.emitEOF(); break loop
-                case let c?: self.emit(c)
-                }
+        }
+        case .rcdata: while true {
+            switch self.getChar(from: &input) {
+            case "&": self.consumeCharRef(); return .continue
+            case "<": self.go(to: .rcdataLessThanSign); return .continue
+            case "\0": self.go(error: .unexpectedNull, emit: "\u{FFFD}")
+            case nil: self.emitEOF(); return .suspend
+            case let c?: self.emit(c)
             }
-            case .rawtext: while true {
-                switch self.getChar(from: &input) {
-                case "<": self.go(to: .rawtextLessThanSign); continue loop
-                case "\0": self.go(error: .unexpectedNull, emit: "\u{FFFD}")
-                case nil: self.emitEOF(); break loop
-                case let c?: self.emit(c)
-                }
+        }
+        case .rawtext: while true {
+            switch self.getChar(from: &input) {
+            case "<": self.go(to: .rawtextLessThanSign); return .continue
+            case "\0": self.go(error: .unexpectedNull, emit: "\u{FFFD}")
+            case nil: self.emitEOF(); return .suspend
+            case let c?: self.emit(c)
             }
-            case .scriptData: while true {
-                switch self.getChar(from: &input) {
-                case "<": self.go(to: .scriptDatalessThanSign); continue loop
-                case "\0": self.go(error: .unexpectedNull, emit: "\u{FFFD}")
-                case nil: self.emitEOF(); break loop
-                case let c?: self.emit(c)
-                }
+        }
+        case .scriptData: while true {
+            switch self.getChar(from: &input) {
+            case "<": self.go(to: .scriptDatalessThanSign); return .continue
+            case "\0": self.go(error: .unexpectedNull, emit: "\u{FFFD}")
+            case nil: self.emitEOF(); return .suspend
+            case let c?: self.emit(c)
             }
-            case .plaintext: while true {
-                switch self.getChar(from: &input) {
-                case "\0": self.go(error: .unexpectedNull, emit: "\u{FFFD}")
-                case nil: self.emitEOF(); break loop
-                case let c?: self.emit(c)
-                }
+        }
+        case .plaintext: while true {
+            switch self.getChar(from: &input) {
+            case "\0": self.go(error: .unexpectedNull, emit: "\u{FFFD}")
+            case nil: self.emitEOF(); return .suspend
+            case let c?: self.emit(c)
             }
-            case .tagOpen: while true {
-                switch self.getChar(from: &input) {
-                case "!": self.go(to: .markupDeclarationOpen); continue loop
-                case "/": self.go(to: .endTagOpen); continue loop
-                case "?": self.go(error: .unexpectedQuestionMark, createCommentWith: "?", to: .bogusComment); continue loop
-                case nil: self.go(error: .eofBeforeTagName, emit: "<", .eof); break loop
-                case let c? where c.isASCII && c.isLetter: self.go(createStartTagWith: c.lowercased(), to: .tagName); continue loop
-                case let c?: self.go(error: .invalidFirstChar, emit: "<", reconsume: c, to: .data); continue loop
-                }
+        }
+        case .tagOpen: while true {
+            switch self.getChar(from: &input) {
+            case "!": self.go(to: .markupDeclarationOpen); return .continue
+            case "/": self.go(to: .endTagOpen); return .continue
+            case "?": self.go(error: .unexpectedQuestionMark, createCommentWith: "?", to: .bogusComment); return .continue
+            case nil: self.go(error: .eofBeforeTagName, emit: "<", .eof); return .suspend
+            case let c? where c.isASCII && c.isLetter: self.go(createStartTagWith: c.lowercased(), to: .tagName); return .continue
+            case let c?: self.go(error: .invalidFirstChar, emit: "<", reconsume: c, to: .data); return .continue
             }
-            case .endTagOpen: while true {
-                switch self.getChar(from: &input) {
-                case ">": self.go(error: .missingEndTagName, to: .data); continue loop
-                case "\0": self.go(error: .invalidFirstChar, .unexpectedNull, createCommentWith: "\u{FFFD}", to: .bogusComment); continue loop
-                case nil: self.go(error: .eofBeforeTagName, emit: "<", "/", .eof); break loop
-                case let c? where c.isASCII && c.isLetter: self.go(createEndTagWith: c.lowercased(), to: .tagName); continue loop
-                case let c?: self.go(error: .invalidFirstChar, createCommentWith: c, to: .bogusComment); continue loop
-                }
+        }
+        case .endTagOpen: while true {
+            switch self.getChar(from: &input) {
+            case ">": self.go(error: .missingEndTagName, to: .data); return .continue
+            case "\0": self.go(error: .invalidFirstChar, .unexpectedNull, createCommentWith: "\u{FFFD}", to: .bogusComment); return .continue
+            case nil: self.go(error: .eofBeforeTagName, emit: "<", "/", .eof); return .suspend
+            case let c? where c.isASCII && c.isLetter: self.go(createEndTagWith: c.lowercased(), to: .tagName); return .continue
+            case let c?: self.go(error: .invalidFirstChar, createCommentWith: c, to: .bogusComment); return .continue
             }
-            case .tagName: while true {
-                switch self.getChar(from: &input) {
-                case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeAttributeName); continue loop
-                case "/": self.go(to: .selfClosingStartTag); continue loop
-                case ">": self.goEmitTag(to: .data); continue loop
-                case "\0": self.go(error: .unexpectedNull, appendTagName: "\u{FFFD}")
-                case nil: self.go(error: .eofInTag, emit: .eof); break loop
-                case let c? where c.isASCII && c.isUppercase: self.appendTagName(c.lowercased())
-                case let c?: self.appendTagName(c)
-                }
+        }
+        case .tagName: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeAttributeName); return .continue
+            case "/": self.go(to: .selfClosingStartTag); return .continue
+            case ">": self.goEmitTag(to: .data); return .continue
+            case "\0": self.go(error: .unexpectedNull, appendTagName: "\u{FFFD}")
+            case nil: self.go(error: .eofInTag, emit: .eof); return .suspend
+            case let c? where c.isASCII && c.isUppercase: self.appendTagName(c.lowercased())
+            case let c?: self.appendTagName(c)
             }
-            case .rcdataLessThanSign: while true {
-                switch self.getChar(from: &input) {
-                case "/":
-                    // TODO: Set the temporary buffer to the empty string
-                    self.go(to: .rcdataEndTagOpen); continue loop
-                case nil: self.emit("<", .eof); break loop
-                case let c?: self.go(emit: "<", reconsume: c, to: .rcdata); continue loop
-                }
+        }
+        case .rcdataLessThanSign: while true {
+            switch self.getChar(from: &input) {
+            case "/":
+                // TODO: Set the temporary buffer to the empty string
+                self.go(to: .rcdataEndTagOpen); return .continue
+            case nil: self.emit("<", .eof); return .suspend
+            case let c?: self.go(emit: "<", reconsume: c, to: .rcdata); return .continue
             }
-            case .rcdataEndTagOpen: while true {
-                switch self.getChar(from: &input) {
-                case let c? where c.isASCII && c.isLetter: self.go(createEndTagWith: c, to: .rcdataEndTagName); continue loop
-                case nil: self.emit("<", "/", .eof); break loop
-                case let c?: self.go(emit: "<", "/", reconsume: c, to: .rcdata); continue loop
-                }
+        }
+        case .rcdataEndTagOpen: while true {
+            switch self.getChar(from: &input) {
+            case let c? where c.isASCII && c.isLetter: self.go(createEndTagWith: c, to: .rcdataEndTagName); return .continue
+            case nil: self.emit("<", "/", .eof); return .suspend
+            case let c?: self.go(emit: "<", "/", reconsume: c, to: .rcdata); return .continue
             }
-            case .rcdataEndTagName: while true {
-                // FIXME: Implement
-                preconditionFailure("Not implemented")
+        }
+        case .rcdataEndTagName: while true {
+            // FIXME: Implement
+            preconditionFailure("Not implemented")
+        }
+        case .beforeAttributeName: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": break
+            case "/": self.go(to: .selfClosingStartTag); return .continue
+            case ">": self.goEmitTag(to: .data); return .continue
+            case "=": self.go(error: .unexpectedEqualsSign, createAttrWith: "=", to: .attributeName); return .continue
+            case "\0": self.go(error: .unexpectedNull, createAttrWith: "\u{FFFD}", to: .attributeName); return .continue
+            case "\"": self.go(error: .unexpectedCharInAttrName, createAttrWith: "\"", to: .attributeName); return .continue
+            case "'": self.go(error: .unexpectedCharInAttrName, createAttrWith: "'", to: .attributeName); return .continue
+            case "<": self.go(error: .unexpectedCharInAttrName, createAttrWith: "<", to: .attributeName); return .continue
+            case nil: self.go(error: .eofInTag, emit: .eof); return .suspend
+            case let c? where c.isASCII && c.isUppercase: self.go(createAttrWith: c.lowercased(), to: .attributeName); return .continue
+            case let c?: self.go(createAttrWith: c, to: .attributeName); return .continue
             }
-            case .beforeAttributeName: while true {
-                switch self.getChar(from: &input) {
-                case "\t", "\n", "\u{0C}", " ": break
-                case "/": self.go(to: .selfClosingStartTag); continue loop
-                case ">": self.goEmitTag(to: .data); continue loop
-                case "=": self.go(error: .unexpectedEqualsSign, createAttrWith: "=", to: .attributeName); continue loop
-                case "\0": self.go(error: .unexpectedNull, createAttrWith: "\u{FFFD}", to: .attributeName); continue loop
-                case "\"": self.go(error: .unexpectedCharInAttrName, createAttrWith: "\"", to: .attributeName); continue loop
-                case "'": self.go(error: .unexpectedCharInAttrName, createAttrWith: "'", to: .attributeName); continue loop
-                case "<": self.go(error: .unexpectedCharInAttrName, createAttrWith: "<", to: .attributeName); continue loop
-                case nil: self.go(error: .eofInTag, emit: .eof); break loop
-                case let c? where c.isASCII && c.isUppercase: self.go(createAttrWith: c.lowercased(), to: .attributeName); continue loop
-                case let c?: self.go(createAttrWith: c, to: .attributeName); continue loop
-                }
+        }
+        case .attributeName: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": break
+            case "/": self.go(to: .selfClosingStartTag); return .continue
+            case ">": self.goEmitTag(to: .data); return .continue
+            case "=": self.go(to: .beforeAttributeValue); return .continue
+            case "\0": self.go(error: .unexpectedNull, appendAttrName: "\u{FFFD}")
+            case "\"": self.go(error: .unexpectedCharInAttrName, appendAttrName: "\"")
+            case "'": self.go(error: .unexpectedCharInAttrName, appendAttrName: "'")
+            case "<": self.go(error: .unexpectedCharInAttrName, appendAttrName: "<")
+            case nil: self.go(error: .eofInTag, emit: .eof); return .suspend
+            case let c? where c.isASCII && c.isUppercase: self.appendAttrName(c.lowercased())
+            case let c?: self.appendAttrName(c)
             }
-            case .attributeName: while true {
-                switch self.getChar(from: &input) {
-                case "\t", "\n", "\u{0C}", " ": break
-                case "/": self.go(to: .selfClosingStartTag); continue loop
-                case ">": self.goEmitTag(to: .data); continue loop
-                case "=": self.go(to: .beforeAttributeValue); continue loop
-                case "\0": self.go(error: .unexpectedNull, appendAttrName: "\u{FFFD}")
-                case "\"": self.go(error: .unexpectedCharInAttrName, appendAttrName: "\"")
-                case "'": self.go(error: .unexpectedCharInAttrName, appendAttrName: "'")
-                case "<": self.go(error: .unexpectedCharInAttrName, appendAttrName: "<")
-                case nil: self.go(error: .eofInTag, emit: .eof); break loop
-                case let c? where c.isASCII && c.isUppercase: self.appendAttrName(c.lowercased())
-                case let c?: self.appendAttrName(c)
-                }
+        }
+        case .afterAttributeName: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": break
+            case "/": self.go(to: .selfClosingStartTag); return .continue
+            case ">": self.goEmitTag(to: .data); return .continue
+            case "=": self.go(to: .beforeAttributeValue); return .continue
+            case "\0": self.go(error: .unexpectedNull, createAttrWith: "\u{FFFD}", to: .attributeName); return .continue
+            case "\"": self.go(error: .unexpectedCharInAttrName, createAttrWith: "\"", to: .attributeName); return .continue
+            case "'": self.go(error: .unexpectedCharInAttrName, createAttrWith: "'", to: .attributeName); return .continue
+            case "<": self.go(error: .unexpectedCharInAttrName, createAttrWith: "<", to: .attributeName); return .continue
+            case nil: self.go(error: .eofInTag, emit: .eof); return .suspend
+            case let c? where c.isASCII && c.isUppercase: self.go(createAttrWith: c.lowercased(), to: .attributeName); return .continue
+            case let c?: self.go(createAttrWith: c, to: .attributeName); return .continue
             }
-            case .afterAttributeName: while true {
-                switch self.getChar(from: &input) {
-                case "\t", "\n", "\u{0C}", " ": break
-                case "/": self.go(to: .selfClosingStartTag); continue loop
-                case ">": self.goEmitTag(to: .data); continue loop
-                case "=": self.go(to: .beforeAttributeValue); continue loop
-                case "\0": self.go(error: .unexpectedNull, createAttrWith: "\u{FFFD}", to: .attributeName); continue loop
-                case "\"": self.go(error: .unexpectedCharInAttrName, createAttrWith: "\"", to: .attributeName); continue loop
-                case "'": self.go(error: .unexpectedCharInAttrName, createAttrWith: "'", to: .attributeName); continue loop
-                case "<": self.go(error: .unexpectedCharInAttrName, createAttrWith: "<", to: .attributeName); continue loop
-                case nil: self.go(error: .eofInTag, emit: .eof); break loop
-                case let c? where c.isASCII && c.isUppercase: self.go(createAttrWith: c.lowercased(), to: .attributeName); continue loop
-                case let c?: self.go(createAttrWith: c, to: .attributeName); continue loop
-                }
+        }
+        case .beforeAttributeValue: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": break
+            case "\"": self.go(to: .attributeValueDoubleQuoted); return .continue
+            case "'": self.go(to: .attributeValueSingleQuoted); return .continue
+            case ">": self.go(error: .missingAttrValue, emitTagTo: .data); return .continue
+            case nil: self.go(error: .eofInTag, emit: .eof); return .suspend
+            case let c?: self.go(reconsume: c, to: .attributeValueUnquoted); return .continue
             }
-            case .beforeAttributeValue: while true {
-                switch self.getChar(from: &input) {
-                case "\t", "\n", "\u{0C}", " ": break
-                case "\"": self.go(to: .attributeValueDoubleQuoted); continue loop
-                case "'": self.go(to: .attributeValueSingleQuoted); continue loop
-                case ">": self.go(error: .missingAttrValue, emitTagTo: .data); continue loop
-                case nil: self.go(error: .eofInTag, emit: .eof); break loop
-                case let c?: self.go(reconsume: c, to: .attributeValueUnquoted); continue loop
-                }
+        }
+        case .attributeValueDoubleQuoted: while true {
+            switch self.getChar(from: &input) {
+            case "\"": self.go(to: .afterAttributeValueQuoted); return .continue
+            case "&": self.consumeCharRef(); return .continue
+            case "\0": self.go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
+            case nil: self.go(error: .eofInTag, emit: .eof); return .suspend
+            case let c?: self.appendAttrValue(c)
             }
-            case .attributeValueDoubleQuoted: while true {
-                switch self.getChar(from: &input) {
-                case "\"": self.go(to: .afterAttributeValueQuoted); continue loop
-                case "&": self.consumeCharRef(); continue loop
-                case "\0": self.go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
-                case nil: self.go(error: .eofInTag, emit: .eof); break loop
-                case let c?: self.appendAttrValue(c)
-                }
+        }
+        case .attributeValueSingleQuoted: while true {
+            switch self.getChar(from: &input) {
+            case "'": self.go(to: .afterAttributeValueQuoted); return .continue
+            case "&": self.consumeCharRef(); return .continue
+            case "\0": self.go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
+            case nil: self.go(error: .eofInTag, emit: .eof); return .suspend
+            case let c?: self.appendAttrValue(c)
             }
-            case .attributeValueSingleQuoted: while true {
-                switch self.getChar(from: &input) {
-                case "'": self.go(to: .afterAttributeValueQuoted); continue loop
-                case "&": self.consumeCharRef(); continue loop
-                case "\0": self.go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
-                case nil: self.go(error: .eofInTag, emit: .eof); break loop
-                case let c?: self.appendAttrValue(c)
-                }
+        }
+        case .attributeValueUnquoted: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeAttributeName); return .continue
+            case "&": self.consumeCharRef(); return .continue
+            case ">": self.goEmitTag(to: .data); return .continue
+            case "\0": self.go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
+            case nil: self.go(error: .eofInTag, emit: .eof); return .suspend
+            case "\"": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
+            case "'": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "'")
+            case "<": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
+            case "=": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
+            case "`": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
+            case let c?: self.appendAttrValue(c)
             }
-            case .attributeValueUnquoted: while true {
-                switch self.getChar(from: &input) {
-                case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeAttributeName); continue loop
-                case "&": self.consumeCharRef(); continue loop
-                case ">": self.goEmitTag(to: .data); continue loop
-                case "\0": self.go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
-                case nil: self.go(error: .eofInTag, emit: .eof); break loop
-                case "\"": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
-                case "'": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "'")
-                case "<": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
-                case "=": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
-                case "`": self.go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
-                case let c?: self.appendAttrValue(c)
-                }
+        }
+        case .afterAttributeValueQuoted: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeAttributeName); return .continue
+            case "/": self.go(to: .selfClosingStartTag); return .continue
+            case ">": self.goEmitTag(to: .data); return .continue
+            case nil: self.go(error: .eofInTag, emit: .eof); return .suspend
+            case let c?: self.go(error: .missingSpaceBetweenAttrs, reconsume: c, to: .beforeAttributeName); return .continue
             }
-            case .afterAttributeValueQuoted: while true {
-                switch self.getChar(from: &input) {
-                case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeAttributeName); continue loop
-                case "/": self.go(to: .selfClosingStartTag); continue loop
-                case ">": self.goEmitTag(to: .data); continue loop
-                case nil: self.go(error: .eofInTag, emit: .eof); break loop
-                case let c?: self.go(error: .missingSpaceBetweenAttrs, reconsume: c, to: .beforeAttributeName); continue loop
-                }
+        }
+        case .selfClosingStartTag: while true {
+            switch self.getChar(from: &input) {
+            case ">": self.goEmitSelfClosingTag(to: .data); return .continue
+            case nil: self.go(error: .eofInTag, emit: .eof); return .suspend
+            case let c?: self.go(error: .unexpectedSolidus, reconsume: c, to: .beforeAttributeName); return .continue
             }
-            case .selfClosingStartTag: while true {
-                switch self.getChar(from: &input) {
-                case ">": self.goEmitSelfClosingTag(to: .data); continue loop
-                case nil: self.go(error: .eofInTag, emit: .eof); break loop
-                case let c?: self.go(error: .unexpectedSolidus, reconsume: c, to: .beforeAttributeName); continue loop
-                }
+        }
+        case .bogusComment: while true {
+            switch self.getChar(from: &input) {
+            case ">": self.goEmitComment(to: .data); return .continue
+            case "\0": self.go(error: .unexpectedNull, appendComment: "\u{FFFD}")
+            case nil: self.emitCommentAndEOF(); return .suspend
+            case let c?: self.appendComment(c)
             }
-            case .bogusComment: while true {
-                switch self.getChar(from: &input) {
-                case ">": self.goEmitComment(to: .data); continue loop
-                case "\0": self.go(error: .unexpectedNull, appendComment: "\u{FFFD}")
-                case nil: self.emitCommentAndEOF(); break loop
-                case let c?: self.appendComment(c)
-                }
-            }
-            case .markupDeclarationOpen: while true {
-                if self.startsExact(&input, with: "--") == true {
-                    self.goClearComment(to: .commentStart); continue loop
-                } else if self.starts(&input, with: "doctype") == true {
-                    self.go(to: .doctype); continue loop
-                } else if self.startsExact(&input, with: "[CDATA[") == true {
-                    if false {
-                        // TODO: If there is an adjusted current node and it is not an element in the HTML namespace, then switch to the CDATA section state.
-                        self.go(to: .cdataSection); continue loop
-                    } else {
-                        self.go(error: .cdataInHTML, createCommentWith: "[CDATA[", to: .bogusComment); continue loop
-                    }
+        }
+        case .markupDeclarationOpen: while true {
+            if self.startsExact(&input, with: "--") == true {
+                self.goClearComment(to: .commentStart); return .continue
+            } else if self.starts(&input, with: "doctype") == true {
+                self.go(to: .doctype); return .continue
+            } else if self.startsExact(&input, with: "[CDATA[") == true {
+                if false {
+                    // TODO: If there is an adjusted current node and it is not an element in the HTML namespace, then switch to the CDATA section state.
+                    self.go(to: .cdataSection); return .continue
                 } else {
-                    self.go(error: .incorrectlyOpenedComment, clearCommentTo: .bogusComment); continue loop
+                    self.go(error: .cdataInHTML, createCommentWith: "[CDATA[", to: .bogusComment); return .continue
                 }
+            } else {
+                self.go(error: .incorrectlyOpenedComment, clearCommentTo: .bogusComment); return .continue
             }
-            case .doctype: while true {
-                switch self.getChar(from: &input) {
-                case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeDOCTYPEName); continue loop
-                case ">": self.go(reconsume: ">", to: .beforeDOCTYPEName); continue loop
-                case nil: self.emitError(.eofInDOCTYPE); self.emitNewForceQuirksDOCTYPEAndEOF(); break loop
-                case let c?: self.go(error: .missingSpaceBeforeDOCTYPEName, reconsume: c, to: .beforeDOCTYPEName); continue loop
-                }
+        }
+        case .doctype: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeDOCTYPEName); return .continue
+            case ">": self.go(reconsume: ">", to: .beforeDOCTYPEName); return .continue
+            case nil: self.emitError(.eofInDOCTYPE); self.emitNewForceQuirksDOCTYPEAndEOF(); return .suspend
+            case let c?: self.go(error: .missingSpaceBeforeDOCTYPEName, reconsume: c, to: .beforeDOCTYPEName); return .continue
             }
-            case .beforeDOCTYPEName: while true {
-                switch self.getChar(from: &input) {
-                case "\t", "\n", "\u{0C}", " ": break
-                case "\0": self.go(error: .unexpectedNull, createDOCTYPEWith: "\u{FFFD}", to: .doctypeName); continue loop
-                case ">": self.go(error: .missingDOCTYPEName, emitNewForceQuirksDOCTYPETo: .data); continue loop
-                case nil: self.emitError(.eofInDOCTYPE); self.emitNewForceQuirksDOCTYPEAndEOF(); break loop
-                case let c? where c.isASCII && c.isUppercase: self.go(createDOCTYPEWith: c.lowercased(), to: .doctypeName); continue loop
-                case let c?: self.go(createDOCTYPEWith: c, to: .doctypeName); continue loop
-                }
+        }
+        case .beforeDOCTYPEName: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": break
+            case "\0": self.go(error: .unexpectedNull, createDOCTYPEWith: "\u{FFFD}", to: .doctypeName); return .continue
+            case ">": self.go(error: .missingDOCTYPEName, emitNewForceQuirksDOCTYPETo: .data); return .continue
+            case nil: self.emitError(.eofInDOCTYPE); self.emitNewForceQuirksDOCTYPEAndEOF(); return .suspend
+            case let c? where c.isASCII && c.isUppercase: self.go(createDOCTYPEWith: c.lowercased(), to: .doctypeName); return .continue
+            case let c?: self.go(createDOCTYPEWith: c, to: .doctypeName); return .continue
             }
-            case .doctypeName: while true {
-                switch self.getChar(from: &input) {
-                case "\t", "\n", "\u{0C}", " ": self.go(to: .afterDOCTYPEName); continue loop
-                case ">": self.goEmitDOCTYPE(to: .data); continue loop
-                case "\0": self.go(error: .unexpectedNull, appendDOCTYPEName: "\u{FFFD}")
-                case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); break loop
-                case let c? where c.isASCII && c.isUppercase: self.appendDOCTYPEName(c.lowercased())
-                case let c?: self.appendDOCTYPEName(c)
-                }
+        }
+        case .doctypeName: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": self.go(to: .afterDOCTYPEName); return .continue
+            case ">": self.goEmitDOCTYPE(to: .data); return .continue
+            case "\0": self.go(error: .unexpectedNull, appendDOCTYPEName: "\u{FFFD}")
+            case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); return .suspend
+            case let c? where c.isASCII && c.isUppercase: self.appendDOCTYPEName(c.lowercased())
+            case let c?: self.appendDOCTYPEName(c)
             }
-            case .afterDOCTYPEName: while true {
-                if self.starts(&input, with: "public") == true {
-                    self.go(to: .afterDOCTYPEPublicKeyword); continue loop
-                } else if self.starts(&input, with: "system") == true {
-                    self.go(to: .afterDOCTYPESystemKeyword); continue loop
-                } else {
-                    switch self.getChar(from: &input) {
-                    case "\t", "\n", "\u{0C}", " ": break
-                    case ">": self.goEmitDOCTYPE(to: .data); continue loop
-                    case "\0": self.go(error: .invalidCharSequence, .unexpectedNull, forceQuirksTo: .bogusDOCTYPE); continue loop
-                    case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); break loop
-                    case _: self.go(error: .invalidCharSequence, forceQuirksTo: .bogusDOCTYPE); continue loop
-                    }
-                }
-            }
-            case .afterDOCTYPEPublicKeyword: while true {
-                switch self.getChar(from: &input) {
-                case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeDOCTYPEPublicIdentifier); continue loop
-                case "\"":
-                    self.emitError(.missingSpaceAfterDOCTYPEPublicKeyword)
-                    // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
-                    self.go(to: .doctypePublicIdentifierDoubleQuoted); continue loop
-                case "'":
-                    self.emitError(.missingSpaceAfterDOCTYPEPublicKeyword)
-                    // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
-                    self.go(to: .doctypePublicIdentifierSingleQuoted); continue loop
-                case ">": self.go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPETo: .data); continue loop
-                case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); break loop
-                case "\0": self.go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirksTo: .bogusDOCTYPE); continue loop
-                case _: self.go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirksTo: .bogusDOCTYPE); continue loop
-                }
-            }
-            case .beforeDOCTYPEPublicIdentifier: while true {
+        }
+        case .afterDOCTYPEName: while true {
+            if self.starts(&input, with: "public") == true {
+                self.go(to: .afterDOCTYPEPublicKeyword); return .continue
+            } else if self.starts(&input, with: "system") == true {
+                self.go(to: .afterDOCTYPESystemKeyword); return .continue
+            } else {
                 switch self.getChar(from: &input) {
                 case "\t", "\n", "\u{0C}", " ": break
-                case "\"":
-                    // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
-                    self.go(to: .doctypePublicIdentifierDoubleQuoted); continue loop
-                case "'":
-                    // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
-                    self.go(to: .doctypePublicIdentifierSingleQuoted); continue loop
-                case ">": self.go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPETo: .data); continue loop
-                case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); break loop
-                case "\0": self.go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirksTo: .bogusDOCTYPE); continue loop
-                case _: self.go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirksTo: .bogusDOCTYPE); continue loop
+                case ">": self.goEmitDOCTYPE(to: .data); return .continue
+                case "\0": self.go(error: .invalidCharSequence, .unexpectedNull, forceQuirksTo: .bogusDOCTYPE); return .continue
+                case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); return .suspend
+                case _: self.go(error: .invalidCharSequence, forceQuirksTo: .bogusDOCTYPE); return .continue
                 }
             }
-            case .doctypePublicIdentifierDoubleQuoted: while true {
-                switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
-                }
+        }
+        case .afterDOCTYPEPublicKeyword: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": self.go(to: .beforeDOCTYPEPublicIdentifier); return .continue
+            case "\"":
+                self.emitError(.missingSpaceAfterDOCTYPEPublicKeyword)
+                // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
+                self.go(to: .doctypePublicIdentifierDoubleQuoted); return .continue
+            case "'":
+                self.emitError(.missingSpaceAfterDOCTYPEPublicKeyword)
+                // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
+                self.go(to: .doctypePublicIdentifierSingleQuoted); return .continue
+            case ">": self.go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPETo: .data); return .continue
+            case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); return .suspend
+            case "\0": self.go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirksTo: .bogusDOCTYPE); return .continue
+            case _: self.go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirksTo: .bogusDOCTYPE); return .continue
             }
-            case .doctypePublicIdentifierSingleQuoted: while true {
-                switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
-                }
+        }
+        case .beforeDOCTYPEPublicIdentifier: while true {
+            switch self.getChar(from: &input) {
+            case "\t", "\n", "\u{0C}", " ": break
+            case "\"":
+                // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
+                self.go(to: .doctypePublicIdentifierDoubleQuoted); return .continue
+            case "'":
+                // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
+                self.go(to: .doctypePublicIdentifierSingleQuoted); return .continue
+            case ">": self.go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPETo: .data); return .continue
+            case nil: self.emitError(.eofInDOCTYPE); self.emitForceQuirksDOCTYPEAndEOF(); return .suspend
+            case "\0": self.go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirksTo: .bogusDOCTYPE); return .continue
+            case _: self.go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirksTo: .bogusDOCTYPE); return .continue
             }
-            case .afterDOCTYPEPublicIdentifier: while true {
-                switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
-                }
+        }
+        case .doctypePublicIdentifierDoubleQuoted: while true {
+            switch self.getChar(from: &input) {
+            case _: preconditionFailure("Not implemented")
             }
-            case .betweenDOCTYPEPublicAndSystemIdentifiers: while true {
-                switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
-                }
+        }
+        case .doctypePublicIdentifierSingleQuoted: while true {
+            switch self.getChar(from: &input) {
+            case _: preconditionFailure("Not implemented")
             }
-            case .afterDOCTYPESystemKeyword: while true {
-                switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
-                }
+        }
+        case .afterDOCTYPEPublicIdentifier: while true {
+            switch self.getChar(from: &input) {
+            case _: preconditionFailure("Not implemented")
             }
-            case .beforeDOCTYPESystemIdentifier: while true {
-                switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
-                }
+        }
+        case .betweenDOCTYPEPublicAndSystemIdentifiers: while true {
+            switch self.getChar(from: &input) {
+            case _: preconditionFailure("Not implemented")
             }
-            case .doctypeSystemIdentifierDoubleQuoted: while true {
-                switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
-                }
+        }
+        case .afterDOCTYPESystemKeyword: while true {
+            switch self.getChar(from: &input) {
+            case _: preconditionFailure("Not implemented")
             }
-            case .doctypeSystemIdentifierSingleQuoted: while true {
-                switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
-                }
+        }
+        case .beforeDOCTYPESystemIdentifier: while true {
+            switch self.getChar(from: &input) {
+            case _: preconditionFailure("Not implemented")
             }
-            case .afterDOCTYPESystemIdentifier: while true {
-                switch self.getChar(from: &input) {
-                case _: preconditionFailure("Not implemented")
-                }
+        }
+        case .doctypeSystemIdentifierDoubleQuoted: while true {
+            switch self.getChar(from: &input) {
+            case _: preconditionFailure("Not implemented")
             }
-            case .bogusDOCTYPE: while true {
-                switch self.getChar(from: &input) {
-                case ">": self.goEmitDOCTYPE(to: .data); continue loop
-                case "\0": self.emitError(.unexpectedNull)
-                case nil: self.emitDOCTYPEAndEOF(); break loop
-                case _: break
-                }
+        }
+        case .doctypeSystemIdentifierSingleQuoted: while true {
+            switch self.getChar(from: &input) {
+            case _: preconditionFailure("Not implemented")
             }
-            case _:
-                preconditionFailure("Not implemented")
+        }
+        case .afterDOCTYPESystemIdentifier: while true {
+            switch self.getChar(from: &input) {
+            case _: preconditionFailure("Not implemented")
             }
+        }
+        case .bogusDOCTYPE: while true {
+            switch self.getChar(from: &input) {
+            case ">": self.goEmitDOCTYPE(to: .data); return .continue
+            case "\0": self.emitError(.unexpectedNull)
+            case nil: self.emitDOCTYPEAndEOF(); return .suspend
+            case _: break
+            }
+        }
+        case _:
+            preconditionFailure("Not implemented")
         }
     }
 
