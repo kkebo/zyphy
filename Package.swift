@@ -51,6 +51,12 @@ let package = Package(
                 .plugin(name: "BenchmarkPlugin", package: "package-benchmark")
             ]
         ),
+        .testTarget(
+            name: "TokenizerTests",
+            dependencies: [
+                "Tokenizer"
+            ]
+        ),
     ]
 )
 
