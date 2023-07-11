@@ -6,7 +6,7 @@ This is a web browser written in Swift, and is partially inspired by Servo's [ht
 
 ### Linux
 
-TODO (The main blocker is the lack of macros support in Linux.)
+TODO ([The main blocker is the lack of macros support in Linux.](https://forums.swift.org/t/65427))
 
 ### macOS
 
