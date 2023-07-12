@@ -27,8 +27,7 @@ final class TokenizerTests: XCTestCase {
         </html>
         """#
 
-        let sink = TestSink()
-        var tokenizer = Tokenizer(sink: consume sink)
+        var tokenizer = Tokenizer(sink: TestSink())
         var iter = html.makeIterator()
         tokenizer.tokenize(&iter)
 
@@ -74,7 +73,6 @@ final class TokenizerTests: XCTestCase {
             .tag(Tag(name: "html", kind: .end)),
             .eof,
         ]
-        let sink2 = consume tokenizer.sink
-        XCTAssertEqual(consume tokens, sink2.tokens)
+        XCTAssertEqual(tokens, tokenizer.sink.tokens)
     }
 }
