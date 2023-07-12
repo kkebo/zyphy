@@ -74,6 +74,7 @@ final class TokenizerTests: XCTestCase {
             .tag(Tag(name: "html", kind: .end)),
             .eof,
         ]
-        XCTAssertEqual(tokens, tokenizer.sink.tokens)
+        let result = tokenizer.sink.tokens
+        XCTAssertEqual(result, tokens)
     }
 }
