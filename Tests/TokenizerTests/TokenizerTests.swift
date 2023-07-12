@@ -2,7 +2,7 @@ import XCTest
 
 @testable import Tokenizer
 
-struct TestSink {
+struct TestSink: ~Copyable {
     var tokens = [Token]()
 }
 
