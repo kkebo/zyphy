@@ -2,12 +2,12 @@ import XCTest
 
 @testable import Tokenizer
 
-final class TestSink {
+struct TestSink {
     var tokens = [Token]()
 }
 
 extension TestSink: TokenSink {
-    func process(_ token: __owned Token) {
+    mutating func process(_ token: __owned Token) {
         self.tokens.append(consume token)
     }
 }
@@ -28,7 +28,7 @@ final class TokenizerTests: XCTestCase {
         """#
 
         let sink = TestSink()
-        var tokenizer = Tokenizer(sink: sink)
+        var tokenizer = Tokenizer(sink: consume sink)
         var iter = html.makeIterator()
         tokenizer.tokenize(&iter)
 
@@ -74,6 +74,6 @@ final class TokenizerTests: XCTestCase {
             .tag(Tag(name: "html", kind: .end)),
             .eof,
         ]
-        XCTAssertEqual(tokens, sink.tokens)
+        XCTAssertEqual(consume tokens, consume tokenizer.sink.tokens)
     }
 }
