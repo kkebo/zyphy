@@ -161,8 +161,33 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             }
         }
         case .rcdataEndTagName: while true {
-            // FIXME: Implement
-            preconditionFailure("Not implemented")
+            let c = self.getChar(from: &input)
+            // FIXME: Implement lastStartTagName
+            let lastStartTagName: String? = nil
+            if self.currentTagKind == .end && self.currentTagName == lastStartTagName {
+                switch c {
+                case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
+                case "/": #go(to: .selfClosingStartTag)
+                case ">": #go(emitTag: .data)
+                case _: break
+                }
+            }
+            switch c {
+            case let c? where c.isASCII && c.isUppercase:
+                #go(appendTagName: c.lowercased())
+                // TODO: Append the current input character to the temporary buffer
+            case let c? where c.isASCII && c.isLowercase:
+                #go(appendTagName: c)
+                // TODO: Append the current input character to the temporary buffer
+            case let c?:
+                #go(emit: "<", "/")
+                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                #go(reconsume: c, to: .rcdata)
+            case nil:
+                #go(emit: "<", "/")
+                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                #go(emit: .eof)
+            }
         }
         case .beforeAttributeName: while true {
             switch self.getChar(from: &input) {
