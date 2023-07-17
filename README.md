@@ -34,4 +34,4 @@ swift test
 swift package benchmark
 ```
 
-For more details, plaese see https://github.com/ordo-one/package-benchmark.
+For more details, please see https://github.com/ordo-one/package-benchmark.
