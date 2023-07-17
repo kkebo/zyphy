@@ -7,7 +7,7 @@ let package = Package(
     name: "Browser",
     platforms: [.macOS(.v13), .iOS(.v16)],
     dependencies: [
-        .package(url: "https://github.com/ordo-one/package-benchmark", "1.6.5"..<"1.7.0"),
+        .package(url: "https://github.com/ordo-one/package-benchmark", "1.7.0"..<"1.8.0"),
         .package(url: "https://github.com/apple/swift-syntax", from: "509.0.0-swift-DEVELOPMENT-SNAPSHOT-2023-06-17-a"),
     ],
     targets: [

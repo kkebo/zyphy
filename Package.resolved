@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ordo-one/package-benchmark",
       "state" : {
-        "revision" : "fe172a3a3fb9f18e134f97ad9293b89b5a79a5a9",
-        "version" : "1.6.5"
+        "revision" : "9e010e286ac7f0f268d8c89a338ba6b0ecab0244",
+        "version" : "1.7.0"
       }
     },
     {
@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ordo-one/package-datetime",
       "state" : {
-        "revision" : "42b948be6493bfbe81a6930a3d6986af028758bb",
-        "version" : "1.0.1"
+        "revision" : "d1242188c9f48aad297e6ca9b717776f8660bc31",
+        "version" : "1.0.2"
       }
     },
     {
@@ -86,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-syntax",
       "state" : {
-        "revision" : "f1e9245226002bb134884345d4809b9543da3666",
-        "version" : "509.0.0-swift-DEVELOPMENT-SNAPSHOT-2023-06-17-a"
+        "revision" : "67c5007099d9ffdd292f421f81f4efe5ee42963e",
+        "version" : "509.0.0-swift-DEVELOPMENT-SNAPSHOT-2023-07-09-a"
       }
     },
     {
