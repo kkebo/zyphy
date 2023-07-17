@@ -13,8 +13,6 @@ TODO ([The main blocker is the lack of macros support in Linux.](https://forums.
 You need:
 
 - Xcode 15 or later
-- jemalloc (for benchmarking)
-  - `brew install jemalloc`
 
 And then, run the following command to build the source code.
 
@@ -30,8 +28,12 @@ swift test
 
 ## Benchmarking
 
+You need:
+
+- jemalloc
+
 ```shell
-swift package benchmark
+swift package --package-path Benchmarks benchmark
 ```
 
 For more details, please see https://github.com/ordo-one/package-benchmark.

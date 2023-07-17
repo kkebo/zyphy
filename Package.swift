@@ -5,9 +5,11 @@ import PackageDescription
 
 let package = Package(
     name: "Browser",
-    platforms: [.macOS(.v13), .iOS(.v16)],
+    platforms: [.macOS(.v10_15), .iOS(.v13)],
+    products: [
+        .library(name: "Tokenizer", targets: ["Tokenizer"])
+    ],
     dependencies: [
-        .package(url: "https://github.com/ordo-one/package-benchmark", "1.7.0"..<"1.8.0"),
         .package(url: "https://github.com/apple/swift-syntax", from: "509.0.0-swift-DEVELOPMENT-SNAPSHOT-2023-06-17-a"),
     ],
     targets: [
@@ -31,17 +33,6 @@ let package = Package(
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-            ]
-        ),
-        .executableTarget(
-            name: "MyBenchmark",
-            dependencies: [
-                .product(name: "Benchmark", package: "package-benchmark"),
-                "Tokenizer",
-            ],
-            path: "Benchmarks/MyBenchmark",
-            plugins: [
-                .plugin(name: "BenchmarkPlugin", package: "package-benchmark")
             ]
         ),
         .testTarget(
