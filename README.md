@@ -13,6 +13,7 @@ TODO ([The main blocker is the lack of macros support in Linux.](https://forums.
 You need:
 
 - Xcode 15 or later
+- Swift nightly toolchain
 
 And then, run the following command to build the source code.
 

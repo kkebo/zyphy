@@ -14,11 +14,18 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Select Xcode
-      run: sudo xcode-select -s /Applications/Xcode_15.0.app
-    - name: Get versions
       run: |
+        sudo xcode-select -s /Applications/Xcode_15.0.app
         xcodebuild -version
-        swift --version
+    - name: Install Swift nightly toolchain
+      run: |
+        VERSION=swift-DEVELOPMENT-SNAPSHOT-2023-07-23-a
+        TOOLCHAIN_URL="https://download.swift.org/development/xcode/$VERSION/$VERSION-osx.pkg"
+        curl -LO $TOOLCHAIN_URL
+        installer -target CurrentUserHomeDirectory -pkg $VERSION-osx.pkg
+        echo "PATH=$HOME/Library/Developer/Toolchains/$VERSION.xctoolchain/usr/bin:${PATH}" >> $GITHUB_ENV
+    - name: Get Swift version
+      run: swift --version
     - name: Build
       run: swift build
     - name: Run tests

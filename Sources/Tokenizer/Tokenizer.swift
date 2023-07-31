@@ -470,7 +470,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 input = consume initial
                 return nil
             }
-            guard consume c == consume pc else {
+            guard c == pc else {
                 input = consume initial
                 return false
             }
