@@ -28,7 +28,7 @@ final class TokenizerTests: XCTestCase {
         """#
 
         let sink = TestSink()
-        var tokenizer = Tokenizer(sink: consume sink)
+        var tokenizer = Tokenizer(sink: sink)
         var iter = html.makeIterator()
         tokenizer.tokenize(&iter)
 

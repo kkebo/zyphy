@@ -38,7 +38,8 @@ let package = Package(
         .testTarget(
             name: "TokenizerTests",
             dependencies: [
-                "Tokenizer"
+                "TokenizerMacros",
+                "Tokenizer",
             ]
         ),
     ]
