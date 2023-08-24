@@ -7,7 +7,7 @@ let package = Package(
     platforms: [.macOS(.v13), .iOS(.v16)],
     dependencies: [
         .package(name: "Browser", path: ".."),
-        .package(url: "https://github.com/ordo-one/package-benchmark", "1.8.2"..<"1.9.0"),
+        .package(url: "https://github.com/ordo-one/package-benchmark", "1.9.0"..<"1.10.0"),
     ],
     targets: [
         .executableTarget(
