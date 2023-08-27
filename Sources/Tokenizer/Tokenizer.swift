@@ -445,6 +445,28 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case _: break
             }
         }
+        case .cdataSection: while true {
+            switch self.getChar(from: &input) {
+            case "]": #go(to: .cdataSectionBracket)
+            case nil: #go(error: .eofInCDATA, emit: .eof)
+            case let c?: #go(emit: c)
+            }
+        }
+        case .cdataSectionBracket: while true {
+            switch self.getChar(from: &input) {
+            case "]": #go(to: .cdataSectionEnd)
+            case nil: #go(error: .eofInCDATA, emit: "]", .eof)
+            case let c?: #go(emit: "]", .char(c), to: .cdataSection)
+            }
+        }
+        case .cdataSectionEnd: while true {
+            switch self.getChar(from: &input) {
+            case "]": #go(emit: "]")
+            case ">": #go(to: .data)
+            case nil: #go(error: .eofInCDATA, emit: "]", .eof)
+            case let c?: #go(emit: "]", .char(c), to: .cdataSection)
+            }
+        }
         case _:
             preconditionFailure("Not implemented")
         }
@@ -617,6 +639,12 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func emit(_ c: __owned Character) {
         self.sink.process(.char(consume c))
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func emit(_ token: __owned Token) {
+        self.sink.process(consume token)
     }
 
     @inline(__always)
