@@ -3,8 +3,8 @@ public struct DOCTYPE {
     public var forceQuirks: Bool
 
     public init(
-        name: __owned Optional<String> = nil,
-        forceQuirks: __owned Bool = false
+        name: consuming Optional<String> = nil,
+        forceQuirks: consuming Bool = false
     ) {
         self.name = consume name
         self.forceQuirks = consume forceQuirks

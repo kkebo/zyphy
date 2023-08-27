@@ -45,7 +45,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     var currentComment: String
     var currentDOCTYPE: DOCTYPE
 
-    public init(sink: __owned Sink) {
+    public init(sink: consuming Sink) {
         self.sink = consume sink
         self.state = .data
         self.reconsumeChar = nil
@@ -484,7 +484,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
     private mutating func startsExact(
         _ input: inout String.Iterator,
-        with pattern: __owned some StringProtocol
+        with pattern: consuming some StringProtocol
     ) -> Bool? {
         let initial = input
         for pc in consume pattern {
@@ -502,7 +502,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
     private mutating func starts(
         _ input: inout String.Iterator,
-        with pattern: __owned some StringProtocol
+        with pattern: consuming some StringProtocol
     ) -> Bool? {
         let initial = input
         for pc in consume pattern {
@@ -519,12 +519,12 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func go(to state: __owned State) {
+    private mutating func go(to state: consuming State) {
         self.state = consume state
     }
 
     @inline(__always)
-    private mutating func go(reconsume c: __owned Character, to state: __owned State) {
+    private mutating func go(reconsume c: consuming Character, to state: consuming State) {
         self.reconsumeChar = consume c
         self.state = consume state
     }
@@ -535,25 +535,25 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func createComment(with c: __owned Character) {
+    private mutating func createComment(with c: consuming Character) {
         self.currentComment = String(consume c)
     }
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func createComment(with s: __owned String) {
+    private mutating func createComment(with s: consuming String) {
         self.currentComment = consume s
     }
 
     @inline(__always)
-    private mutating func createStartTag(with s: __owned String) {
+    private mutating func createStartTag(with s: consuming String) {
         self.currentTagName = consume s
         self.currentTagKind = .start
         self.currentAttrs.removeAll()
     }
 
     @inline(__always)
-    private mutating func createEndTag(with c: __owned Character) {
+    private mutating func createEndTag(with c: consuming Character) {
         self.currentTagName = String(consume c)
         self.currentTagKind = .end
         self.currentAttrs.removeAll()
@@ -561,21 +561,21 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func createEndTag(with s: __owned String) {
+    private mutating func createEndTag(with s: consuming String) {
         self.currentTagName = consume s
         self.currentTagKind = .end
         self.currentAttrs.removeAll()
     }
 
     @inline(__always)
-    private mutating func createAttr(with c: __owned Character) {
+    private mutating func createAttr(with c: consuming Character) {
         self.pushAttr()
         self.currentAttrName = String(consume c)
     }
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func createAttr(with s: __owned String) {
+    private mutating func createAttr(with s: consuming String) {
         self.pushAttr()
         self.currentAttrName = consume s
     }
@@ -594,18 +594,18 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func createDOCTYPE(with c: __owned Character) {
+    private mutating func createDOCTYPE(with c: consuming Character) {
         self.currentDOCTYPE = .init(name: String(consume c))
     }
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func createDOCTYPE(with s: __owned String) {
+    private mutating func createDOCTYPE(with s: consuming String) {
         self.currentDOCTYPE = .init(name: consume s)
     }
 
     @inline(__always)
-    private mutating func appendDOCTYPEName(_ c: __owned Character) {
+    private mutating func appendDOCTYPEName(_ c: consuming Character) {
         switch self.currentDOCTYPE.name {
         case .some: self.currentDOCTYPE.name?.append(consume c)
         case .none: self.currentDOCTYPE.name = String(consume c)
@@ -614,7 +614,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func appendDOCTYPEName(_ s: __owned String) {
+    private mutating func appendDOCTYPEName(_ s: consuming String) {
         switch self.currentDOCTYPE.name {
         case .some: self.currentDOCTYPE.name?.append(consume s)
         case .none: self.currentDOCTYPE.name = consume s
@@ -627,7 +627,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func emitError(_ error: __owned ParseError) {
+    private mutating func emitError(_ error: consuming ParseError) {
         self.sink.process(.error(consume error))
     }
 
@@ -637,13 +637,13 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func emit(_ c: __owned Character) {
+    private mutating func emit(_ c: consuming Character) {
         self.sink.process(.char(consume c))
     }
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func emit(_ token: __owned Token) {
+    private mutating func emit(_ token: consuming Token) {
         self.sink.process(consume token)
     }
 

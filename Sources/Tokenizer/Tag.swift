@@ -5,10 +5,10 @@ public struct Tag {
     public var selfClosing: Bool
 
     public init(
-        name: __owned String,
-        kind: __owned TagKind,
-        attrs: __owned [Attribute] = [],
-        selfClosing: __owned Bool = false
+        name: consuming String,
+        kind: consuming TagKind,
+        attrs: consuming [Attribute] = [],
+        selfClosing: consuming Bool = false
     ) {
         self.name = consume name
         self.kind = consume kind
