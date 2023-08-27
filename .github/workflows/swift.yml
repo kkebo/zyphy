@@ -19,7 +19,7 @@ jobs:
         xcodebuild -version
     - name: Install Swift nightly toolchain
       run: |
-        VERSION=swift-DEVELOPMENT-SNAPSHOT-2023-07-23-a
+        VERSION=swift-DEVELOPMENT-SNAPSHOT-2023-08-26-a
         TOOLCHAIN_URL="https://download.swift.org/development/xcode/$VERSION/$VERSION-osx.pkg"
         curl -LO $TOOLCHAIN_URL
         installer -target CurrentUserHomeDirectory -pkg $VERSION-osx.pkg
