@@ -19,7 +19,7 @@ enum State {
     case scriptDataEndTagName
     case scriptDataEscapeStart
     case scriptDataEscapeStartDash
-    case scriptDataEscapedState
+    case scriptDataEscaped
     case scriptDataEscapedDash
     case scriptDataEscapedDashDash
     case scriptDataEscapedLessThanSign
@@ -44,7 +44,7 @@ enum State {
     case markupDeclarationOpen
     case commentStart
     case commentStartDash
-    case commentState
+    case comment
     case commentLessThanSign
     case commentLessThanSignBang
     case commentLessThanSignBangDash
@@ -72,12 +72,12 @@ enum State {
     case cdataSectionBracket
     case cdataSectionEnd
     // case characterReference
-    case namedCharacterReference
-    case ambiguousAmpersand
-    case numericCharacterReference
-    case hexadecimalCharacterReferenceStart
-    case decimalCharacterReferenceStart
-    case hexadecimalCharacterReference
-    case decimalCharacterReference
-    case numericCharacterReferenceEnd
+    // case namedCharacterReference
+    // case ambiguousAmpersand
+    // case numericCharacterReference
+    // case hexadecimalCharacterReferenceStart
+    // case decimalCharacterReferenceStart
+    // case hexadecimalCharacterReference
+    // case decimalCharacterReference
+    // case numericCharacterReferenceEnd
 }

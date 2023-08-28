@@ -5,6 +5,7 @@
 @freestanding(codeItem) macro go(error: ParseError..., createComment c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createComment s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., appendComment c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., appendComment c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., clearComment state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emitComment state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro goEmitCommentAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -315,6 +316,16 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 }
             } else {
                 #go(error: .incorrectlyOpenedComment, clearComment: .bogusComment)
+            }
+        }
+        case .commentStart: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(to: .commentStartDash)
+            case ">": #go(error: .abruptClosingComment, emitComment: .data)
+            case "<": #go(appendComment: "<", to: .commentLessThanSign)
+            case "\0": #go(error: .unexpectedNull, appendComment: "\u{FFFD}", to: .comment)
+            case nil: self.emitError(.eofInComment); #goEmitCommentAndEOF
+            case let c?: #go(emitComment: .comment)
             }
         }
         case .doctype: while true {
