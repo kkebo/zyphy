@@ -7,10 +7,17 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-linux:
+    runs-on: ubuntu-latest
+    container: swiftlang/swift:nightly-main-jammy
+    steps:
+    - uses: actions/checkout@v3
+    - run: swift --version
+    - run: swift build
+    - run: swift test
 
+  build-macos:
     runs-on: macos-13
-
     steps:
     - uses: actions/checkout@v3
     - name: Select Xcode
@@ -24,9 +31,6 @@ jobs:
         curl -LO $TOOLCHAIN_URL
         installer -target CurrentUserHomeDirectory -pkg $VERSION-osx.pkg
         echo "PATH=$HOME/Library/Developer/Toolchains/$VERSION.xctoolchain/usr/bin:${PATH}" >> $GITHUB_ENV
-    - name: Get Swift version
-      run: swift --version
-    - name: Build
-      run: swift build
-    - name: Run tests
-      run: swift test
+    - run: swift --version
+    - run: swift build
+    - run: swift test

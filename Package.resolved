@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-syntax",
       "state" : {
-        "branch" : "swift-DEVELOPMENT-SNAPSHOT-2023-08-26-a",
-        "revision" : "1248cf7afd01aacbb8f11b684724793c4f2fd4b2"
+        "revision" : "7bb5231dad28c6dceabf7a439867f39d2c105e4f",
+        "version" : "509.0.0-swift-DEVELOPMENT-SNAPSHOT-2023-09-05-a"
       }
     }
   ],
