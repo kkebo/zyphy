@@ -2,20 +2,15 @@
 
 This is a web browser engine written in Swift, and is partially inspired by Servo's [html5ever](https://github.com/servo/html5ever). **This project is in a very early stage.**
 
+## Prerequisites
+
+- Linux
+  - Swift nightly toolchain (available from [development snapshots](https://www.swift.org/download/) or [nightly Docker images](https://hub.docker.com/r/swiftlang/swift))
+- macOS
+  - Xcode 15 or later
+  - Swift nightly toolchain (available from [development snapshots](https://www.swift.org/download/))
+
 ## Building
-
-### Linux
-
-TODO ([The main blocker is the lack of macros support in Linux.](https://forums.swift.org/t/65427))
-
-### macOS
-
-You need:
-
-- Xcode 15 or later
-- Swift nightly toolchain
-
-And then, run the following command to build the source code.
 
 ```shell
 swift build
