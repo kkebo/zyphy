@@ -17,6 +17,11 @@ let package = Package(
                 .product(name: "Tokenizer", package: "Browser"),
             ],
             path: "Benchmarks/MyBenchmark",
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
+                .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
+                .unsafeFlags(["-swift-version", "6"]),
+            ],
             plugins: [
                 .plugin(name: "BenchmarkPlugin", package: "package-benchmark")
             ]

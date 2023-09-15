@@ -21,10 +21,7 @@ let package = Package(
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
-                .unsafeFlags(["-Xfrontend", "-strict-concurrency=complete"]),
-                .enableUpcomingFeature("BareSlashRegexLiterals"),
-                .enableUpcomingFeature("ExistentialAny"),
-                .enableUpcomingFeature("ImplicitOpenExistentials"),
+                .unsafeFlags(["-swift-version", "6"]),
                 .enableExperimentalFeature("CodeItemMacros"),
             ]
         ),
@@ -33,14 +30,26 @@ let package = Package(
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
+                .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
+                .unsafeFlags(["-swift-version", "6"]),
             ]
+
         ),
         .testTarget(
             name: "TokenizerTests",
             dependencies: [
                 "TokenizerMacros",
                 "Tokenizer",
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
+                .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
+                .unsafeFlags(["-swift-version", "6"]),
             ]
+
         ),
     ]
 )

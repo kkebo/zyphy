@@ -4,7 +4,7 @@
 
     @main
     struct MyPlugin {
-        let providingMacros: [Macro.Type] = [
+        let providingMacros: [any Macro.Type] = [
             GoMacro.self
         ]
     }
