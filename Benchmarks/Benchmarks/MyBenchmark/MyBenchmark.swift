@@ -13,17 +13,17 @@ extension TestSink: TokenSink {
 
 let benchmarks = {
     let html = #"""
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-    <meta charset="UTF-8" />
-    <title>title</title>
-    </head>
-    <body>
-    hi
-    </body>
-    </html>
-    """#
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8" />
+        <title>title</title>
+        </head>
+        <body>
+        hi
+        </body>
+        </html>
+        """#
 
     Benchmark("TokenizerBenchmark", configuration: .init(scalingFactor: .mega)) { benchmark in
         let sink = TestSink()

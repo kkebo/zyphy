@@ -3,7 +3,7 @@ public struct DOCTYPE {
     public var forceQuirks: Bool
 
     public init(
-        name: consuming Optional<String> = nil,
+        name: consuming String? = nil,
         forceQuirks: consuming Bool = false
     ) {
         self.name = consume name

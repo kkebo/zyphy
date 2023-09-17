@@ -15,17 +15,17 @@ extension TestSink: TokenSink {
 final class TokenizerTests: XCTestCase {
     func testTokenizeBasicHTML() {
         let html = #"""
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-        <meta charset="UTF-8" />
-        <title>title</title>
-        </head>
-        <body>
-        hi
-        </body>
-        </html>
-        """#
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+            <meta charset="UTF-8" />
+            <title>title</title>
+            </head>
+            <body>
+            hi
+            </body>
+            </html>
+            """#
 
         let sink = TestSink()
         var tokenizer = Tokenizer(sink: sink)

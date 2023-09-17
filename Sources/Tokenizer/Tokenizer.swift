@@ -70,6 +70,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
     }
 
+    // swift-format-ignore
     private mutating func step(_ input: inout String.Iterator) -> ProcessResult {
         self.charRefTokenizer?.tokenize(&input)
 
@@ -485,12 +486,11 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func getChar(from input: inout String.Iterator) -> Character? {
-        if let reconsumeChar {
-            self.reconsumeChar = nil
-            return reconsumeChar
-        } else {
+        guard let reconsumeChar else {
             return input.next()
         }
+        self.reconsumeChar = nil
+        return reconsumeChar
     }
 
     private mutating func startsExact(
