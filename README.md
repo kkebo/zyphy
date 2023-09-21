@@ -1,6 +1,9 @@
 # Zyphy
 
-Zyphy is (or will be) a fast web browser engine written in Swift, and is partially inspired by Servo's [html5ever](https://github.com/servo/html5ever). **This project is in a very early stage.**
+Zyphy is (or will be) a fast web browser engine written in Swift, and is partially inspired by Servo's [html5ever](https://github.com/servo/html5ever).
+
+> [!IMPORTANT]
+> This package is under development.
 
 ## Prerequisites
 
