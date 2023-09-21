@@ -4,7 +4,7 @@ import CompilerPluginSupport
 import PackageDescription
 
 let package = Package(
-    name: "Browser",
+    name: "zyphy",
     platforms: [.macOS(.v10_15), .iOS(.v13)],
     products: [
         .library(name: "Tokenizer", targets: ["Tokenizer"])
