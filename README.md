@@ -4,11 +4,14 @@ Zyphy is (or will be) a fast web browser engine written in Swift, and is partial
 
 ## Prerequisites
 
-- Linux
-  - Swift nightly toolchain (available from [development snapshots](https://www.swift.org/download/) or [nightly Docker images](https://hub.docker.com/r/swiftlang/swift))
-- macOS
-  - Xcode 15 or later
-  - Swift nightly toolchain (available from [development snapshots](https://www.swift.org/download/))
+- Swift nightly toolchain
+
+On Linux, you can easily install the toolchain using [swiftly](https://swift-server.github.io/swiftly/).
+
+```shell
+curl -L https://swift-server.github.io/swiftly/swiftly-install.sh | bash
+swiftly install main-snapshot
+```
 
 ## Building
 
@@ -24,9 +27,7 @@ swift test
 
 ## Benchmarking
 
-You need:
-
-- jemalloc
+You must install jemalloc beforehand.
 
 ```shell
 swift package --package-path Benchmarks benchmark
