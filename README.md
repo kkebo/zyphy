@@ -30,7 +30,7 @@ swift test
 
 ## Benchmarking
 
-You must install jemalloc beforehand.
+You must install jemalloc beforehand. (`pacman -S jemalloc`, `apt install libjemalloc-dev`, or something)
 
 ```shell
 swift package --package-path Benchmarks benchmark
