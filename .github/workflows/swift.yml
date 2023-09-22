@@ -34,3 +34,10 @@ jobs:
   #   - run: swift --version
   #   - run: swift build
   #   - run: swift test
+
+  lint:
+    runs-on: ubuntu-latest
+    container: mtgto/swift-format:5.9
+    steps:
+    - uses: actions/checkout@v3
+    - run: swift-format lint -rs Package.swift Sources/ Tests/ Benchmarks/Package.swift Benchmarks/Benchmarks/
