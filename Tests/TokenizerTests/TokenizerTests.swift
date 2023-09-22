@@ -26,8 +26,7 @@ extension TestSink: TokenSink {
         </html>
         """#
 
-    let sink = TestSink()
-    var tokenizer = Tokenizer(sink: sink)
+    var tokenizer = Tokenizer(sink: TestSink())
     var iter = html.makeIterator()
     tokenizer.tokenize(&iter)
 

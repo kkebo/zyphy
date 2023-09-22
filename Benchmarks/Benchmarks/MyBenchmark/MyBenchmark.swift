@@ -26,8 +26,7 @@ let benchmarks = {
         """#
 
     Benchmark("TokenizerBenchmark", configuration: .init(scalingFactor: .mega)) { benchmark in
-        let sink = TestSink()
-        var tokenizer = Tokenizer(sink: sink)
+        var tokenizer = Tokenizer(sink: TestSink())
         var iter = html.makeIterator()
         benchmark.startMeasurement()
         for _ in benchmark.scaledIterations {
