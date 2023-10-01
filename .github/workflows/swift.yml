@@ -39,5 +39,5 @@ jobs:
     runs-on: ubuntu-latest
     container: ghcr.io/kkk669/swift-format-docker:509.0.0
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - run: swift-format lint -rs Package.swift Sources/ Tests/ Benchmarks/Package.swift Benchmarks/Benchmarks/
