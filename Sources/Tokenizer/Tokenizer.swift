@@ -191,6 +191,26 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 #go(emit: .eof)
             }
         }
+        case .rawtextLessThanSign: fatalError("Not implemented")
+        case .rawtextEndTagOpen: fatalError("Not implemented")
+        case .rawtextEndTagName: fatalError("Not implemented")
+        case .scriptDatalessThanSign: fatalError("Not implemented")
+        case .scriptDataEndTagOpen: fatalError("Not implemented")
+        case .scriptDataEndTagName: fatalError("Not implemented")
+        case .scriptDataEscapeStart: fatalError("Not implemented")
+        case .scriptDataEscapeStartDash: fatalError("Not implemented")
+        case .scriptDataEscaped: fatalError("Not implemented")
+        case .scriptDataEscapedDash: fatalError("Not implemented")
+        case .scriptDataEscapedDashDash: fatalError("Not implemented")
+        case .scriptDataEscapedLessThanSign: fatalError("Not implemented")
+        case .scriptDataEscapedEndTagOpen: fatalError("Not implemented")
+        case .scriptDataEscapedEndTagName: fatalError("Not implemented")
+        case .scriptDataDoubleEscapeStart: fatalError("Not implemented")
+        case .scriptDataDoubleEscaped: fatalError("Not implemented")
+        case .scriptDataDoubleEscapedDash: fatalError("Not implemented")
+        case .scriptDataDoubleEscapedDashDash: fatalError("Not implemented")
+        case .scriptDataDoubleEscapedLessThanSign: fatalError("Not implemented")
+        case .scriptDataDoubleEscapeEnd: fatalError("Not implemented")
         case .beforeAttributeName: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
@@ -329,6 +349,15 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case let c?: #go(emitComment: .comment)
             }
         }
+        case .commentStartDash: fatalError("Not implemented")
+        case .comment: fatalError("Not implemented")
+        case .commentLessThanSign: fatalError("Not implemented")
+        case .commentLessThanSignBang: fatalError("Not implemented")
+        case .commentLessThanSignBangDash: fatalError("Not implemented")
+        case .commentLessThanSignBangDashDash: fatalError("Not implemented")
+        case .commentEndDash: fatalError("Not implemented")
+        case .commentEnd: fatalError("Not implemented")
+        case .commentEndBang: fatalError("Not implemented")
         case .doctype: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEName)
@@ -406,47 +435,115 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .doctypePublicIdentifierDoubleQuoted: while true {
             switch self.getChar(from: &input) {
-            case _: preconditionFailure("Not implemented")
+            case "\"": #go(to: .afterDOCTYPEPublicIdentifier)
+            case ">": #go(error: .abruptDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
+            case "\0":
+                self.emitError(.unexpectedNull)
+                // TODO: Append a U+FFFD REPLACEMENT CHARACTER character to the current DOCTYPE token's public identifier
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+            case _?:
+                // TODO: Append the current input character to the current DOCTYPE token's public identifier
+                break
             }
         }
         case .doctypePublicIdentifierSingleQuoted: while true {
             switch self.getChar(from: &input) {
-            case _: preconditionFailure("Not implemented")
+            case "'": #go(to: .afterDOCTYPEPublicIdentifier)
+            case ">": #go(error: .abruptDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
+            case "\0":
+                self.emitError(.unexpectedNull)
+                // TODO: Append a U+FFFD REPLACEMENT CHARACTER character to the current DOCTYPE token's public identifier
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+            case _?:
+                // TODO: Append the current input character to the current DOCTYPE token's public identifier
+                break
             }
         }
         case .afterDOCTYPEPublicIdentifier: while true {
             switch self.getChar(from: &input) {
-            case _: preconditionFailure("Not implemented")
+            case "\t", "\n", "\u{0C}", " ": #go(to: .betweenDOCTYPEPublicAndSystemIdentifiers)
+            case ">": #go(emitDOCTYPE: .data)
+            case "\"":
+                self.emitError(.missingSpaceBetweenDOCTYPEIDs)
+                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                #go(to: .doctypeSystemIdentifierDoubleQuoted)
+            case "'":
+                self.emitError(.missingSpaceBetweenDOCTYPEIDs)
+                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                #go(to: .doctypeSystemIdentifierSingleQuoted)
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+            case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
+            case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         }
         case .betweenDOCTYPEPublicAndSystemIdentifiers: while true {
             switch self.getChar(from: &input) {
-            case _: preconditionFailure("Not implemented")
+            case "\t", "\n", "\u{0C}", " ": break
+            case ">": #go(emitDOCTYPE: .data)
+            case "\"":
+                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                #go(to: .doctypeSystemIdentifierDoubleQuoted)
+            case "'":
+                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                #go(to: .doctypeSystemIdentifierSingleQuoted)
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+            case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
+            case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         }
         case .afterDOCTYPESystemKeyword: while true {
             switch self.getChar(from: &input) {
-            case _: preconditionFailure("Not implemented")
+            case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPESystemIdentifier)
+            case "\"":
+                self.emitError(.missingSpaceAfterDOCTYPESystemKeyword)
+                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                #go(to: .doctypeSystemIdentifierDoubleQuoted)
+            case "'":
+                self.emitError(.missingSpaceAfterDOCTYPESystemKeyword)
+                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                #go(to: .doctypeSystemIdentifierSingleQuoted)
+            case ">": #go(error: .missingDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+            case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
+            case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         }
         case .beforeDOCTYPESystemIdentifier: while true {
             switch self.getChar(from: &input) {
-            case _: preconditionFailure("Not implemented")
+            case "\t", "\n", "\u{0C}", " ": break
+            case "\"":
+                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                #go(to: .doctypeSystemIdentifierDoubleQuoted)
+            case "'":
+                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                #go(to: .doctypeSystemIdentifierSingleQuoted)
+            case ">": #go(error: .missingDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+            case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
+            case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         }
-        case .doctypeSystemIdentifierDoubleQuoted: while true {
-            switch self.getChar(from: &input) {
-            case _: preconditionFailure("Not implemented")
-            }
-        }
+        case .doctypeSystemIdentifierDoubleQuoted: fallthrough
         case .doctypeSystemIdentifierSingleQuoted: while true {
             switch self.getChar(from: &input) {
-            case _: preconditionFailure("Not implemented")
+            case "\"": #go(to: .afterDOCTYPESystemIdentifier)
+            case "\0":
+                self.emitError(.unexpectedNull)
+                // TODO: Append a U+FFFD REPLACEMENT CHARACTER character to the current DOCTYPE token's system identifier
+            case ">": #go(error: .abruptDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+            case _?:
+                // TODO: Append the current input character to the current DOCTYPE token's system identifier
+                break
             }
         }
         case .afterDOCTYPESystemIdentifier: while true {
             switch self.getChar(from: &input) {
-            case _: preconditionFailure("Not implemented")
+            case "\t", "\n", "\u{0C}", " ": break
+            case ">": #go(emitDOCTYPE: .data)
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+            case "\0": #go(error: .unexpectedCharAfterDOCTYPE, .unexpectedNull, to: .bogusDOCTYPE)
+            case _?: #go(error: .unexpectedCharAfterDOCTYPE, to: .bogusDOCTYPE)
             }
         }
         case .bogusDOCTYPE: while true {
@@ -479,8 +576,6 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case let c?: #go(emit: "]", .char(c), to: .cdataSection)
             }
         }
-        case _:
-            preconditionFailure("Not implemented")
         }
     }
 
