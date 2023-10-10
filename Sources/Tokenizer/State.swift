@@ -57,16 +57,16 @@ enum State {
     case doctypeName
     case afterDOCTYPEName
     case afterDOCTYPEPublicKeyword
-    case beforeDOCTYPEPublicIdentifier
-    case doctypePublicIdentifierDoubleQuoted
-    case doctypePublicIdentifierSingleQuoted
-    case afterDOCTYPEPublicIdentifier
-    case betweenDOCTYPEPublicAndSystemIdentifiers
+    case beforeDOCTYPEPublicID
+    case doctypePublicIDDoubleQuoted
+    case doctypePublicIDSingleQuoted
+    case afterDOCTYPEPublicID
+    case betweenDOCTYPEPublicAndSystemIDs
     case afterDOCTYPESystemKeyword
-    case beforeDOCTYPESystemIdentifier
-    case doctypeSystemIdentifierDoubleQuoted
-    case doctypeSystemIdentifierSingleQuoted
-    case afterDOCTYPESystemIdentifier
+    case beforeDOCTYPESystemID
+    case doctypeSystemIDDoubleQuoted
+    case doctypeSystemIDSingleQuoted
+    case afterDOCTYPESystemID
     case bogusDOCTYPE
     case cdataSection
     case cdataSectionBracket
