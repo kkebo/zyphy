@@ -191,7 +191,17 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 #go(emit: .eof)
             }
         }
-        case .rawtextLessThanSign: fatalError("Not implemented")
+        case .rawtextLessThanSign: while true {
+            switch self.getChar(from: &input) {
+            case "/":
+                //TODO: Set the temporary buffer to the empty string
+                #go(to: .rawtextEndTagOpen)
+            case "<": #go(emit: "<", to: .rawtextLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", "\u{FFFD}", to: .rawtext)
+            case nil: #go(emit: "<", .eof)
+            case let c?: #go(emit: "<", .char(c), to: .rawtext)
+            }
+        }
         case .rawtextEndTagOpen: fatalError("Not implemented")
         case .rawtextEndTagName: fatalError("Not implemented")
         case .scriptDatalessThanSign: fatalError("Not implemented")
