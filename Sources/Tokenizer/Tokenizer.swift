@@ -413,39 +413,39 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .afterDOCTYPEPublicKeyword: while true {
             switch self.getChar(from: &input) {
-            case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEPublicIdentifier)
+            case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEPublicID)
             case "\"":
                 self.emitError(.missingSpaceAfterDOCTYPEPublicKeyword)
                 // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
-                #go(to: .doctypePublicIdentifierDoubleQuoted)
+                #go(to: .doctypePublicIDDoubleQuoted)
             case "'":
                 self.emitError(.missingSpaceAfterDOCTYPEPublicKeyword)
                 // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
-                #go(to: .doctypePublicIdentifierSingleQuoted)
+                #go(to: .doctypePublicIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
             case _: #go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirks: .bogusDOCTYPE)
             }
         }
-        case .beforeDOCTYPEPublicIdentifier: while true {
+        case .beforeDOCTYPEPublicID: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case "\"":
                 // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
-                #go(to: .doctypePublicIdentifierDoubleQuoted)
+                #go(to: .doctypePublicIDDoubleQuoted)
             case "'":
                 // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
-                #go(to: .doctypePublicIdentifierSingleQuoted)
+                #go(to: .doctypePublicIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
             case _: #go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirks: .bogusDOCTYPE)
             }
         }
-        case .doctypePublicIdentifierDoubleQuoted: while true {
+        case .doctypePublicIDDoubleQuoted: while true {
             switch self.getChar(from: &input) {
-            case "\"": #go(to: .afterDOCTYPEPublicIdentifier)
+            case "\"": #go(to: .afterDOCTYPEPublicID)
             case ">": #go(error: .abruptDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
             case "\0":
                 self.emitError(.unexpectedNull)
@@ -456,9 +456,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 break
             }
         }
-        case .doctypePublicIdentifierSingleQuoted: while true {
+        case .doctypePublicIDSingleQuoted: while true {
             switch self.getChar(from: &input) {
-            case "'": #go(to: .afterDOCTYPEPublicIdentifier)
+            case "'": #go(to: .afterDOCTYPEPublicID)
             case ">": #go(error: .abruptDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
             case "\0":
                 self.emitError(.unexpectedNull)
@@ -469,33 +469,33 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 break
             }
         }
-        case .afterDOCTYPEPublicIdentifier: while true {
+        case .afterDOCTYPEPublicID: while true {
             switch self.getChar(from: &input) {
-            case "\t", "\n", "\u{0C}", " ": #go(to: .betweenDOCTYPEPublicAndSystemIdentifiers)
+            case "\t", "\n", "\u{0C}", " ": #go(to: .betweenDOCTYPEPublicAndSystemIDs)
             case ">": #go(emitDOCTYPE: .data)
             case "\"":
                 self.emitError(.missingSpaceBetweenDOCTYPEIDs)
                 // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
-                #go(to: .doctypeSystemIdentifierDoubleQuoted)
+                #go(to: .doctypeSystemIDDoubleQuoted)
             case "'":
                 self.emitError(.missingSpaceBetweenDOCTYPEIDs)
                 // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
-                #go(to: .doctypeSystemIdentifierSingleQuoted)
+                #go(to: .doctypeSystemIDSingleQuoted)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
             case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         }
-        case .betweenDOCTYPEPublicAndSystemIdentifiers: while true {
+        case .betweenDOCTYPEPublicAndSystemIDs: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case ">": #go(emitDOCTYPE: .data)
             case "\"":
                 // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
-                #go(to: .doctypeSystemIdentifierDoubleQuoted)
+                #go(to: .doctypeSystemIDDoubleQuoted)
             case "'":
                 // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
-                #go(to: .doctypeSystemIdentifierSingleQuoted)
+                #go(to: .doctypeSystemIDSingleQuoted)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
             case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
@@ -503,40 +503,40 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .afterDOCTYPESystemKeyword: while true {
             switch self.getChar(from: &input) {
-            case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPESystemIdentifier)
+            case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPESystemID)
             case "\"":
                 self.emitError(.missingSpaceAfterDOCTYPESystemKeyword)
                 // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
-                #go(to: .doctypeSystemIdentifierDoubleQuoted)
+                #go(to: .doctypeSystemIDDoubleQuoted)
             case "'":
                 self.emitError(.missingSpaceAfterDOCTYPESystemKeyword)
                 // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
-                #go(to: .doctypeSystemIdentifierSingleQuoted)
+                #go(to: .doctypeSystemIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
             case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         }
-        case .beforeDOCTYPESystemIdentifier: while true {
+        case .beforeDOCTYPESystemID: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case "\"":
                 // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
-                #go(to: .doctypeSystemIdentifierDoubleQuoted)
+                #go(to: .doctypeSystemIDDoubleQuoted)
             case "'":
                 // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
-                #go(to: .doctypeSystemIdentifierSingleQuoted)
+                #go(to: .doctypeSystemIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
             case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         }
-        case .doctypeSystemIdentifierDoubleQuoted: fallthrough
-        case .doctypeSystemIdentifierSingleQuoted: while true {
+        case .doctypeSystemIDDoubleQuoted: fallthrough
+        case .doctypeSystemIDSingleQuoted: while true {
             switch self.getChar(from: &input) {
-            case "\"": #go(to: .afterDOCTYPESystemIdentifier)
+            case "\"": #go(to: .afterDOCTYPESystemID)
             case "\0":
                 self.emitError(.unexpectedNull)
                 // TODO: Append a U+FFFD REPLACEMENT CHARACTER character to the current DOCTYPE token's system identifier
@@ -547,7 +547,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 break
             }
         }
-        case .afterDOCTYPESystemIdentifier: while true {
+        case .afterDOCTYPESystemID: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case ">": #go(emitDOCTYPE: .data)
