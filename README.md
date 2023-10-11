@@ -10,10 +10,10 @@ Zyphy is (or will be) a fast web browser engine written in Swift.
 - ✅ Ready to Use
   - (Nothing)
 - 🚧 Work in Progress
-  - `Tokenizer` - A HTML tokenizer ([specs](https://html.spec.whatwg.org/multipage/parsing.html#tokenization))
+  - `Tokenizer` - An HTML tokenizer ([specs](https://html.spec.whatwg.org/multipage/parsing.html#tokenization))
 - 🥚 To Do
   - `Zyphy` - The main module
-  - `TreeConstructor` - A HTML tree constructor ([specs](https://html.spec.whatwg.org/multipage/parsing.html#tree-construction))
+  - `TreeConstructor` - An HTML tree constructor ([specs](https://html.spec.whatwg.org/multipage/parsing.html#tree-construction))
 
 ## Prerequisites
 
