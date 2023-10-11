@@ -202,8 +202,42 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case let c?: #go(emit: "<", .char(c), to: .rawtext)
             }
         }
-        case .rawtextEndTagOpen: fatalError("Not implemented")
-        case .rawtextEndTagName: fatalError("Not implemented")
+        case .rawtextEndTagOpen: while true {
+            switch self.getChar(from: &input) {
+            case let c? where c.isASCII && c.isLetter: #go(createEndTag: c, to: .rawtextEndTagName)
+            case nil: #go(emit: "<", "/", .eof)
+            case let c?: #go(emit: "<", "/", reconsume: c, to: .rawtext)
+            }
+        }
+        case .rawtextEndTagName: while true {
+            let c = self.getChar(from: &input)
+            // FIXME: Implement lastStartTagName
+            let lastStartTagName: String? = nil
+            if self.currentTagKind == .end && self.currentTagName == lastStartTagName {
+                switch c {
+                case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
+                case "/": #go(to: .selfClosingStartTag)
+                case ">": #go(emitTag: .data)
+                case _: break
+                }
+            }
+            switch c {
+            case let c? where c.isASCII && c.isUppercase:
+                #go(appendTagName: c.lowercased())
+                // Append the current input character to the temporary buffer
+            case let c? where c.isASCII && c.isLowercase:
+                #go(appendTagName: c)
+                // Append the current input character to the temporary buffer
+            case let c?:
+                #go(emit: "<", "/")
+                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                #go(reconsume: c, to: .rawtext)
+            case nil:
+                #go(emit: "<", "/")
+                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                #go(emit: .eof)
+            }
+        }
         case .scriptDatalessThanSign: fatalError("Not implemented")
         case .scriptDataEndTagOpen: fatalError("Not implemented")
         case .scriptDataEndTagName: fatalError("Not implemented")
