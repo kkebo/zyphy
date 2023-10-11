@@ -10,6 +10,12 @@ jobs:
     container: swiftlang/swift:nightly-main-jammy
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/cache@v3
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
       - run: swift --version
       - run: swift build
       - run: swift test
