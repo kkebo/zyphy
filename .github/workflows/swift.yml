@@ -19,7 +19,7 @@ jobs:
       - run: swift --version
       - run: swift build
       - run: swift test
-    lint:
+  lint:
     runs-on: ubuntu-latest
     container: ghcr.io/kkk669/swift-format-docker:509.0.0
     steps:
