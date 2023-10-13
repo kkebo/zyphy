@@ -17,7 +17,8 @@ let package = Package(
         .target(
             name: "Tokenizer",
             dependencies: [
-                "TokenizerMacros"
+                "TokenizerMacros",
+                .product(name: "Testing", package: "swift-testing"),
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
