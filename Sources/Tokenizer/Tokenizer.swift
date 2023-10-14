@@ -157,7 +157,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .rcdataEndTagOpen: while true {
             switch self.getChar(from: &input) {
-            case let c? where c.isASCII && c.isLetter: #go(createEndTag: c, to: .rcdataEndTagName)
+            case let c? where c.isASCII && c.isLetter:
+                // TODO: Append the current input character to the temporary buffer
+                #go(createEndTag: c.lowercased(), to: .rcdataEndTagName)
             case nil: #go(emit: "<", "/", .eof)
             case let c?: #go(emit: "<", "/", reconsume: c, to: .rcdata)
             }
@@ -204,7 +206,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .rawtextEndTagOpen: while true {
             switch self.getChar(from: &input) {
-            case let c? where c.isASCII && c.isLetter: #go(createEndTag: c, to: .rawtextEndTagName)
+            case let c? where c.isASCII && c.isLetter:
+                // TODO: Append the current input character to the temporary buffer
+                #go(createEndTag: c.lowercased(), to: .rawtextEndTagName)
             case nil: #go(emit: "<", "/", .eof)
             case let c?: #go(emit: "<", "/", reconsume: c, to: .rawtext)
             }
