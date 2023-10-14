@@ -12,6 +12,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-syntax", from: "509.0.0"),
         .package(url: "https://github.com/apple/swift-testing", branch: "main"),
+        .package(url: "https://github.com/apple/swift-foundation", branch: "main"),
     ],
     targets: [
         .target(
@@ -44,6 +45,34 @@ let package = Package(
                 "TokenizerMacros",
                 "Tokenizer",
                 .product(name: "Testing", package: "swift-testing"),
+                .product(name: "FoundationEssentials", package: "swift-foundation"),
+            ],
+            exclude: [
+                "Resources/html5lib-tests/encoding",
+                "Resources/html5lib-tests/lint_lib",
+                "Resources/html5lib-tests/serializer",
+                "Resources/html5lib-tests/tokenizer/README.md",
+                "Resources/html5lib-tests/tokenizer/contentModelFlags.test",
+                "Resources/html5lib-tests/tokenizer/domjs.test",
+                "Resources/html5lib-tests/tokenizer/escapeFlag.test",
+                "Resources/html5lib-tests/tokenizer/entities.test",
+                "Resources/html5lib-tests/tokenizer/namedEntities.test",
+                "Resources/html5lib-tests/tokenizer/numericEntities.test",
+                "Resources/html5lib-tests/tokenizer/pendingSpecChanges.test",
+                "Resources/html5lib-tests/tokenizer/test2.test",
+                "Resources/html5lib-tests/tokenizer/test3.test",
+                "Resources/html5lib-tests/tokenizer/test4.test",
+                "Resources/html5lib-tests/tokenizer/unicodeChars.test",
+                "Resources/html5lib-tests/tokenizer/unicodeCharsProblematic.test",
+                "Resources/html5lib-tests/tokenizer/xmlViolation.test",
+                "Resources/html5lib-tests/tree-construction",
+                "Resources/html5lib-tests/AUTHORS.rst",
+                "Resources/html5lib-tests/LICENSE",
+                "Resources/html5lib-tests/lint",
+                "Resources/html5lib-tests/pyproject.toml",
+            ],
+            resources: [
+                .embedInCode("Resources/html5lib-tests/tokenizer/test1.test")
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
