@@ -819,33 +819,21 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func emitTag() {
+    private mutating func emitTag(selfClosing: consuming Bool = false) {
         self.pushAttr()
-        self.sink.process(
-            .tag(
-                Tag(
-                    name: self.currentTagName,
-                    kind: self.currentTagKind,
-                    attrs: self.currentAttrs,
-                    selfClosing: false
-                )
-            )
-        )
-    }
 
-    @inline(__always)
-    private mutating func emitSelfClosingTag() {
-        self.pushAttr()
-        self.sink.process(
-            .tag(
-                Tag(
-                    name: self.currentTagName,
-                    kind: self.currentTagKind,
-                    attrs: self.currentAttrs,
-                    selfClosing: true
-                )
-            )
-        )
+        let name = self.currentTagName
+        let attrs = self.currentAttrs
+
+        switch self.currentTagKind {
+        case .start:
+            // TODO: self.lastStartTagName = name
+            self.sink.process(.tag(Tag(name: name, kind: .start, attrs: attrs, selfClosing: consume selfClosing)))
+        case .end:
+            if !attrs.isEmpty { self.emitError(.endTagWithAttrs) }
+            if copy selfClosing { self.emitError(.endTagWithTrailingSolidus) }
+            self.sink.process(.tag(Tag(name: name, kind: .end, attrs: [], selfClosing: consume selfClosing)))
+        }
     }
 
     @inline(__always)

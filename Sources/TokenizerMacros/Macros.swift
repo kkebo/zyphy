@@ -86,7 +86,7 @@ extension GoMacro: CodeItemMacro {
                     break loop
                 case "emitSelfClosingTag":
                     precondition(argList.count == 1)
-                    items += ["self.go(to: \(arg.expression))", "self.emitSelfClosingTag()", "return .continue"]
+                    items += ["self.go(to: \(arg.expression))", "self.emitTag(selfClosing: true)", "return .continue"]
                     break loop
                 case "createDOCTYPE":
                     items += ["self.createDOCTYPE(with: \(arg.expression))"]
