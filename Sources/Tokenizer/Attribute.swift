@@ -1,4 +1,4 @@
-public struct Attribute: Equatable {
+public struct Attribute: Equatable, Sendable {
     public var name: String
     public var value: String
 

@@ -1,4 +1,4 @@
-public struct Tag: Equatable {
+public struct Tag: Equatable, Sendable {
     public var name: String
     public var kind: TagKind
     public var attrs: [Attribute]

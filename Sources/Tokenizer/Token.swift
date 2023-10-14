@@ -1,4 +1,4 @@
-public enum Token: Equatable {
+public enum Token: Equatable, Sendable {
     case char(Character)
     case tag(Tag)
     case comment(String)

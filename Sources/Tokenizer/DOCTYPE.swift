@@ -1,4 +1,4 @@
-public struct DOCTYPE: Equatable {
+public struct DOCTYPE: Equatable, Sendable {
     public var name: Optional<String>
     public var forceQuirks: Bool
 
