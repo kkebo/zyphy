@@ -242,8 +242,25 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 #go(emit: .eof)
             }
         }
-        case .scriptDatalessThanSign: fatalError("Not implemented")
-        case .scriptDataEndTagOpen: fatalError("Not implemented")
+        case .scriptDatalessThanSign: while true {
+            switch self.getChar(from: &input) {
+            case "/":
+                // TODO: Set the temporary buffer to the empty string
+                #go(to: .scriptDataEndTagOpen)
+            case "!": #go(emit: "<", "!", to: .scriptDataEscapeStart)
+            case nil: #go(emit: "<", .eof)
+            case let c?: #go(emit: "<", reconsume: c, to: .scriptData)
+            }
+        }
+        case .scriptDataEndTagOpen: while true {
+            switch self.getChar(from: &input) {
+            case let c? where c.isASCII && c.isLetter:
+                // TODO: Append the current input character to the temporary buffer
+                #go(createEndTag: c.lowercased(), to: .scriptDataEndTagName)
+            case nil: #go(emit: "<", "/", .eof)
+            case let c?: #go(emit: "<", "/", reconsume: c, to: .scriptData)
+            }
+        }
         case .scriptDataEndTagName: fatalError("Not implemented")
         case .scriptDataEscapeStart: fatalError("Not implemented")
         case .scriptDataEscapeStartDash: fatalError("Not implemented")
