@@ -358,9 +358,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case nil: #go(error: .eofInTag, emit: .eof)
             case "\"": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
             case "'": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "'")
-            case "<": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
-            case "=": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
-            case "`": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
+            case "<": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "<")
+            case "=": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "=")
+            case "`": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "`")
             case let c?: #go(appendAttrValue: c)
             }
         }
