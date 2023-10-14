@@ -4,7 +4,7 @@ import SwiftSyntaxMacros
 public struct GoMacro {}
 
 extension GoMacro: CodeItemMacro {
-    public static func expansion(
+    static func expansion(
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
     ) throws -> [CodeBlockItemSyntax] {
