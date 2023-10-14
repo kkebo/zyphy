@@ -1,8 +1,7 @@
 public import Testing
+import Tokenizer
 
-@testable import Tokenizer
-
-struct TestSink {
+private struct TestSink {
     var tokens = [Token]()
 }
 
