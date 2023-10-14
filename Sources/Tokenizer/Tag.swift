@@ -1,4 +1,4 @@
-public struct Tag {
+public struct Tag: Equatable {
     public var name: String
     public var kind: TagKind
     public var attrs: [Attribute]
@@ -16,5 +16,3 @@ public struct Tag {
         self.selfClosing = consume selfClosing
     }
 }
-
-extension Tag: Equatable {}

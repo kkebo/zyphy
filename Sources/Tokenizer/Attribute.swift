@@ -1,4 +1,4 @@
-public struct Attribute {
+public struct Attribute: Equatable {
     public var name: String
     public var value: String
 
@@ -7,5 +7,3 @@ public struct Attribute {
         self.value = consume value
     }
 }
-
-extension Attribute: Equatable {}

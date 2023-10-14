@@ -1,4 +1,4 @@
-public struct DOCTYPE {
+public struct DOCTYPE: Equatable {
     public var name: Optional<String>
     public var forceQuirks: Bool
 
@@ -10,5 +10,3 @@ public struct DOCTYPE {
         self.forceQuirks = consume forceQuirks
     }
 }
-
-extension DOCTYPE: Equatable {}

@@ -1,4 +1,4 @@
-public enum ParseError {
+public enum ParseError: Error {
     case abruptClosingComment
     case abruptDOCTYPEPublicID
     case abruptDOCTYPESystemID
@@ -49,5 +49,3 @@ public enum ParseError {
     case unexpectedSolidus
     case unknownNamedCharRef
 }
-
-extension ParseError: Error {}

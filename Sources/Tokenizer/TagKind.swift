@@ -1,6 +1,4 @@
-public enum TagKind {
+public enum TagKind: Equatable {
     case start
     case end
 }
-
-extension TagKind: Equatable {}

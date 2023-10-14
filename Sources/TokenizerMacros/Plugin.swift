@@ -3,11 +3,9 @@
     import SwiftSyntaxMacros
 
     @main
-    struct MyPlugin {
+    struct MyPlugin: CompilerPlugin {
         let providingMacros: [any Macro.Type] = [
             GoMacro.self
         ]
     }
-
-    extension MyPlugin: CompilerPlugin {}
 #endif

@@ -1,4 +1,4 @@
-public enum Token {
+public enum Token: Equatable {
     case char(Character)
     case tag(Tag)
     case comment(String)
@@ -6,8 +6,6 @@ public enum Token {
     case eof
     case error(ParseError)
 }
-
-extension Token: Equatable {}
 
 // TODO: Consider to use ExpressibleByExtendedGraphemeClusterLiteral or ExpressibleByUnicodeScalarLiteral
 extension Token: ExpressibleByExtendedGraphemeClusterLiteral {
