@@ -754,7 +754,11 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func pushAttr() {
         guard !self.currentAttrName.isEmpty else { return }
-        self.currentAttrs.append(.init(name: self.currentAttrName, value: self.currentAttrValue))
+        if self.currentAttrs.contains(where: { $0.name == self.currentAttrName }) {
+            self.emitError(.duplicateAttr)
+        } else {
+            self.currentAttrs.append(.init(name: self.currentAttrName, value: self.currentAttrValue))
+        }
         self.currentAttrName.removeAll()
         self.currentAttrValue.removeAll()
     }
