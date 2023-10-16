@@ -60,12 +60,12 @@ struct ExpectedToken {
                 guard case (.str(let name), .dict(let attrs), .bool(true)) = (fields[1], fields[2], fields[3]) else {
                     throw TestParseError.invalidTokenFormat
                 }
-                return [.tag(.init(name: name, kind: .start, attrs: attrs.map { k, v in .init(name: k, value: v) }, selfClosing: true))]
+                return [.tag(.init(name: name, kind: .start, attrs: attrs, selfClosing: true))]
             case 3:
                 guard case (.str(let name), .dict(let attrs)) = (fields[1], fields[2]) else {
                     throw TestParseError.invalidTokenFormat
                 }
-                return [.tag(.init(name: name, kind: .start, attrs: attrs.map { k, v in .init(name: k, value: v) }))]
+                return [.tag(.init(name: name, kind: .start, attrs: attrs))]
             case _: throw TestParseError.invalidTokenFormat
             }
         case .str("EndTag"):
