@@ -32,11 +32,11 @@ extension TestSink: TokenSink {
     let tokens: [Token] = [
         .doctype(.init(name: "html")),
         "\n",
-        .tag(Tag(name: "html", kind: .start, attrs: [.init(name: "lang", value: "en")])),
+        .tag(Tag(name: "html", kind: .start, attrs: ["lang": "en"])),
         "\n",
         .tag(Tag(name: "head", kind: .start)),
         "\n",
-        .tag(Tag(name: "meta", kind: .start, attrs: [.init(name: "charset", value: "UTF-8")], selfClosing: true)),
+        .tag(Tag(name: "meta", kind: .start, attrs: ["charset": "UTF-8"], selfClosing: true)),
         "\n",
         .tag(Tag(name: "title", kind: .start)),
         "t",

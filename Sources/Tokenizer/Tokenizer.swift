@@ -42,7 +42,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     var currentTagKind: TagKind
     var currentAttrName: String
     var currentAttrValue: String
-    var currentAttrs: [Attribute]
+    var currentAttrs: [String: String]
     var currentComment: String
     var currentDOCTYPE: DOCTYPE
 
@@ -55,7 +55,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         self.currentTagKind = .start
         self.currentAttrName = ""
         self.currentAttrValue = ""
-        self.currentAttrs = []
+        self.currentAttrs = [:]
         self.currentComment = ""
         self.currentDOCTYPE = .init()
     }
@@ -754,10 +754,10 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func pushAttr() {
         guard !self.currentAttrName.isEmpty else { return }
-        if self.currentAttrs.contains(where: { $0.name == self.currentAttrName }) {
+        if self.currentAttrs.keys.contains(self.currentAttrName) {
             self.emitError(.duplicateAttr)
         } else {
-            self.currentAttrs.append(.init(name: self.currentAttrName, value: self.currentAttrValue))
+            self.currentAttrs[self.currentAttrName] = self.currentAttrValue
         }
         self.currentAttrName.removeAll()
         self.currentAttrValue.removeAll()
@@ -836,7 +836,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .end:
             if !attrs.isEmpty { self.emitError(.endTagWithAttrs) }
             if copy selfClosing { self.emitError(.endTagWithTrailingSolidus) }
-            self.sink.process(.tag(Tag(name: name, kind: .end, attrs: [], selfClosing: consume selfClosing)))
+            self.sink.process(.tag(Tag(name: name, kind: .end, attrs: [:], selfClosing: consume selfClosing)))
         }
     }
 
