@@ -45,6 +45,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     var currentAttrs: [String: String]
     var currentComment: String
     var currentDOCTYPE: DOCTYPE
+    var afterCR: Bool
 
     public init(sink: consuming Sink) {
         self.sink = consume sink
@@ -58,6 +59,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         self.currentAttrs = [:]
         self.currentComment = ""
         self.currentDOCTYPE = .init()
+        self.afterCR = false
     }
 
     // TODO: Consider input type
@@ -659,7 +661,18 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func getChar(from input: inout String.Iterator) -> Character? {
         guard let reconsumeChar else {
-            guard let c = input.next() else { return nil }
+            guard var c = input.next() else { return nil }
+            if self.afterCR {
+                self.afterCR = false
+                if c == "\n" {
+                    guard let next = input.next() else { return nil }
+                    c = next
+                }
+            }
+            if c == "\r" {
+                self.afterCR = true
+                return "\n"
+            }
             // TODO: Any occurrences of surrogates are surrogate-in-input-stream parse errors
             // TODO: Any occurrences of noncharacters are noncharacter-in-input-stream parse errors
             switch c {
