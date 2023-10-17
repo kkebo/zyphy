@@ -293,7 +293,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .attributeName: while true {
             switch self.getChar(from: &input) {
-            case "\t", "\n", "\u{0C}", " ": break
+            case "\t", "\n", "\u{0C}", " ": #go(to: .afterAttributeName)
             case "/": #go(to: .selfClosingStartTag)
             case ">": #go(emitTag: .data)
             case "=": #go(to: .beforeAttributeValue)
