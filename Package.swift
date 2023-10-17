@@ -12,7 +12,6 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-syntax", from: "509.0.0"),
         .package(url: "https://github.com/apple/swift-testing", branch: "main"),
-        .package(url: "https://github.com/apple/swift-foundation", branch: "main"),
     ],
     targets: [
         .target(
@@ -45,7 +44,6 @@ let package = Package(
                 "TokenizerMacros",
                 "Tokenizer",
                 .product(name: "Testing", package: "swift-testing"),
-                .product(name: "FoundationEssentials", package: "swift-foundation"),
             ],
             exclude: [
                 "Resources/html5lib-tests/encoding",
@@ -71,8 +69,8 @@ let package = Package(
                 "Resources/html5lib-tests/pyproject.toml",
             ],
             resources: [
-                .embedInCode("Resources/html5lib-tests/tokenizer/test1.test"),
-                .embedInCode("Resources/html5lib-tests/tokenizer/test2.test"),
+                .process("Resources/html5lib-tests/tokenizer/test1.test"),
+                .process("Resources/html5lib-tests/tokenizer/test2.test"),
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),

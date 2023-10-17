@@ -1,4 +1,4 @@
-import FoundationEssentials
+import Foundation
 
 @testable import Tokenizer
 

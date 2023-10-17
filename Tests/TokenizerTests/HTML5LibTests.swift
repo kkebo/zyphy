@@ -1,4 +1,4 @@
-import FoundationEssentials
+import Foundation
 public import Testing
 
 @testable import Tokenizer
@@ -17,12 +17,12 @@ extension TestSink: TokenSink {
     }
 }
 
-// swift-format-ignore: NeverUseForceTry
+// swift-format-ignore: NeverUseForceTry, NeverForceUnwrap
 private let testCases = try! [
-    PackageResources.test1_test,
-    PackageResources.test2_test,
+    Bundle.module.url(forResource: "test1", withExtension: "test")!,
+    Bundle.module.url(forResource: "test2", withExtension: "test")!,
 ]
-.flatMap { try parseTestCases(from: Data($0)) }
+.flatMap { try parseTestCases(from: Data(contentsOf: $0)) }
 
 @Test("html5lib-tests", arguments: testCases)
 public func html5libTests(_ testCase: TestCase) throws {
