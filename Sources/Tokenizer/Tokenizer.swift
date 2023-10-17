@@ -588,10 +588,22 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         }
-        case .doctypeSystemIDDoubleQuoted: fallthrough
-        case .doctypeSystemIDSingleQuoted: while true {
+        case .doctypeSystemIDDoubleQuoted: while true {
             switch self.getChar(from: &input) {
             case "\"": #go(to: .afterDOCTYPESystemID)
+            case "\0":
+                self.emitError(.unexpectedNull)
+                // TODO: Append a U+FFFD REPLACEMENT CHARACTER character to the current DOCTYPE token's system identifier
+            case ">": #go(error: .abruptDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
+            case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
+            case _?:
+                // TODO: Append the current input character to the current DOCTYPE token's system identifier
+                break
+            }
+        }
+        case .doctypeSystemIDSingleQuoted: while true {
+            switch self.getChar(from: &input) {
+            case "'": #go(to: .afterDOCTYPESystemID)
             case "\0":
                 self.emitError(.unexpectedNull)
                 // TODO: Append a U+FFFD REPLACEMENT CHARACTER character to the current DOCTYPE token's system identifier
