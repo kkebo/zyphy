@@ -659,7 +659,15 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func getChar(from input: inout String.Iterator) -> Character? {
         guard let reconsumeChar else {
-            return input.next()
+            guard let c = input.next() else { return nil }
+            // TODO: Any occurrences of surrogates are surrogate-in-input-stream parse errors
+            // TODO: Any occurrences of noncharacters are noncharacter-in-input-stream parse errors
+            switch c {
+            case "\u{01}"..."\u{08}", "\u{0B}", "\u{0E}"..."\u{1F}", "\u{7F}"..."\u{9F}":
+                self.emitError(.controlCharInInput)
+            case _: break
+            }
+            return c
         }
         self.reconsumeChar = nil
         return reconsumeChar
