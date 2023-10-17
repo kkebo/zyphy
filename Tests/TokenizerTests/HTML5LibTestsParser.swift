@@ -122,7 +122,7 @@ enum InitialState: String, Decodable {
     case rcdata = "RCDATA state"
     case rawtext = "RAWTEXT state"
     case scriptData = "Script data state"
-    case cdataSection = "CDATA section"
+    case cdataSection = "CDATA section state"
 }
 
 extension State {
