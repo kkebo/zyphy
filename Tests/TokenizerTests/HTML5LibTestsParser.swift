@@ -51,33 +51,33 @@ struct ExpectedToken {
         switch fields[0] {
         case .str("DOCTYPE"):
             guard case (.str(let name), _, _, .bool(let correctness)) = (fields[1], fields[2], fields[3], fields[4]) else {
-                throw TestParseError.invalidTokenFormat
+                throw TestParseError.invalidTokenFormat(fields)
             }
             return [.doctype(.init(name: name, forceQuirks: !correctness))]
         case .str("StartTag"):
             switch fields.count {
             case 4:
                 guard case (.str(let name), .dict(let attrs), .bool(true)) = (fields[1], fields[2], fields[3]) else {
-                    throw TestParseError.invalidTokenFormat
+                    throw TestParseError.invalidTokenFormat(fields)
                 }
                 return [.tag(.init(name: name, kind: .start, attrs: attrs, selfClosing: true))]
             case 3:
                 guard case (.str(let name), .dict(let attrs)) = (fields[1], fields[2]) else {
-                    throw TestParseError.invalidTokenFormat
+                    throw TestParseError.invalidTokenFormat(fields)
                 }
                 return [.tag(.init(name: name, kind: .start, attrs: attrs))]
-            case _: throw TestParseError.invalidTokenFormat
+            case _: throw TestParseError.invalidTokenFormat(fields)
             }
         case .str("EndTag"):
-            guard case .str(let name) = fields[1] else { throw TestParseError.invalidTokenFormat }
+            guard case .str(let name) = fields[1] else { throw TestParseError.invalidTokenFormat(fields) }
             return [.tag(.init(name: name, kind: .end))]
         case .str("Comment"):
-            guard case .str(let data) = fields[1] else { throw TestParseError.invalidTokenFormat }
+            guard case .str(let data) = fields[1] else { throw TestParseError.invalidTokenFormat(fields) }
             return [.comment(data)]
         case .str("Character"):
-            guard case .str(let data) = fields[1] else { throw TestParseError.invalidTokenFormat }
+            guard case .str(let data) = fields[1] else { throw TestParseError.invalidTokenFormat(fields) }
             return data.map(Token.char)
-        case _: throw TestParseError.invalidTokenType
+        case let type: throw TestParseError.invalidTokenType(type)
         }
     }
 }
@@ -151,8 +151,8 @@ public struct TestCase: Equatable, CustomStringConvertible, Sendable {
 }
 
 enum TestParseError: Error {
-    case invalidTokenType
-    case invalidTokenFormat
+    case invalidTokenType(ExpectedTokenField?)
+    case invalidTokenFormat([ExpectedTokenField?])
 }
 
 // swift-format-ignore: NeverForceUnwrap
