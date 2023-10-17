@@ -22,6 +22,7 @@ private let testCases = try! [
     Bundle.module.url(forResource: "test1", withExtension: "test")!,
     Bundle.module.url(forResource: "test2", withExtension: "test")!,
     Bundle.module.url(forResource: "test3", withExtension: "test")!,
+    Bundle.module.url(forResource: "test4", withExtension: "test")!,
 ]
 .flatMap { try parseTestCases(from: Data(contentsOf: $0)) }
 
