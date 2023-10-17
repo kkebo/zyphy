@@ -21,6 +21,7 @@ extension TestSink: TokenSink {
 private let testCases = try! [
     Bundle.module.url(forResource: "test1", withExtension: "test")!,
     Bundle.module.url(forResource: "test2", withExtension: "test")!,
+    Bundle.module.url(forResource: "test3", withExtension: "test")!,
 ]
 .flatMap { try parseTestCases(from: Data(contentsOf: $0)) }
 
@@ -89,6 +90,192 @@ public func html5libTests(_ testCase: TestCase) throws {
     case "Entity + newline": return
     case "Start tag with no attributes but space before the greater-than sign": return
     case "Empty end tag with following comment": return
+    case "&": return
+    case "<!--\\u0000": return
+    case "<!--\\u0009": return
+    case "<!--\\u000A": return
+    case "<!--\\u000B": return
+    case "<!--\\u000C": return
+    case "<!-- ": return
+    case "<!-- \\u0000": return
+    case "<!-- \\u0009": return
+    case "<!-- \\u000A": return
+    case "<!-- \\u000B": return
+    case "<!-- \\u000C": return
+    case "<!--  ": return
+    case "<!-- !": return
+    case "<!-- \"": return
+    case "<!-- &": return
+    case "<!-- '": return
+    case "<!-- ,": return
+    case "<!-- -": return
+    case "<!-- -\\u0000": return
+    case "<!-- -\\u0009": return
+    case "<!-- -\\u000A": return
+    case "<!-- -\\u000B": return
+    case "<!-- -\\u000C": return
+    case "<!-- - ": return
+    case "<!-- -!": return
+    case "<!-- -\"": return
+    case "<!-- -&": return
+    case "<!-- -'": return
+    case "<!-- -,": return
+    case "<!-- --": return
+    case "<!-- -.": return
+    case "<!-- -/": return
+    case "<!-- -0": return
+    case "<!-- -1": return
+    case "<!-- -9": return
+    case "<!-- -<": return
+    case "<!-- -=": return
+    case "<!-- ->": return
+    case "<!-- -?": return
+    case "<!-- -@": return
+    case "<!-- -A": return
+    case "<!-- -B": return
+    case "<!-- -Y": return
+    case "<!-- -Z": return
+    case "<!-- -`": return
+    case "<!-- -a": return
+    case "<!-- -b": return
+    case "<!-- -y": return
+    case "<!-- -z": return
+    case "<!-- -{": return
+    case "<!-- -\\uDBC0\\uDC00": return
+    case "<!-- .": return
+    case "<!-- /": return
+    case "<!-- 0": return
+    case "<!-- 1": return
+    case "<!-- 9": return
+    case "<!-- <": return
+    case "<!-- =": return
+    case "<!-- >": return
+    case "<!-- ?": return
+    case "<!-- @": return
+    case "<!-- A": return
+    case "<!-- B": return
+    case "<!-- Y": return
+    case "<!-- Z": return
+    case "<!-- `": return
+    case "<!-- a": return
+    case "<!-- b": return
+    case "<!-- y": return
+    case "<!-- z": return
+    case "<!-- {": return
+    case "<!-- \\uDBC0\\uDC00": return
+    case "<!--!": return
+    case "<!--\"": return
+    case "<!--&": return
+    case "<!--'": return
+    case "<!--,": return
+    case "<!---": return
+    case "<!---\\u0000": return
+    case "<!---\\u0009": return
+    case "<!---\\u000A": return
+    case "<!---\\u000B": return
+    case "<!---\\u000C": return
+    case "<!--- ": return
+    case "<!---!": return
+    case "<!---\"": return
+    case "<!---&": return
+    case "<!---'": return
+    case "<!---,": return
+    case "<!----": return
+    case "<!----\\u0000": return
+    case "<!----\\u0009": return
+    case "<!----\\u000A": return
+    case "<!----\\u000B": return
+    case "<!----\\u000C": return
+    case "<!---- ": return
+    case "<!---- -": return
+    case "<!---- --": return
+    case "<!---- -->": return
+    case "<!----  -->": return
+    case "<!---- a-->": return
+    case "<!----!": return
+    case "<!----!>": return
+    case "<!----! >": return
+    case "<!----!LF>": return
+    case "<!----!CR>": return
+    case "<!----!CRLF>": return
+    case "<!----!a": return
+    case "<!----!a-": return
+    case "<!----!a--": return
+    case "<!----!a-->": return
+    case "<!----!-": return
+    case "<!----!--": return
+    case "<!----!-->": return
+    case "<!----\"": return
+    case "<!----&": return
+    case "<!----'": return
+    case "<!----,": return
+    case "<!-----": return
+    case "<!----.": return
+    case "<!----/": return
+    case "<!----0": return
+    case "<!----1": return
+    case "<!----9": return
+    case "<!----<": return
+    case "<!----=": return
+    case "<!---->": return
+    case "<!----?": return
+    case "<!----@": return
+    case "<!----A": return
+    case "<!----B": return
+    case "<!----Y": return
+    case "<!----Z": return
+    case "<!----`": return
+    case "<!----a": return
+    case "<!----b": return
+    case "<!----y": return
+    case "<!----z": return
+    case "<!----{": return
+    case "<!----\\uDBC0\\uDC00": return
+    case "<!---.": return
+    case "<!---/": return
+    case "<!---0": return
+    case "<!---1": return
+    case "<!---9": return
+    case "<!---<": return
+    case "<!---=": return
+    case "<!---?": return
+    case "<!---@": return
+    case "<!---A": return
+    case "<!---B": return
+    case "<!---Y": return
+    case "<!---Z": return
+    case "<!---`": return
+    case "<!---a": return
+    case "<!---b": return
+    case "<!---y": return
+    case "<!---z": return
+    case "<!---{": return
+    case "<!---\\uDBC0\\uDC00": return
+    case "<!--.": return
+    case "<!--/": return
+    case "<!--0": return
+    case "<!--1": return
+    case "<!--9": return
+    case "<!--<": return
+    case "<!--=": return
+    case "<!--?": return
+    case "<!--@": return
+    case "<!--A": return
+    case "<!--B": return
+    case "<!--Y": return
+    case "<!--Z": return
+    case "<!--`": return
+    case "<!--a": return
+    case "<!--b": return
+    case "<!--y": return
+    case "<!--z": return
+    case "<!--{": return
+    case "<!--\\uDBC0\\uDC00": return
+    case "<&": return
+    case "<a a=\"&\">": return
+    case "<a a=&>": return
+    case "<a a='&'>": return
+    case "<a a=a&>": return
     case _: break
     }
 
