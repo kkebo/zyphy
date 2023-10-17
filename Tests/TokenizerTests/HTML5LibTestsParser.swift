@@ -50,10 +50,13 @@ struct ExpectedToken {
         let fields = self.fields
         switch fields[0] {
         case .str("DOCTYPE"):
-            guard case (.str(let name), _, _, .bool(let correctness)) = (fields[1], fields[2], fields[3], fields[4]) else {
-                throw TestParseError.invalidTokenFormat(fields)
+            return switch (fields[1], fields[2], fields[3], fields[4]) {
+            case (.str(let name), _, _, .bool(let correctness)):
+                [.doctype(.init(name: name, forceQuirks: !correctness))]
+            case (nil, _, _, .bool(let correctness)):
+                [.doctype(.init(name: nil, forceQuirks: !correctness))]
+            case _: throw TestParseError.invalidTokenFormat(fields)
             }
-            return [.doctype(.init(name: name, forceQuirks: !correctness))]
         case .str("StartTag"):
             switch fields.count {
             case 4:
