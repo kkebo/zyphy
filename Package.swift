@@ -57,7 +57,6 @@ let package = Package(
                 "Resources/html5lib-tests/tokenizer/namedEntities.test",
                 "Resources/html5lib-tests/tokenizer/numericEntities.test",
                 "Resources/html5lib-tests/tokenizer/pendingSpecChanges.test",
-                "Resources/html5lib-tests/tokenizer/test3.test",
                 "Resources/html5lib-tests/tokenizer/test4.test",
                 "Resources/html5lib-tests/tokenizer/unicodeChars.test",
                 "Resources/html5lib-tests/tokenizer/unicodeCharsProblematic.test",
@@ -71,6 +70,7 @@ let package = Package(
             resources: [
                 .process("Resources/html5lib-tests/tokenizer/test1.test"),
                 .process("Resources/html5lib-tests/tokenizer/test2.test"),
+                .process("Resources/html5lib-tests/tokenizer/test3.test"),
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
