@@ -28,7 +28,7 @@ private let testCases = try! [
 @Test("html5lib-tests", arguments: testCases)
 public func html5libTests(_ testCase: TestCase) throws {
     // TODO: Do not ignore any test cases
-    switch testCase.description {
+    switch testCase.title {
     case "Simple comment": return
     case "Comment, Central dash no space": return
     case "Comment, two central dashes": return

@@ -17,7 +17,7 @@ struct TestFileEntry {
     consuming func into() throws -> [TestCase] {
         try self.initialStates.map { state in
             .init(
-                description: self.description,
+                title: self.description,
                 input: self.input,
                 tokens: try self.output.flatMap { try $0.into() } + [.eof],
                 initialState: .init(state),
@@ -145,12 +145,21 @@ public struct ExpectedError: Equatable, Sendable, Decodable {
     var col: Int
 }
 
-public struct TestCase: Equatable, CustomStringConvertible, Sendable {
-    public var description: String
+public struct TestCase: Equatable, Sendable {
+    var title: String
     var input: String
     var tokens: [Token]
     var initialState: State
     var errors: [ExpectedError]
+}
+
+extension TestCase: CustomStringConvertible {
+    public var description: String {
+        switch self.initialState {
+        case .data: self.title
+        case let state: "\(self.title) (\(consume state))"
+        }
+    }
 }
 
 enum TestParseError: Error {
