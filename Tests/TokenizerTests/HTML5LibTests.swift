@@ -77,7 +77,6 @@ public func html5libTests(_ testCase: TestCase) throws {
     case "<!-- -&": return
     case "<!--&": return
     case "<!---&": return
-    case "<!----!CRLF>": return
     case "<!----&": return
     case "<&": return
     case "<a a=\"&\">": return
