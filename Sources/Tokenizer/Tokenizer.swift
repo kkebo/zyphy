@@ -104,7 +104,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .scriptData: while true {
             switch self.getChar(from: &input) {
-            case "<": #go(to: .scriptDatalessThanSign)
+            case "<": #go(to: .scriptDataLessThanSign)
             case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
             case nil: #go(emit: .eof)
             case let c?: #go(emit: c)
@@ -243,7 +243,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 #go(emit: .eof)
             }
         }
-        case .scriptDatalessThanSign: while true {
+        case .scriptDataLessThanSign: while true {
             switch self.getChar(from: &input) {
             case "/":
                 // TODO: Set the temporary buffer to the empty string

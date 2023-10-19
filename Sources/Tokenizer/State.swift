@@ -14,7 +14,7 @@ enum State {
     case rawtextLessThanSign
     case rawtextEndTagOpen
     case rawtextEndTagName
-    case scriptDatalessThanSign
+    case scriptDataLessThanSign
     case scriptDataEndTagOpen
     case scriptDataEndTagName
     case scriptDataEscapeStart
