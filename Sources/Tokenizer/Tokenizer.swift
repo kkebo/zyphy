@@ -414,7 +414,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "<": #go(appendComment: "<", to: .commentLessThanSign)
             case "\0": #go(error: .unexpectedNull, appendComment: "\u{FFFD}", to: .comment)
             case nil: self.emitError(.eofInComment); #goEmitCommentAndEOF
-            case let c?: #go(emitComment: .comment)
+            case let c?: #go(appendComment: c, to: .comment)
             }
         }
         case .commentStartDash: while true {
