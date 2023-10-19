@@ -35,7 +35,6 @@ public func html5libTests(_ testCase: TestCase) throws {
     case "Comment, central less-than bang": return
     case "Unfinished comment": return
     case "Unfinished comment after start of nested comment": return
-    case "Start of a comment": return
     case "Short comment": return
     case "Short comment two": return
     case "Short comment three": return
