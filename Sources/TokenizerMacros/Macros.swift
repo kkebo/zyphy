@@ -52,7 +52,7 @@ extension GoMacro: CodeItemMacro {
                     items += ["self.createComment(with: \(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "appendComment":
-                    items += ["self.currentComment.append(\(arg.expression))"]
+                    items += ["self.appendComment(\(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "clearComment":
                     precondition(argList.count == 1)

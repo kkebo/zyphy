@@ -6,6 +6,7 @@
 @freestanding(codeItem) macro go(error: ParseError..., createComment s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., appendComment c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., appendComment c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., appendComment c: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., clearComment state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emitComment state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro goEmitCommentAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -416,7 +417,16 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case let c?: #go(emitComment: .comment)
             }
         }
-        case .commentStartDash: fatalError("Not implemented")
+        case .commentStartDash: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(to: .commentEnd)
+            case ">": #go(error: .abruptClosingComment, emitComment: .data)
+            case "<": #go(appendComment: "-<", to: .commentLessThanSign)
+            case "\0": #go(error: .unexpectedNull, appendComment: "-\u{FFFD}", to: .comment)
+            case nil: self.emitError(.eofInComment); #goEmitCommentAndEOF
+            case let c?: #go(appendComment: "-\(c)", to: .comment)
+            }
+        }
         case .comment: fatalError("Not implemented")
         case .commentLessThanSign: fatalError("Not implemented")
         case .commentLessThanSignBang: fatalError("Not implemented")
@@ -747,6 +757,17 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func createComment(with s: consuming String) {
         self.currentComment = consume s
+    }
+
+    @inline(__always)
+    private mutating func appendComment(_ c: consuming Character) {
+        self.currentComment.append(c)
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func appendComment(_ s: consuming String) {
+        self.currentComment += s
     }
 
     @inline(__always)
