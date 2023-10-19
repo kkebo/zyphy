@@ -427,14 +427,84 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case let c?: #go(appendComment: "-\(c)", to: .comment)
             }
         }
-        case .comment: fatalError("Not implemented")
-        case .commentLessThanSign: fatalError("Not implemented")
-        case .commentLessThanSignBang: fatalError("Not implemented")
-        case .commentLessThanSignBangDash: fatalError("Not implemented")
-        case .commentLessThanSignBangDashDash: fatalError("Not implemented")
-        case .commentEndDash: fatalError("Not implemented")
-        case .commentEnd: fatalError("Not implemented")
-        case .commentEndBang: fatalError("Not implemented")
+        case .comment: while true {
+            switch self.getChar(from: &input) {
+            case "<": #go(appendComment: "<", to: .commentLessThanSign)
+            case "-": #go(to: .commentEndDash)
+            case "\0": #go(error: .unexpectedNull, appendComment: "\u{FFFD}")
+            case nil: self.emitError(.eofInComment); #goEmitCommentAndEOF
+            case let c?: #go(appendComment: c)
+            }
+        }
+        case .commentLessThanSign: while true {
+            switch self.getChar(from: &input) {
+            case "!": #go(appendComment: "!", to: .commentLessThanSignBang)
+            case "<": #go(appendComment: "<")
+            case "-": #go(to: .commentEndDash)
+            case "\0": #go(error: .unexpectedNull, appendComment: "\u{FFFD}", to: .comment)
+            case nil: self.emitError(.eofInComment); #goEmitCommentAndEOF
+            case let c?: #go(appendComment: c, to: .comment)
+            }
+        }
+        case .commentLessThanSignBang: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(to: .commentLessThanSignBangDash)
+            case "<": #go(appendComment: "<", to: .commentLessThanSign)
+            case "\0": #go(error: .unexpectedNull, appendComment: "\u{FFFD}", to: .comment)
+            case nil: self.emitError(.eofInComment); #goEmitCommentAndEOF
+            case let c?: #go(appendComment: c, to: .comment)
+            }
+        }
+        case .commentLessThanSignBangDash: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(to: .commentLessThanSignBangDashDash)
+            case "<": #go(appendComment: "-<", to: .commentLessThanSign)
+            case "\0": #go(error: .unexpectedNull, appendComment: "-\u{FFFD}", to: .comment)
+            case nil: self.emitError(.eofInComment); #goEmitCommentAndEOF
+            case let c?: #go(appendComment: "-\(c)", to: .comment)
+            }
+        }
+        case .commentLessThanSignBangDashDash: while true {
+            switch self.getChar(from: &input) {
+            case ">": #go(emitComment: .data)
+            case "!": #go(error: .nestedComment, to: .commentEndBang)
+            case "-": #go(error: .nestedComment, appendComment: "-")
+            case "<": #go(error: .nestedComment, appendComment: "--<", to: .commentLessThanSign)
+            case "\0": #go(error: .nestedComment, .unexpectedNull, appendComment: "--\u{FFFD}", to: .comment)
+            case nil: self.emitError(.eofInComment); #goEmitCommentAndEOF
+            case let c?: #go(error: .nestedComment, appendComment: "--\(c)", to: .comment)
+            }
+        }
+        case .commentEndDash: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(to: .commentEnd)
+            case "<": #go(appendComment: "-<", to: .commentLessThanSign)
+            case "\0": #go(error: .unexpectedNull, appendComment: "-\u{FFFD}", to: .comment)
+            case nil: self.emitError(.eofInComment); #goEmitCommentAndEOF
+            case let c?: #go(appendComment: "-\(c)", to: .comment)
+            }
+        }
+        case .commentEnd: while true {
+            switch self.getChar(from: &input) {
+            case ">": #go(emitComment: .data)
+            case "!": #go(to: .commentEndBang)
+            case "-": #go(appendComment: "-")
+            case "<": #go(appendComment: "--<", to: .commentLessThanSign)
+            case "\0": #go(error: .unexpectedNull, appendComment: "--\u{FFFD}", to: .comment)
+            case nil: self.emitError(.eofInComment); #goEmitCommentAndEOF
+            case let c?: #go(appendComment: "--\(c)", to: .comment)
+            }
+        }
+        case .commentEndBang: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(appendComment: "--!", to: .commentEndDash)
+            case ">": #go(error: .incorrectlyClosedComment, emitComment: .data)
+            case "<": #go(appendComment: "--!<", to: .commentLessThanSign)
+            case "\0": #go(error: .unexpectedNull, appendComment: "--!\u{FFFD}", to: .comment)
+            case nil: self.emitError(.eofInComment); #goEmitCommentAndEOF
+            case let c?: #go(appendComment: "--!\(c)", to: .comment)
+            }
+        }
         case .doctype: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEName)
