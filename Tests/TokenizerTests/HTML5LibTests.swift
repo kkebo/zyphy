@@ -29,21 +29,6 @@ private let testCases = try! [
 public func html5libTests(_ testCase: TestCase) throws {
     // TODO: Do not ignore any test cases
     switch testCase.title {
-    case "Simple comment": return
-    case "Comment, Central dash no space": return
-    case "Comment, two central dashes": return
-    case "Comment, central less-than bang": return
-    case "Unfinished comment": return
-    case "Unfinished comment after start of nested comment": return
-    case "Short comment": return
-    case "Short comment two": return
-    case "Short comment three": return
-    case "< in comment": return
-    case "<< in comment": return
-    case "<! in comment": return
-    case "<!- in comment": return
-    case "Nested comment": return
-    case "Nested comment with extra <": return
     case "<! in script data": return
     case "<!- in script data": return
     case "Escaped script data": return
@@ -85,191 +70,15 @@ public func html5libTests(_ testCase: TestCase) throws {
     case "Hexadecimal entity with mixed uppercase and lowercase": return
     case "Entity without a name": return
     case "Unescaped ampersand in attribute value": return
-    case "Comment with dash": return
     case "Entity + newline": return
     case "Start tag with no attributes but space before the greater-than sign": return
-    case "Empty end tag with following comment": return
     case "&": return
-    case "<!--\\u0000": return
-    case "<!--\\u0009": return
-    case "<!--\\u000A": return
-    case "<!--\\u000B": return
-    case "<!--\\u000C": return
-    case "<!-- ": return
-    case "<!-- \\u0000": return
-    case "<!-- \\u0009": return
-    case "<!-- \\u000A": return
-    case "<!-- \\u000B": return
-    case "<!-- \\u000C": return
-    case "<!--  ": return
-    case "<!-- !": return
-    case "<!-- \"": return
     case "<!-- &": return
-    case "<!-- '": return
-    case "<!-- ,": return
-    case "<!-- -": return
-    case "<!-- -\\u0000": return
-    case "<!-- -\\u0009": return
-    case "<!-- -\\u000A": return
-    case "<!-- -\\u000B": return
-    case "<!-- -\\u000C": return
-    case "<!-- - ": return
-    case "<!-- -!": return
-    case "<!-- -\"": return
     case "<!-- -&": return
-    case "<!-- -'": return
-    case "<!-- -,": return
-    case "<!-- --": return
-    case "<!-- -.": return
-    case "<!-- -/": return
-    case "<!-- -0": return
-    case "<!-- -1": return
-    case "<!-- -9": return
-    case "<!-- -<": return
-    case "<!-- -=": return
-    case "<!-- ->": return
-    case "<!-- -?": return
-    case "<!-- -@": return
-    case "<!-- -A": return
-    case "<!-- -B": return
-    case "<!-- -Y": return
-    case "<!-- -Z": return
-    case "<!-- -`": return
-    case "<!-- -a": return
-    case "<!-- -b": return
-    case "<!-- -y": return
-    case "<!-- -z": return
-    case "<!-- -{": return
-    case "<!-- -\\uDBC0\\uDC00": return
-    case "<!-- .": return
-    case "<!-- /": return
-    case "<!-- 0": return
-    case "<!-- 1": return
-    case "<!-- 9": return
-    case "<!-- <": return
-    case "<!-- =": return
-    case "<!-- >": return
-    case "<!-- ?": return
-    case "<!-- @": return
-    case "<!-- A": return
-    case "<!-- B": return
-    case "<!-- Y": return
-    case "<!-- Z": return
-    case "<!-- `": return
-    case "<!-- a": return
-    case "<!-- b": return
-    case "<!-- y": return
-    case "<!-- z": return
-    case "<!-- {": return
-    case "<!-- \\uDBC0\\uDC00": return
-    case "<!--!": return
-    case "<!--\"": return
     case "<!--&": return
-    case "<!--'": return
-    case "<!--,": return
-    case "<!---": return
-    case "<!---\\u0000": return
-    case "<!---\\u0009": return
-    case "<!---\\u000A": return
-    case "<!---\\u000B": return
-    case "<!---\\u000C": return
-    case "<!--- ": return
-    case "<!---!": return
-    case "<!---\"": return
     case "<!---&": return
-    case "<!---'": return
-    case "<!---,": return
-    case "<!----": return
-    case "<!----\\u0000": return
-    case "<!----\\u0009": return
-    case "<!----\\u000A": return
-    case "<!----\\u000B": return
-    case "<!----\\u000C": return
-    case "<!---- ": return
-    case "<!---- -": return
-    case "<!---- --": return
-    case "<!---- -->": return
-    case "<!----  -->": return
-    case "<!---- a-->": return
-    case "<!----!": return
-    case "<!----!>": return
-    case "<!----! >": return
-    case "<!----!LF>": return
-    case "<!----!CR>": return
     case "<!----!CRLF>": return
-    case "<!----!a": return
-    case "<!----!a-": return
-    case "<!----!a--": return
-    case "<!----!a-->": return
-    case "<!----!-": return
-    case "<!----!--": return
-    case "<!----!-->": return
-    case "<!----\"": return
     case "<!----&": return
-    case "<!----'": return
-    case "<!----,": return
-    case "<!-----": return
-    case "<!----.": return
-    case "<!----/": return
-    case "<!----0": return
-    case "<!----1": return
-    case "<!----9": return
-    case "<!----<": return
-    case "<!----=": return
-    case "<!---->": return
-    case "<!----?": return
-    case "<!----@": return
-    case "<!----A": return
-    case "<!----B": return
-    case "<!----Y": return
-    case "<!----Z": return
-    case "<!----`": return
-    case "<!----a": return
-    case "<!----b": return
-    case "<!----y": return
-    case "<!----z": return
-    case "<!----{": return
-    case "<!----\\uDBC0\\uDC00": return
-    case "<!---.": return
-    case "<!---/": return
-    case "<!---0": return
-    case "<!---1": return
-    case "<!---9": return
-    case "<!---<": return
-    case "<!---=": return
-    case "<!---?": return
-    case "<!---@": return
-    case "<!---A": return
-    case "<!---B": return
-    case "<!---Y": return
-    case "<!---Z": return
-    case "<!---`": return
-    case "<!---a": return
-    case "<!---b": return
-    case "<!---y": return
-    case "<!---z": return
-    case "<!---{": return
-    case "<!---\\uDBC0\\uDC00": return
-    case "<!--.": return
-    case "<!--/": return
-    case "<!--0": return
-    case "<!--1": return
-    case "<!--9": return
-    case "<!--<": return
-    case "<!--=": return
-    case "<!--?": return
-    case "<!--@": return
-    case "<!--A": return
-    case "<!--B": return
-    case "<!--Y": return
-    case "<!--Z": return
-    case "<!--`": return
-    case "<!--a": return
-    case "<!--b": return
-    case "<!--y": return
-    case "<!--z": return
-    case "<!--{": return
-    case "<!--\\uDBC0\\uDC00": return
     case "<&": return
     case "<a a=\"&\">": return
     case "<a a=&>": return
