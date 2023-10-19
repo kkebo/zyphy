@@ -1,7 +1,7 @@
 @freestanding(codeItem) macro go(emit token: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emit token: Token...) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emit token: Token..., to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) macro go(error: ParseError..., emit token: Token..., reconsume c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., emit token: Token..., reconsume c: Character, in state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createComment c: Character, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createComment s: String, to state: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., appendComment c: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -124,7 +124,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "?": #go(error: .unexpectedQuestionMark, createComment: "?", to: .bogusComment)
             case nil: #go(error: .eofBeforeTagName, emit: "<", .eof)
             case let c? where c.isASCII && c.isLetter: #go(createStartTag: c.lowercased(), to: .tagName)
-            case let c?: #go(error: .invalidFirstChar, emit: "<", reconsume: c, to: .data)
+            case let c?: #go(error: .invalidFirstChar, emit: "<", reconsume: c, in: .data)
             }
         }
         case .endTagOpen: while true {
@@ -153,7 +153,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 // TODO: Set the temporary buffer to the empty string
                 #go(to: .rcdataEndTagOpen)
             case nil: #go(emit: "<", .eof)
-            case let c?: #go(emit: "<", reconsume: c, to: .rcdata)
+            case let c?: #go(emit: "<", reconsume: c, in: .rcdata)
             }
         }
         case .rcdataEndTagOpen: while true {
@@ -162,7 +162,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 // TODO: Append the current input character to the temporary buffer
                 #go(createEndTag: c.lowercased(), to: .rcdataEndTagName)
             case nil: #go(emit: "<", "/", .eof)
-            case let c?: #go(emit: "<", "/", reconsume: c, to: .rcdata)
+            case let c?: #go(emit: "<", "/", reconsume: c, in: .rcdata)
             }
         }
         case .rcdataEndTagName: while true {
@@ -187,7 +187,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case let c?:
                 #go(emit: "<", "/")
                 // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
-                #go(reconsume: c, to: .rcdata)
+                #go(reconsume: c, in: .rcdata)
             case nil:
                 #go(emit: "<", "/")
                 // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
@@ -211,7 +211,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 // TODO: Append the current input character to the temporary buffer
                 #go(createEndTag: c.lowercased(), to: .rawtextEndTagName)
             case nil: #go(emit: "<", "/", .eof)
-            case let c?: #go(emit: "<", "/", reconsume: c, to: .rawtext)
+            case let c?: #go(emit: "<", "/", reconsume: c, in: .rawtext)
             }
         }
         case .rawtextEndTagName: while true {
@@ -236,7 +236,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case let c?:
                 #go(emit: "<", "/")
                 // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
-                #go(reconsume: c, to: .rawtext)
+                #go(reconsume: c, in: .rawtext)
             case nil:
                 #go(emit: "<", "/")
                 // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
@@ -250,7 +250,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 #go(to: .scriptDataEndTagOpen)
             case "!": #go(emit: "<", "!", to: .scriptDataEscapeStart)
             case nil: #go(emit: "<", .eof)
-            case let c?: #go(emit: "<", reconsume: c, to: .scriptData)
+            case let c?: #go(emit: "<", reconsume: c, in: .scriptData)
             }
         }
         case .scriptDataEndTagOpen: while true {
@@ -259,7 +259,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 // TODO: Append the current input character to the temporary buffer
                 #go(createEndTag: c.lowercased(), to: .scriptDataEndTagName)
             case nil: #go(emit: "<", "/", .eof)
-            case let c?: #go(emit: "<", "/", reconsume: c, to: .scriptData)
+            case let c?: #go(emit: "<", "/", reconsume: c, in: .scriptData)
             }
         }
         case .scriptDataEndTagName: fatalError("Not implemented")
@@ -329,7 +329,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "'": #go(to: .attributeValueSingleQuoted)
             case ">": #go(error: .missingAttrValue, emitTag: .data)
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c?: #go(reconsume: c, to: .attributeValueUnquoted)
+            case let c?: #go(reconsume: c, in: .attributeValueUnquoted)
             }
         }
         case .attributeValueDoubleQuoted: while true {
@@ -371,14 +371,14 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "/": #go(to: .selfClosingStartTag)
             case ">": #go(emitTag: .data)
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c?: #go(error: .missingSpaceBetweenAttrs, reconsume: c, to: .beforeAttributeName)
+            case let c?: #go(error: .missingSpaceBetweenAttrs, reconsume: c, in: .beforeAttributeName)
             }
         }
         case .selfClosingStartTag: while true {
             switch self.getChar(from: &input) {
             case ">": #go(emitSelfClosingTag: .data)
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c?: #go(error: .unexpectedSolidus, reconsume: c, to: .beforeAttributeName)
+            case let c?: #go(error: .unexpectedSolidus, reconsume: c, in: .beforeAttributeName)
             }
         }
         case .bogusComment: while true {
@@ -506,9 +506,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .doctype: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEName)
-            case ">": #go(reconsume: ">", to: .beforeDOCTYPEName)
+            case ">": #go(reconsume: ">", in: .beforeDOCTYPEName)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitNewForceQuirksDOCTYPEAndEOF
-            case let c?: #go(error: .missingSpaceBeforeDOCTYPEName, reconsume: c, to: .beforeDOCTYPEName)
+            case let c?: #go(error: .missingSpaceBeforeDOCTYPEName, reconsume: c, in: .beforeDOCTYPEName)
             }
         }
         case .beforeDOCTYPEName: while true {
@@ -801,7 +801,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func go(reconsume c: consuming Character, to state: consuming State) {
+    private mutating func go(reconsume c: consuming Character, in state: consuming State) {
         self.reconsumeChar = consume c
         self.state = consume state
     }
