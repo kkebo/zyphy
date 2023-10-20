@@ -262,21 +262,208 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case let c?: #go(emit: "<", "/", reconsume: c, in: .scriptData)
             }
         }
-        case .scriptDataEndTagName: fatalError("Not implemented")
-        case .scriptDataEscapeStart: fatalError("Not implemented")
-        case .scriptDataEscapeStartDash: fatalError("Not implemented")
-        case .scriptDataEscaped: fatalError("Not implemented")
-        case .scriptDataEscapedDash: fatalError("Not implemented")
-        case .scriptDataEscapedDashDash: fatalError("Not implemented")
-        case .scriptDataEscapedLessThanSign: fatalError("Not implemented")
-        case .scriptDataEscapedEndTagOpen: fatalError("Not implemented")
-        case .scriptDataEscapedEndTagName: fatalError("Not implemented")
-        case .scriptDataDoubleEscapeStart: fatalError("Not implemented")
-        case .scriptDataDoubleEscaped: fatalError("Not implemented")
-        case .scriptDataDoubleEscapedDash: fatalError("Not implemented")
-        case .scriptDataDoubleEscapedDashDash: fatalError("Not implemented")
-        case .scriptDataDoubleEscapedLessThanSign: fatalError("Not implemented")
-        case .scriptDataDoubleEscapeEnd: fatalError("Not implemented")
+        case .scriptDataEndTagName: while true {
+            let c = self.getChar(from: &input)
+            // FIXME: Implement lastStartTagName
+            let lastStartTagName: String? = nil
+            if self.currentTagKind == .end && self.currentTagName == lastStartTagName {
+                switch c {
+                case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
+                case "/": #go(to: .selfClosingStartTag)
+                case ">": #go(emitTag: .data)
+                case _: break
+                }
+            }
+            switch c {
+            case let c? where c.isASCII && c.isUppercase:
+                #go(appendTagName: c.lowercased())
+                // Append the current input character to the temporary buffer
+            case let c? where c.isASCII && c.isLowercase:
+                #go(appendTagName: c)
+                // Append the current input character to the temporary buffer
+            case let c?:
+                #go(emit: "<", "/")
+                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                #go(reconsume: c, in: .scriptData)
+            case nil:
+                #go(emit: "<", "/")
+                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                #go(emit: .eof)
+            }
+        }
+        case .scriptDataEscapeStart: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(emit: "-", to: .scriptDataEscapeStartDash)
+            case "<": #go(to: .scriptDataLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
+            case nil: #go(emit: .eof)
+            case let c?: #go(emit: c)
+            }
+        }
+        case .scriptDataEscapeStartDash: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(emit: "-", to: .scriptDataEscapedDashDash)
+            case "<": #go(to: .scriptDataLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
+            case nil: #go(emit: .eof)
+            case let c?: #go(emit: c)
+            }
+        }
+        case .scriptDataEscaped: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(emit: "-", to: .scriptDataEscapedDash)
+            case "<": #go(to: .scriptDataEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
+            case nil: #go(error: .eofInScriptComment, emit: .eof)
+            case let c?: #go(emit: c)
+            }
+        }
+        case .scriptDataEscapedDash: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(emit: "-", to: .scriptDataEscapedDashDash)
+            case "<": #go(to: .scriptDataEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataEscaped)
+            case nil: #go(error: .eofInScriptComment, emit: .eof)
+            case let c?: #go(emit: .char(c), to: .scriptDataEscaped)
+            }
+        }
+        case .scriptDataEscapedDashDash: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(emit: "-")
+            case "<": #go(to: .scriptDataEscapedLessThanSign)
+            case ">": #go(emit: ">", to: .scriptData)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataEscaped)
+            case nil: #go(error: .eofInScriptComment, emit: .eof)
+            case let c?: #go(emit: .char(c), to: .scriptDataEscaped)
+            }
+        }
+        case .scriptDataEscapedLessThanSign: while true {
+            switch self.getChar(from: &input) {
+            case "/":
+                // TODO: Set the temporary buffer to the empty string
+                #go(to: .scriptDataEscapedEndTagOpen)
+            case let c? where c.isASCII && c.isLetter:
+                // TODO: Set the temporary buffer to the empty string
+                #go(emit: "<", reconsume: c, in: .scriptDataDoubleEscapeStart)
+            case nil: #go(error: .eofInScriptComment, emit: "<", .eof)
+            case let c?: #go(emit: "<", reconsume: c, in: .scriptDataEscaped)
+            }
+        }
+        case .scriptDataEscapedEndTagOpen: while true {
+            switch self.getChar(from: &input) {
+            case let c? where c.isASCII && c.isUppercase: #go(createEndTag: c.lowercased(), to: .scriptDataEscapedEndTagName)
+            case let c? where c.isASCII && c.isLowercase: #go(createEndTag: c, to: .scriptDataEscapedEndTagName)
+            case nil: #go(error: .eofInScriptComment, emit: "<", "/", .eof)
+            case let c?: #go(emit: "<", "/", reconsume: c, in: .scriptDataEscaped)
+            }
+        }
+        case .scriptDataEscapedEndTagName: while true {
+            let c = self.getChar(from: &input)
+            // FIXME: Implement lastStartTagName
+            let lastStartTagName: String? = nil
+            if self.currentTagKind == .end && self.currentTagName == lastStartTagName {
+                switch c {
+                case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
+                case "/": #go(to: .selfClosingStartTag)
+                case ">": #go(emitTag: .data)
+                case _: break
+                }
+            }
+            switch c {
+            case let c? where c.isASCII && c.isUppercase:
+                #go(appendTagName: c.lowercased())
+                // Append the current input character to the temporary buffer
+            case let c? where c.isASCII && c.isLowercase:
+                #go(appendTagName: c)
+                // Append the current input character to the temporary buffer
+            case let c?:
+                #go(emit: "<", "/")
+                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                #go(reconsume: c, in: .scriptDataEscaped)
+            case nil:
+                #go(emit: "<", "/")
+                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                #go(emit: .eof)
+            }
+        }
+        case .scriptDataDoubleEscapeStart: while true {
+            guard let c = self.getChar(from: &input) else { #go(error: .eofInScriptComment, emit: .eof) }
+            switch c {
+            case "\t", "\n", "\u{0C}", " ", "/", ">":
+                if false {
+                    // TODO: If the temporary buffer is the string "script", then switch to the script data double escaped state.
+                    #go(to: .scriptDataDoubleEscaped)
+                } else {
+                    #go(emit: .char(c), to: .scriptDataEscaped)
+                }
+            case "-": #go(emit: "-", to: .scriptDataEscapedDash)
+            case "<": #go(to: .scriptDataEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataEscaped)
+            case let c where c.isASCII && c.isLetter:
+                // TODO: Append the lowercase version of the current input character to the temporary buffer
+                #go(emit: c)
+            case let c: #go(emit: .char(c), to: .scriptDataEscaped)
+            }
+        }
+        case .scriptDataDoubleEscaped: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDash)
+            case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
+            case nil: #go(error: .eofInScriptComment, emit: .eof)
+            case let c?: #go(emit: c)
+            }
+        }
+        case .scriptDataDoubleEscapedDash: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDashDash)
+            case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataDoubleEscaped)
+            case nil: #go(error: .eofInScriptComment, emit: .eof)
+            case let c?: #go(emit: .char(c), to: .scriptDataDoubleEscaped)
+            }
+        }
+        case .scriptDataDoubleEscapedDashDash: while true {
+            switch self.getChar(from: &input) {
+            case "-": #go(emit: "-")
+            case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
+            case ">": #go(emit: ">", to: .scriptData)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataDoubleEscaped)
+            case nil: #go(error: .eofInScriptComment, emit: .eof)
+            case let c?: #go(emit: .char(c), to: .scriptDataDoubleEscaped)
+            }
+        }
+        case .scriptDataDoubleEscapedLessThanSign: while true {
+            switch self.getChar(from: &input) {
+            case "/":
+                // TODO: Set the temporary buffer to the empty string
+                #go(emit: "/", to: .scriptDataDoubleEscapeEnd)
+            case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDash)
+            case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataDoubleEscaped)
+            case nil: #go(error: .eofInScriptComment, emit: .eof)
+            case let c?: #go(emit: .char(c), to: .scriptDataDoubleEscaped)
+            }
+        }
+        case .scriptDataDoubleEscapeEnd: while true {
+            guard let c = self.getChar(from: &input) else { #go(error: .eofInScriptComment, emit: .eof) }
+            switch c {
+            case "\t", "\n", "\u{0C}", " ", "/", ">":
+                if false {
+                    // TODO: If the temporary buffer is the string "script", then switch to the script data escaped state.
+                    #go(to: .scriptDataEscaped)
+                } else {
+                    #go(emit: .char(c), to: .scriptDataDoubleEscaped)
+                }
+            case let c where c.isASCII && c.isLetter:
+                // TODO: Append the lowercase version of the current input character to the temporary buffer
+                #go(emit: c)
+            case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDash)
+            case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataDoubleEscaped)
+            case let c: #go(emit: .char(c), to: .scriptDataDoubleEscaped)
+            }
+        }
         case .beforeAttributeName: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
