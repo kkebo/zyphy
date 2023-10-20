@@ -178,11 +178,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 }
             }
             switch c {
-            case let c? where c.isASCII && c.isUppercase:
+            case let c? where c.isASCII && c.isLetter:
                 #go(appendTagName: c.lowercased())
-                // TODO: Append the current input character to the temporary buffer
-            case let c? where c.isASCII && c.isLowercase:
-                #go(appendTagName: c)
                 // TODO: Append the current input character to the temporary buffer
             case let c?:
                 #go(emit: "<", "/")
@@ -229,11 +226,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 }
             }
             switch c {
-            case let c? where c.isASCII && c.isUppercase:
+            case let c? where c.isASCII && c.isLetter:
                 #go(appendTagName: c.lowercased())
-                // Append the current input character to the temporary buffer
-            case let c? where c.isASCII && c.isLowercase:
-                #go(appendTagName: c)
                 // Append the current input character to the temporary buffer
             case let c?:
                 #go(emit: "<", "/")
@@ -281,11 +275,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 }
             }
             switch c {
-            case let c? where c.isASCII && c.isUppercase:
+            case let c? where c.isASCII && c.isLetter:
                 #go(appendTagName: c.lowercased())
-                // Append the current input character to the temporary buffer
-            case let c? where c.isASCII && c.isLowercase:
-                #go(appendTagName: c)
                 // Append the current input character to the temporary buffer
             case let c?:
                 #go(emit: "<", "/")
@@ -365,8 +356,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "<": #go(emit: "<", "/", to: .scriptDataEscapedLessThanSign)
             case "\0": #go(error: .unexpectedNull, emit: "<", "/", "\u{FFFD}", to: .scriptDataEscaped)
             case nil: #go(error: .eofInScriptComment, emit: "<", "/", .eof)
-            case let c? where c.isASCII && c.isUppercase: #go(createEndTag: c.lowercased(), to: .scriptDataEscapedEndTagName)
-            case let c? where c.isASCII && c.isLowercase: #go(createEndTag: c, to: .scriptDataEscapedEndTagName)
+            case let c? where c.isASCII && c.isLetter: #go(createEndTag: c.lowercased(), to: .scriptDataEscapedEndTagName)
             case let c?: #go(emit: "<", "/", .char(c), to: .scriptDataEscaped)
             }
         }
@@ -383,11 +373,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 }
             }
             switch c {
-            case let c? where c.isASCII && c.isUppercase:
+            case let c? where c.isASCII && c.isLetter:
                 #go(appendTagName: c.lowercased())
-                // Append the current input character to the temporary buffer
-            case let c? where c.isASCII && c.isLowercase:
-                #go(appendTagName: c)
                 // Append the current input character to the temporary buffer
             case let c?:
                 #go(emit: "<", "/")
