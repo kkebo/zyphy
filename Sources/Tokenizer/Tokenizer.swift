@@ -943,7 +943,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func getChar(from input: inout String.Iterator) -> Character? {
         guard let reconsumeChar else {
-            guard var c = input.next() else { return nil }
+            guard let c = input.next() else { return nil }
             if c == "\r\n" {
                 return "\n"
             }
