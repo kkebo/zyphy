@@ -29,7 +29,6 @@ private let testCases = try! [
 public func html5libTests(_ testCase: TestCase) throws {
     // TODO: Do not ignore any test cases
     switch testCase.title {
-    case "End tag in script HTML comment": return
     case "- in script HTML comment double escaped": return
     case "-- in script HTML comment double escaped": return
     case "--- in script HTML comment double escaped": return

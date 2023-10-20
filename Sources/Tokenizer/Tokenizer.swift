@@ -46,6 +46,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     var currentAttrs: [String: String]
     var currentComment: String
     var currentDOCTYPE: DOCTYPE
+    var tempBuffer: String
 
     public init(sink: consuming Sink) {
         self.sink = consume sink
@@ -59,6 +60,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         self.currentAttrs = [:]
         self.currentComment = ""
         self.currentDOCTYPE = .init()
+        self.tempBuffer = ""
     }
 
     // TODO: Consider input type
@@ -150,7 +152,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .rcdataLessThanSign: while true {
             switch self.getChar(from: &input) {
             case "/":
-                // TODO: Set the temporary buffer to the empty string
+                self.tempBuffer.removeAll()
                 #go(to: .rcdataEndTagOpen)
             case nil: #go(emit: "<", .eof)
             case let c?: #go(emit: "<", reconsume: c, in: .rcdata)
@@ -159,7 +161,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .rcdataEndTagOpen: while true {
             switch self.getChar(from: &input) {
             case let c? where c.isASCII && c.isLetter:
-                // TODO: Append the current input character to the temporary buffer
+                self.tempBuffer.append(c)
                 #go(createEndTag: c.lowercased(), to: .rcdataEndTagName)
             case nil: #go(emit: "<", "/", .eof)
             case let c?: #go(emit: "<", "/", reconsume: c, in: .rcdata)
@@ -180,21 +182,21 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch c {
             case let c? where c.isASCII && c.isLetter:
                 #go(appendTagName: c.lowercased())
-                // TODO: Append the current input character to the temporary buffer
+                self.tempBuffer.append(c)
             case let c?:
                 #go(emit: "<", "/")
-                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                self.emitTempBuffer()
                 #go(reconsume: c, in: .rcdata)
             case nil:
                 #go(emit: "<", "/")
-                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                self.emitTempBuffer()
                 #go(emit: .eof)
             }
         }
         case .rawtextLessThanSign: while true {
             switch self.getChar(from: &input) {
             case "/":
-                //TODO: Set the temporary buffer to the empty string
+                self.tempBuffer.removeAll()
                 #go(to: .rawtextEndTagOpen)
             case "<": #go(emit: "<", to: .rawtextLessThanSign)
             case "\0": #go(error: .unexpectedNull, emit: "<", "\u{FFFD}", to: .rawtext)
@@ -208,7 +210,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "\0": #go(error: .unexpectedNull, emit: "<", "/", "\u{FFFD}", to: .rawtext)
             case nil: #go(emit: "<", "/", .eof)
             case let c? where c.isASCII && c.isLetter:
-                // TODO: Append the current input character to the temporary buffer
+                self.tempBuffer.append(c)
                 #go(createEndTag: c.lowercased(), to: .rawtextEndTagName)
             case let c?: #go(emit: "<", "/", .char(c), to: .rawtext)
             }
@@ -228,21 +230,21 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch c {
             case let c? where c.isASCII && c.isLetter:
                 #go(appendTagName: c.lowercased())
-                // Append the current input character to the temporary buffer
+                self.tempBuffer.append(c)
             case let c?:
                 #go(emit: "<", "/")
-                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                self.emitTempBuffer()
                 #go(reconsume: c, in: .rawtext)
             case nil:
                 #go(emit: "<", "/")
-                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                self.emitTempBuffer()
                 #go(emit: .eof)
             }
         }
         case .scriptDataLessThanSign: while true {
             switch self.getChar(from: &input) {
             case "/":
-                // TODO: Set the temporary buffer to the empty string
+                self.tempBuffer.removeAll()
                 #go(to: .scriptDataEndTagOpen)
             case "!": #go(emit: "<", "!", to: .scriptDataEscapeStart)
             case "<": #go(emit: "<", to: .scriptDataLessThanSign)
@@ -257,7 +259,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "\0": #go(error: .unexpectedNull, emit: "<", ",", "\u{FFFD}", to: .scriptData)
             case nil: #go(emit: "<", "/", .eof)
             case let c? where c.isASCII && c.isLetter:
-                // TODO: Append the current input character to the temporary buffer
+                self.tempBuffer.append(c)
                 #go(createEndTag: c.lowercased(), to: .scriptDataEndTagName)
             case let c?: #go(emit: "<", "/", .char(c), to: .scriptData)
             }
@@ -277,14 +279,14 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch c {
             case let c? where c.isASCII && c.isLetter:
                 #go(appendTagName: c.lowercased())
-                // Append the current input character to the temporary buffer
+                self.tempBuffer.append(c)
             case let c?:
                 #go(emit: "<", "/")
-                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                self.emitTempBuffer()
                 #go(reconsume: c, in: .scriptData)
             case nil:
                 #go(emit: "<", "/")
-                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                self.emitTempBuffer()
                 #go(emit: .eof)
             }
         }
@@ -337,15 +339,14 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .scriptDataEscapedLessThanSign: while true {
             switch self.getChar(from: &input) {
             case "/":
-                // TODO: Set the temporary buffer to the empty string
+                self.tempBuffer.removeAll()
                 #go(to: .scriptDataEscapedEndTagOpen)
             case "-": #go(emit: "<", "-", to: .scriptDataEscapedDash)
             case "<": #go(emit: "<", to: .scriptDataEscapedLessThanSign)
             case "\0": #go(error: .unexpectedNull, emit: "<", "\u{FFFD}", to: .scriptDataEscaped)
             case nil: #go(error: .eofInScriptComment, emit: "<", .eof)
             case let c? where c.isASCII && c.isLetter:
-                // TODO: Set the temporary buffer to the empty string
-                // TODO: Append the lowercase version of the current input character to the temporary buffer
+                self.tempBuffer = c.lowercased()
                 #go(emit: "<", .char(c), to: .scriptDataDoubleEscapeStart)
             case let c?: #go(emit: "<", .char(c), to: .scriptDataEscaped)
             }
@@ -356,7 +357,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "<": #go(emit: "<", "/", to: .scriptDataEscapedLessThanSign)
             case "\0": #go(error: .unexpectedNull, emit: "<", "/", "\u{FFFD}", to: .scriptDataEscaped)
             case nil: #go(error: .eofInScriptComment, emit: "<", "/", .eof)
-            case let c? where c.isASCII && c.isLetter: #go(createEndTag: c.lowercased(), to: .scriptDataEscapedEndTagName)
+            case let c? where c.isASCII && c.isLetter:
+                self.tempBuffer.append(c)
+                #go(createEndTag: c.lowercased(), to: .scriptDataEscapedEndTagName)
             case let c?: #go(emit: "<", "/", .char(c), to: .scriptDataEscaped)
             }
         }
@@ -375,14 +378,14 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch c {
             case let c? where c.isASCII && c.isLetter:
                 #go(appendTagName: c.lowercased())
-                // Append the current input character to the temporary buffer
+                self.tempBuffer.append(c)
             case let c?:
                 #go(emit: "<", "/")
-                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                self.emitTempBuffer()
                 #go(reconsume: c, in: .scriptDataEscaped)
             case nil:
                 #go(emit: "<", "/")
-                // TODO: Emit a character token for each of the characters in the temporary buffer (in the order they were added to the buffer)
+                self.emitTempBuffer()
                 #go(emit: .eof)
             }
         }
@@ -390,8 +393,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             guard let c = self.getChar(from: &input) else { #go(error: .eofInScriptComment, emit: .eof) }
             switch c {
             case "\t", "\n", "\u{0C}", " ", "/", ">":
-                if false {
-                    // TODO: If the temporary buffer is the string "script", then switch to the script data double escaped state.
+                if self.tempBuffer == "script" {
                     #go(to: .scriptDataDoubleEscaped)
                 } else {
                     #go(emit: .char(c), to: .scriptDataEscaped)
@@ -400,7 +402,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "<": #go(to: .scriptDataEscapedLessThanSign)
             case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataEscaped)
             case let c where c.isASCII && c.isLetter:
-                // TODO: Append the lowercase version of the current input character to the temporary buffer
+                self.tempBuffer.append(c.lowercased())
                 #go(emit: c)
             case let c: #go(emit: .char(c), to: .scriptDataEscaped)
             }
@@ -436,7 +438,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .scriptDataDoubleEscapedLessThanSign: while true {
             switch self.getChar(from: &input) {
             case "/":
-                // TODO: Set the temporary buffer to the empty string
+                self.tempBuffer.removeAll()
                 #go(emit: "/", to: .scriptDataDoubleEscapeEnd)
             case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDash)
             case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
@@ -449,14 +451,13 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             guard let c = self.getChar(from: &input) else { #go(error: .eofInScriptComment, emit: .eof) }
             switch c {
             case "\t", "\n", "\u{0C}", " ", "/", ">":
-                if false {
-                    // TODO: If the temporary buffer is the string "script", then switch to the script data escaped state.
+                if self.tempBuffer == "script" {
                     #go(to: .scriptDataEscaped)
                 } else {
                     #go(emit: .char(c), to: .scriptDataDoubleEscaped)
                 }
             case let c where c.isASCII && c.isLetter:
-                // TODO: Append the lowercase version of the current input character to the temporary buffer
+                self.tempBuffer.append(c.lowercased())
                 #go(emit: c)
             case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDash)
             case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
@@ -1161,6 +1162,14 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             if copy selfClosing { self.emitError(.endTagWithTrailingSolidus) }
             self.sink.process(.tag(Tag(name: name, kind: .end, attrs: [:], selfClosing: consume selfClosing)))
         }
+    }
+
+    @inline(__always)
+    private mutating func emitTempBuffer() {
+        for c in self.tempBuffer {
+            self.sink.process(.char(c))
+        }
+        self.tempBuffer = ""
     }
 
     @inline(__always)
