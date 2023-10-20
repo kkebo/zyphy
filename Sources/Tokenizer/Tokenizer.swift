@@ -963,6 +963,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         return reconsumeChar
     }
 
+    @inline(__always)
     private mutating func startsExact(
         _ input: inout String.Iterator,
         with pattern: consuming some StringProtocol
@@ -981,6 +982,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         return true
     }
 
+    @inline(__always)
     private mutating func starts(
         _ input: inout String.Iterator,
         with pattern: consuming some StringProtocol
