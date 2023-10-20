@@ -207,11 +207,13 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .rawtextEndTagOpen: while true {
             switch self.getChar(from: &input) {
+            case "<": #go(emit: "<", "/", to: .rawtextLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", "/", "\u{FFFD}", to: .rawtext)
+            case nil: #go(emit: "<", "/", .eof)
             case let c? where c.isASCII && c.isLetter:
                 // TODO: Append the current input character to the temporary buffer
                 #go(createEndTag: c.lowercased(), to: .rawtextEndTagName)
-            case nil: #go(emit: "<", "/", .eof)
-            case let c?: #go(emit: "<", "/", reconsume: c, in: .rawtext)
+            case let c?: #go(emit: "<", "/", .char(c), to: .rawtext)
             }
         }
         case .rawtextEndTagName: while true {
@@ -249,17 +251,21 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
                 // TODO: Set the temporary buffer to the empty string
                 #go(to: .scriptDataEndTagOpen)
             case "!": #go(emit: "<", "!", to: .scriptDataEscapeStart)
+            case "<": #go(emit: "<", to: .scriptDataLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", "\u{FFFD}", to: .scriptData)
             case nil: #go(emit: "<", .eof)
-            case let c?: #go(emit: "<", reconsume: c, in: .scriptData)
+            case let c?: #go(emit: "<", .char(c), to: .scriptData)
             }
         }
         case .scriptDataEndTagOpen: while true {
             switch self.getChar(from: &input) {
+            case "<": #go(emit: "<", "/", to: .scriptDataLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", ",", "\u{FFFD}", to: .scriptData)
+            case nil: #go(emit: "<", "/", .eof)
             case let c? where c.isASCII && c.isLetter:
                 // TODO: Append the current input character to the temporary buffer
                 #go(createEndTag: c.lowercased(), to: .scriptDataEndTagName)
-            case nil: #go(emit: "<", "/", .eof)
-            case let c?: #go(emit: "<", "/", reconsume: c, in: .scriptData)
+            case let c?: #go(emit: "<", "/", .char(c), to: .scriptData)
             }
         }
         case .scriptDataEndTagName: while true {
@@ -342,19 +348,26 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "/":
                 // TODO: Set the temporary buffer to the empty string
                 #go(to: .scriptDataEscapedEndTagOpen)
+            case "-": #go(emit: "<", "-", to: .scriptDataEscapedDash)
+            case "<": #go(emit: "<", to: .scriptDataEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", "\u{FFFD}", to: .scriptDataEscaped)
+            case nil: #go(error: .eofInScriptComment, emit: "<", .eof)
             case let c? where c.isASCII && c.isLetter:
                 // TODO: Set the temporary buffer to the empty string
-                #go(emit: "<", reconsume: c, in: .scriptDataDoubleEscapeStart)
-            case nil: #go(error: .eofInScriptComment, emit: "<", .eof)
-            case let c?: #go(emit: "<", reconsume: c, in: .scriptDataEscaped)
+                // TODO: Append the lowercase version of the current input character to the temporary buffer
+                #go(emit: "<", .char(c), to: .scriptDataDoubleEscapeStart)
+            case let c?: #go(emit: "<", .char(c), to: .scriptDataEscaped)
             }
         }
         case .scriptDataEscapedEndTagOpen: while true {
             switch self.getChar(from: &input) {
+            case "-": #go(emit: "<", "/", "-", to: .scriptDataEscapedDash)
+            case "<": #go(emit: "<", "/", to: .scriptDataEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", "/", "\u{FFFD}", to: .scriptDataEscaped)
+            case nil: #go(error: .eofInScriptComment, emit: "<", "/", .eof)
             case let c? where c.isASCII && c.isUppercase: #go(createEndTag: c.lowercased(), to: .scriptDataEscapedEndTagName)
             case let c? where c.isASCII && c.isLowercase: #go(createEndTag: c, to: .scriptDataEscapedEndTagName)
-            case nil: #go(error: .eofInScriptComment, emit: "<", "/", .eof)
-            case let c?: #go(emit: "<", "/", reconsume: c, in: .scriptDataEscaped)
+            case let c?: #go(emit: "<", "/", .char(c), to: .scriptDataEscaped)
             }
         }
         case .scriptDataEscapedEndTagName: while true {
@@ -557,15 +570,30 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
             case "/": #go(to: .selfClosingStartTag)
             case ">": #go(emitTag: .data)
+            case "=": #go(error: .missingSpaceBetweenAttrs, .unexpectedEqualsSign, createAttr: "=", to: .attributeName)
+            case "\0": #go(error: .missingSpaceBetweenAttrs, .unexpectedNull, createAttr: "\u{FFFD}", to: .attributeName)
+            case "\"": #go(error: .missingSpaceBetweenAttrs, .unexpectedCharInAttrName, createAttr: "\"", to: .attributeName)
+            case "'": #go(error: .missingSpaceBetweenAttrs, .unexpectedCharInAttrName, createAttr: "'", to: .attributeName)
+            case "<": #go(error: .missingSpaceBetweenAttrs, .unexpectedCharInAttrName, createAttr: "<", to: .attributeName)
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c?: #go(error: .missingSpaceBetweenAttrs, reconsume: c, in: .beforeAttributeName)
+            case let c? where c.isASCII && c.isUppercase: #go(error: .missingSpaceBetweenAttrs, createAttr: c.lowercased(), to: .attributeName)
+            case let c?: #go(error: .missingSpaceBetweenAttrs, createAttr: c, to: .attributeName)
+
             }
         }
         case .selfClosingStartTag: while true {
             switch self.getChar(from: &input) {
             case ">": #go(emitSelfClosingTag: .data)
+            case "\t", "\n", "\u{0C}", " ": #go(error: .unexpectedSolidus, to: .beforeAttributeName)
+            case "/": #go(error: .unexpectedSolidus, to: .selfClosingStartTag)
+            case "=": #go(error: .unexpectedSolidus, .unexpectedEqualsSign, createAttr: "=", to: .attributeName)
+            case "\0": #go(error: .unexpectedSolidus, .unexpectedNull, createAttr: "\u{FFFD}", to: .attributeName)
+            case "\"": #go(error: .unexpectedSolidus, .unexpectedCharInAttrName, createAttr: "\"", to: .attributeName)
+            case "'": #go(error: .unexpectedSolidus, .unexpectedCharInAttrName, createAttr: "'", to: .attributeName)
+            case "<": #go(error: .unexpectedSolidus, .unexpectedCharInAttrName, createAttr: "<", to: .attributeName)
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c?: #go(error: .unexpectedSolidus, reconsume: c, in: .beforeAttributeName)
+            case let c? where c.isASCII && c.isUppercase: #go(error: .unexpectedSolidus, createAttr: c.lowercased(), to: .attributeName)
+            case let c?: #go(error: .unexpectedSolidus, createAttr: c, to: .attributeName)
             }
         }
         case .bogusComment: while true {
@@ -693,9 +721,11 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .doctype: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEName)
-            case ">": #go(reconsume: ">", in: .beforeDOCTYPEName)
+            case ">": #go(error: .missingDOCTYPEName, emitNewForceQuirksDOCTYPE: .data)
+            case "\0": #go(error: .missingSpaceBeforeDOCTYPEName, .unexpectedNull, createDOCTYPE: "\u{FFFD}", to: .doctypeName)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitNewForceQuirksDOCTYPEAndEOF
-            case let c?: #go(error: .missingSpaceBeforeDOCTYPEName, reconsume: c, in: .beforeDOCTYPEName)
+            case let c? where c.isASCII && c.isUppercase: #go(error: .missingSpaceBeforeDOCTYPEName, createDOCTYPE: c.lowercased(), to: .doctypeName)
+            case let c?: #go(error: .missingSpaceBeforeDOCTYPEName, createDOCTYPE: c, to: .doctypeName)
             }
         }
         case .beforeDOCTYPEName: while true {
