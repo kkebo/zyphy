@@ -1169,7 +1169,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         for c in self.tempBuffer {
             self.sink.process(.char(c))
         }
-        self.tempBuffer = ""
+        self.tempBuffer.removeAll()
     }
 
     @inline(__always)
