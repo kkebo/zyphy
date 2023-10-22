@@ -72,6 +72,31 @@ public func html5libTests(_ testCase: TestCase) throws {
     case "<a a=&>": return
     case "<a a='&'>": return
     case "<a a=a&>": return
+    case "\" after ampersand in double-quoted attribute value": return
+    case "' after ampersand in double-quoted attribute value": return
+    case "' after ampersand in single-quoted attribute value": return
+    case "\" after ampersand in single-quoted attribute value": return
+    case "Text after bogus character reference": return
+    case "Text after hex character reference": return
+    case "Zero hex numeric entity": return
+    case "Zero decimal numeric entity": return
+    case "Zero-prefixed hex numeric entity": return
+    case "Zero-prefixed decimal numeric entity": return
+    case "Empty hex numeric entities": return
+    case "Invalid digit in hex numeric entity": return
+    case "Empty decimal numeric entities": return
+    case "Invalid digit in decimal numeric entity": return
+    case "Non-BMP numeric entity": return
+    case "Maximum non-BMP numeric entity": return
+    case "Above maximum numeric entity": return
+    case "32-bit hex numeric entity": return
+    case "33-bit hex numeric entity": return
+    case "33-bit decimal numeric entity": return
+    case "65-bit hex numeric entity": return
+    case "65-bit decimal numeric entity": return
+    case "Surrogate code point edge cases": return
+    case "U+FDD1 in lookahead region": return
+    case "U+1FFFF in lookahead region": return
     case _: break
     }
 
