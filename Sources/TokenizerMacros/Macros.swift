@@ -110,6 +110,30 @@ extension GoMacro: CodeItemMacro {
                     precondition(argList.count == 1)
                     items += ["self.createDOCTYPE()", "self.forceQuirks()", "self.emitDOCTYPE()", "self.go(to: \(arg.expression))", "return .continue"]
                     break loop
+                case "createTemp":
+                    items += ["self.createTempBuffer(with: \(arg.expression))"]
+                    argList = .init(argList.dropFirst())
+                case "appendTemp":
+                    items += ["self.tempBuffer.append(\(arg.expression))"]
+                    argList = .init(argList.dropFirst())
+                case "clearTemp":
+                    items += ["self.tempBuffer.removeAll()", "self.go(to: \(arg.expression))", "return .continue"]
+                    break loop
+                case "emitTempAndEmit":
+                    if arg.expression.as(MemberAccessExprSyntax.self)?.declName.baseName.text == "eof" {
+                        precondition(argList.count == 1)
+                        items += ["self.emitTempBuffer()", "self.emitEOF()", "return .suspend"]
+                        break loop
+                    } else {
+                        preconditionFailure("not supported")
+                    }
+                case "emitTempAndReconsume":
+                    precondition(argList.count == 2)
+                    var arg1 = arg
+                    arg1.label = "reconsume"
+                    guard let arg2 = argList.dropFirst().first else { preconditionFailure() }
+                    items += ["self.emitTempBuffer()", "self.go(\(arg1)\(arg2))", "return .continue"]
+                    break loop
                 case let label:
                     preconditionFailure("not supported: \(String(describing: label))")
                 }
