@@ -351,7 +351,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch c {
             case "\t", "\n", "\u{0C}", " ", "/", ">":
                 if self.tempBuffer == "script" {
-                    #go(to: .scriptDataDoubleEscaped)
+                    #go(emit: .char(c), to: .scriptDataDoubleEscaped)
                 } else {
                     #go(emit: .char(c), to: .scriptDataEscaped)
                 }
@@ -405,7 +405,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch c {
             case "\t", "\n", "\u{0C}", " ", "/", ">":
                 if self.tempBuffer == "script" {
-                    #go(to: .scriptDataEscaped)
+                    #go(emit: .char(c), to: .scriptDataEscaped)
                 } else {
                     #go(emit: .char(c), to: .scriptDataDoubleEscaped)
                 }
