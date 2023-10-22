@@ -1085,8 +1085,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             self.sink.process(.tag(Tag(name: name, kind: .start, attrs: attrs, selfClosing: consume selfClosing)))
         case .end:
             if !attrs.isEmpty { self.emitError(.endTagWithAttrs) }
-            if copy selfClosing { self.emitError(.endTagWithTrailingSolidus) }
-            self.sink.process(.tag(Tag(name: name, kind: .end, attrs: [:], selfClosing: consume selfClosing)))
+            if consume selfClosing { self.emitError(.endTagWithTrailingSolidus) }
+            self.sink.process(.tag(Tag(name: name, kind: .end, attrs: [:], selfClosing: false)))
         }
     }
 
