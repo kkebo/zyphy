@@ -3,8 +3,8 @@
 @freestanding(codeItem) macro go(error: ParseError..., emit _: Token..., to _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emit _: Token..., reconsume _: Character, in _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emit _: Token..., clearTemp _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) macro go(error: ParseError..., emit _: Token..., emitTempAndEmit _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emit _: Token..., emitTempAndReconsume _: Character, in _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., emit _: Token..., emitTempAndEmit _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createTemp _: String, emit _: Token..., to _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., appendTemp _: String, emit _: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createComment _: Character, to _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -14,7 +14,6 @@
 @freestanding(codeItem) macro go(error: ParseError..., appendComment _: String, to _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., clearComment _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emitComment _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) macro goEmitCommentAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createStartTag _: String, to _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createEndTag _: Character, to _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createEndTag _: String, to _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -36,6 +35,7 @@
 @freestanding(codeItem) macro go(error: ParseError..., emitDOCTYPE _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emitForceQuirksDOCTYPE _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emitNewForceQuirksDOCTYPE _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro goEmitCommentAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro goEmitDOCTYPEAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro goEmitForceQuirksDOCTYPEAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro goEmitNewForceQuirksDOCTYPEAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -45,15 +45,15 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     public var sink: Sink
     var state: State
     var reconsumeChar: Optional<Character>
-    var charRefTokenizer: Optional<CharRefTokenizer>
+    var tempBuffer: String
+    var currentComment: String
     var currentTagName: String
     var currentTagKind: TagKind
     var currentAttrName: String
     var currentAttrValue: String
     var currentAttrs: [String: String]
-    var currentComment: String
     var currentDOCTYPE: DOCTYPE
-    var tempBuffer: String
+    var charRefTokenizer: Optional<CharRefTokenizer>
 
     public init(sink: consuming Sink) {
         self.sink = consume sink
@@ -965,13 +965,37 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func consumeCharRef() {
-        self.charRefTokenizer = .init()
+    private mutating func emit(_ c: consuming Character) {
+        self.sink.process(.char(consume c))
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func emit(_ token: consuming Token) {
+        self.sink.process(consume token)
+    }
+
+    @inline(__always)
+    private mutating func emitEOF() {
+        self.sink.process(.eof)
+    }
+
+    @inline(__always)
+    private mutating func emitError(_ error: consuming ParseError) {
+        self.sink.process(.error(consume error))
     }
 
     @inline(__always)
     private mutating func createTempBuffer(with s: consuming String) {
         self.tempBuffer = consume s
+    }
+
+    @inline(__always)
+    private mutating func emitTempBuffer() {
+        for c in self.tempBuffer {
+            self.sink.process(.char(c))
+        }
+        self.tempBuffer.removeAll()
     }
 
     @inline(__always)
@@ -994,6 +1018,11 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func appendComment(_ s: consuming String) {
         self.currentComment += s
+    }
+
+    @inline(__always)
+    private mutating func emitComment() {
+        self.sink.process(.comment(self.currentComment))
     }
 
     @inline(__always)
@@ -1044,6 +1073,24 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
+    private mutating func emitTag(selfClosing: consuming Bool = false) {
+        self.pushAttr()
+
+        let name = self.currentTagName
+        let attrs = self.currentAttrs
+
+        switch self.currentTagKind {
+        case .start:
+            // TODO: self.lastStartTagName = name
+            self.sink.process(.tag(Tag(name: name, kind: .start, attrs: attrs, selfClosing: consume selfClosing)))
+        case .end:
+            if !attrs.isEmpty { self.emitError(.endTagWithAttrs) }
+            if copy selfClosing { self.emitError(.endTagWithTrailingSolidus) }
+            self.sink.process(.tag(Tag(name: name, kind: .end, attrs: [:], selfClosing: consume selfClosing)))
+        }
+    }
+
+    @inline(__always)
     private mutating func createDOCTYPE() {
         self.currentDOCTYPE = .init()
     }
@@ -1082,59 +1129,12 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func emitError(_ error: consuming ParseError) {
-        self.sink.process(.error(consume error))
-    }
-
-    @inline(__always)
-    private mutating func emitEOF() {
-        self.sink.process(.eof)
-    }
-
-    @inline(__always)
-    private mutating func emit(_ c: consuming Character) {
-        self.sink.process(.char(consume c))
-    }
-
-    @_disfavoredOverload
-    @inline(__always)
-    private mutating func emit(_ token: consuming Token) {
-        self.sink.process(consume token)
-    }
-
-    @inline(__always)
-    private mutating func emitTag(selfClosing: consuming Bool = false) {
-        self.pushAttr()
-
-        let name = self.currentTagName
-        let attrs = self.currentAttrs
-
-        switch self.currentTagKind {
-        case .start:
-            // TODO: self.lastStartTagName = name
-            self.sink.process(.tag(Tag(name: name, kind: .start, attrs: attrs, selfClosing: consume selfClosing)))
-        case .end:
-            if !attrs.isEmpty { self.emitError(.endTagWithAttrs) }
-            if copy selfClosing { self.emitError(.endTagWithTrailingSolidus) }
-            self.sink.process(.tag(Tag(name: name, kind: .end, attrs: [:], selfClosing: consume selfClosing)))
-        }
-    }
-
-    @inline(__always)
-    private mutating func emitTempBuffer() {
-        for c in self.tempBuffer {
-            self.sink.process(.char(c))
-        }
-        self.tempBuffer.removeAll()
-    }
-
-    @inline(__always)
-    private mutating func emitComment() {
-        self.sink.process(.comment(self.currentComment))
-    }
-
-    @inline(__always)
     private mutating func emitDOCTYPE() {
         self.sink.process(.doctype(self.currentDOCTYPE))
+    }
+
+    @inline(__always)
+    private mutating func consumeCharRef() {
+        self.charRefTokenizer = .init()
     }
 }
