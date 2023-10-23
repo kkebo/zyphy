@@ -30,6 +30,7 @@ private let testCases = try! [
 public func html5libTests(_ testCase: TestCase) throws {
     // TODO: Do not ignore any test cases
     switch testCase.title {
+    // test1.test
     case "Ampersand EOF": return
     case "Ampersand ampersand EOF": return
     case "Ampersand space EOF": return
@@ -51,6 +52,7 @@ public func html5libTests(_ testCase: TestCase) throws {
     case "Entity in attribute without semicolon": return
     case "Unquoted attribute ending in ampersand": return
     case "Unquoted attribute at end of tag with final character of &, with tag followed by characters": return
+    // test2.test
     case "Numeric entity representing the NUL character": return
     case "Hexadecimal entity representing the NUL character": return
     case "Numeric entity representing a codepoint after 1114111 (U+10FFFF)": return
@@ -61,6 +63,7 @@ public func html5libTests(_ testCase: TestCase) throws {
     case "Unescaped ampersand in attribute value": return
     case "Entity + newline": return
     case "Start tag with no attributes but space before the greater-than sign": return
+    // test3.test
     case "&": return
     case "<!-- &": return
     case "<!-- -&": return
@@ -72,6 +75,7 @@ public func html5libTests(_ testCase: TestCase) throws {
     case "<a a=&>": return
     case "<a a='&'>": return
     case "<a a=a&>": return
+    // test4.test
     case "\" after ampersand in double-quoted attribute value": return
     case "' after ampersand in double-quoted attribute value": return
     case "' after ampersand in single-quoted attribute value": return
