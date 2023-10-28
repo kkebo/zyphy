@@ -1,4 +1,4 @@
-public import Testing
+import Testing
 import Tokenizer
 
 private struct TestSink {
@@ -11,7 +11,7 @@ extension TestSink: TokenSink {
     }
 }
 
-@Test public func basicHTML() {
+@Test func basicHTML() {
     let html = #"""
         <!DOCTYPE html>
         <html lang="en">

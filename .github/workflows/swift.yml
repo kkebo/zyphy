@@ -7,7 +7,7 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
-    container: swiftlang/swift:nightly-main-jammy
+    container: swiftlang/swift:nightly-5.10-jammy
     steps:
       - uses: actions/checkout@v4
         with:
