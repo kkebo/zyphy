@@ -35,6 +35,7 @@ swift build
 ## Testing
 
 ```shell
+git submodule update --init --recursive
 swift test
 ```
 
