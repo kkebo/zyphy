@@ -52,6 +52,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     var currentAttrName: String
     var currentAttrValue: String
     var currentAttrs: [String: String]
+    var lastStartTagName: Optional<String>
     var currentDOCTYPE: DOCTYPE
     var charRefTokenizer: Optional<CharRefTokenizer>
 
@@ -66,6 +67,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         self.currentAttrName = ""
         self.currentAttrValue = ""
         self.currentAttrs = [:]
+        self.lastStartTagName = nil
         self.currentDOCTYPE = .init()
         self.charRefTokenizer = nil
     }
@@ -172,9 +174,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .rcdataEndTagName: while true {
             let c = self.getChar(from: &input)
-            // FIXME: Implement lastStartTagName
-            let lastStartTagName: String? = nil
-            if self.currentTagKind == .end && self.currentTagName == lastStartTagName {
+            if self.currentTagKind == .end && self.currentTagName == self.lastStartTagName {
                 switch c {
                 case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
                 case "/": #go(to: .selfClosingStartTag)
@@ -208,9 +208,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .rawtextEndTagName: while true {
             let c = self.getChar(from: &input)
-            // FIXME: Implement lastStartTagName
-            let lastStartTagName: String? = nil
-            if self.currentTagKind == .end && self.currentTagName == lastStartTagName {
+            if self.currentTagKind == .end && self.currentTagName == self.lastStartTagName {
                 switch c {
                 case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
                 case "/": #go(to: .selfClosingStartTag)
@@ -245,9 +243,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .scriptDataEndTagName: while true {
             let c = self.getChar(from: &input)
-            // FIXME: Implement lastStartTagName
-            let lastStartTagName: String? = nil
-            if self.currentTagKind == .end && self.currentTagName == lastStartTagName {
+            if self.currentTagKind == .end && self.currentTagName == self.lastStartTagName {
                 switch c {
                 case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
                 case "/": #go(to: .selfClosingStartTag)
@@ -330,9 +326,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         case .scriptDataEscapedEndTagName: while true {
             let c = self.getChar(from: &input)
-            // FIXME: Implement lastStartTagName
-            let lastStartTagName: String? = nil
-            if self.currentTagKind == .end && self.currentTagName == lastStartTagName {
+            if self.currentTagKind == .end && self.currentTagName == self.lastStartTagName {
                 switch c {
                 case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
                 case "/": #go(to: .selfClosingStartTag)
@@ -1081,7 +1075,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
         switch self.currentTagKind {
         case .start:
-            // TODO: self.lastStartTagName = name
+            self.lastStartTagName = name
             self.sink.process(.tag(Tag(name: name, kind: .start, attrs: attrs, selfClosing: consume selfClosing)))
         case .end:
             if !attrs.isEmpty { self.emitError(.endTagWithAttrs) }
