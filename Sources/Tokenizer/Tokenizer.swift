@@ -59,15 +59,15 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         self.sink = consume sink
         self.state = .data
         self.reconsumeChar = nil
-        self.charRefTokenizer = nil
+        self.tempBuffer = ""
+        self.currentComment = ""
         self.currentTagName = ""
         self.currentTagKind = .start
         self.currentAttrName = ""
         self.currentAttrValue = ""
         self.currentAttrs = [:]
-        self.currentComment = ""
         self.currentDOCTYPE = .init()
-        self.tempBuffer = ""
+        self.charRefTokenizer = nil
     }
 
     // TODO: Consider input type
