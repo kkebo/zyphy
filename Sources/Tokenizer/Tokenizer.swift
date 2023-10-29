@@ -701,11 +701,11 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEPublicID)
             case "\"":
                 self.emitError(.missingSpaceAfterDOCTYPEPublicKeyword)
-                // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
+                self.clearPublicID()
                 #go(to: .doctypePublicIDDoubleQuoted)
             case "'":
                 self.emitError(.missingSpaceAfterDOCTYPEPublicKeyword)
-                // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
+                self.clearPublicID()
                 #go(to: .doctypePublicIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
@@ -717,10 +717,10 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case "\"":
-                // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
+                self.clearPublicID()
                 #go(to: .doctypePublicIDDoubleQuoted)
             case "'":
-                // TODO: Set the current DOCTYPE token's public identifier to the empty string (not missing)
+                self.clearPublicID()
                 #go(to: .doctypePublicIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
@@ -734,11 +734,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case ">": #go(error: .abruptDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
             case "\0":
                 self.emitError(.unexpectedNull)
-                // TODO: Append a U+FFFD REPLACEMENT CHARACTER character to the current DOCTYPE token's public identifier
+                self.appendPublicID("\u{FFFD}")
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
-            case _?:
-                // TODO: Append the current input character to the current DOCTYPE token's public identifier
-                break
+            case let c?: self.appendPublicID(c)
             }
         }
         case .doctypePublicIDSingleQuoted: while true {
@@ -747,11 +745,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case ">": #go(error: .abruptDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
             case "\0":
                 self.emitError(.unexpectedNull)
-                // TODO: Append a U+FFFD REPLACEMENT CHARACTER character to the current DOCTYPE token's public identifier
+                self.appendPublicID("\u{FFFD}")
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
-            case _?:
-                // TODO: Append the current input character to the current DOCTYPE token's public identifier
-                break
+            case let c?: self.appendPublicID(c)
             }
         }
         case .afterDOCTYPEPublicID: while true {
@@ -760,11 +756,11 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case ">": #go(emitDOCTYPE: .data)
             case "\"":
                 self.emitError(.missingSpaceBetweenDOCTYPEIDs)
-                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                self.clearSystemID()
                 #go(to: .doctypeSystemIDDoubleQuoted)
             case "'":
                 self.emitError(.missingSpaceBetweenDOCTYPEIDs)
-                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                self.clearSystemID()
                 #go(to: .doctypeSystemIDSingleQuoted)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
@@ -776,10 +772,10 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "\t", "\n", "\u{0C}", " ": break
             case ">": #go(emitDOCTYPE: .data)
             case "\"":
-                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                self.clearSystemID()
                 #go(to: .doctypeSystemIDDoubleQuoted)
             case "'":
-                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                self.clearSystemID()
                 #go(to: .doctypeSystemIDSingleQuoted)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
@@ -791,11 +787,11 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPESystemID)
             case "\"":
                 self.emitError(.missingSpaceAfterDOCTYPESystemKeyword)
-                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                self.clearSystemID()
                 #go(to: .doctypeSystemIDDoubleQuoted)
             case "'":
                 self.emitError(.missingSpaceAfterDOCTYPESystemKeyword)
-                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                self.clearSystemID()
                 #go(to: .doctypeSystemIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
@@ -807,10 +803,10 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case "\"":
-                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                self.clearSystemID()
                 #go(to: .doctypeSystemIDDoubleQuoted)
             case "'":
-                // TODO: Set the current DOCTYPE token's system identifier to the empty string (not missing)
+                self.clearSystemID()
                 #go(to: .doctypeSystemIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
@@ -823,12 +819,10 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "\"": #go(to: .afterDOCTYPESystemID)
             case "\0":
                 self.emitError(.unexpectedNull)
-                // TODO: Append a U+FFFD REPLACEMENT CHARACTER character to the current DOCTYPE token's system identifier
+                self.appendSystemID("\u{FFFD}")
             case ">": #go(error: .abruptDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
-            case _?:
-                // TODO: Append the current input character to the current DOCTYPE token's system identifier
-                break
+            case let c?: self.appendSystemID(c)
             }
         }
         case .doctypeSystemIDSingleQuoted: while true {
@@ -836,12 +830,10 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             case "'": #go(to: .afterDOCTYPESystemID)
             case "\0":
                 self.emitError(.unexpectedNull)
-                // TODO: Append a U+FFFD REPLACEMENT CHARACTER character to the current DOCTYPE token's system identifier
+                self.appendSystemID("\u{FFFD}")
             case ">": #go(error: .abruptDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
-            case _?:
-                // TODO: Append the current input character to the current DOCTYPE token's system identifier
-                break
+            case let c?: self.appendSystemID(c)
             }
         }
         case .afterDOCTYPESystemID: while true {
@@ -1115,6 +1107,32 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .some: self.currentDOCTYPE.name?.append(consume s)
         case .none: self.currentDOCTYPE.name = consume s
         }
+    }
+
+    @inline(__always)
+    private mutating func appendPublicID(_ c: consuming Character) {
+        switch self.currentDOCTYPE.publicID {
+        case .some: self.currentDOCTYPE.publicID?.append(consume c)
+        case .none: self.currentDOCTYPE.publicID = String(consume c)
+        }
+    }
+
+    @inline(__always)
+    private mutating func clearPublicID() {
+        self.currentDOCTYPE.publicID = ""
+    }
+
+    @inline(__always)
+    private mutating func appendSystemID(_ c: consuming Character) {
+        switch self.currentDOCTYPE.systemID {
+        case .some: self.currentDOCTYPE.systemID?.append(consume c)
+        case .none: self.currentDOCTYPE.systemID = String(consume c)
+        }
+    }
+
+    @inline(__always)
+    private mutating func clearSystemID() {
+        self.currentDOCTYPE.systemID = ""
     }
 
     @inline(__always)

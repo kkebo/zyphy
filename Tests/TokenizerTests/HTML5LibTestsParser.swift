@@ -51,9 +51,15 @@ struct ExpectedToken {
         switch fields[0] {
         case .str("DOCTYPE"):
             return switch (fields[1], fields[2], fields[3], fields[4]) {
-            case (.str(let name), _, _, .bool(let correctness)):
+            case (.str(let name), .str(let publicID), .str(let systemID), .bool(let correctness)):
+                [.doctype(.init(name: name, publicID: publicID, systemID: systemID, forceQuirks: !correctness))]
+            case (.str(let name), .str(let publicID), nil, .bool(let correctness)):
+                [.doctype(.init(name: name, publicID: publicID, forceQuirks: !correctness))]
+            case (.str(let name), nil, .str(let systemID), .bool(let correctness)):
+                [.doctype(.init(name: name, systemID: systemID, forceQuirks: !correctness))]
+            case (.str(let name), nil, nil, .bool(let correctness)):
                 [.doctype(.init(name: name, forceQuirks: !correctness))]
-            case (nil, _, _, .bool(let correctness)):
+            case (nil, nil, nil, .bool(let correctness)):
                 [.doctype(.init(name: nil, forceQuirks: !correctness))]
             case _: throw TestParseError.invalidTokenFormat(fields)
             }
