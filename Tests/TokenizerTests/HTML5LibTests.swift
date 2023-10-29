@@ -63,7 +63,6 @@ func html5libTests(_ testCase: TestCase) throws {
     case "Entity without a name": return
     case "Unescaped ampersand in attribute value": return
     case "Entity + newline": return
-    case "Start tag with no attributes but space before the greater-than sign": return
     // test3.test
     case "&": return
     case "<!-- &": return
