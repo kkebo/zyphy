@@ -31,6 +31,10 @@
 @freestanding(codeItem) macro go(error: ParseError..., createDOCTYPE _: Character, to _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., createDOCTYPE _: String, to _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., appendDOCTYPEName _: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., appendPublicID _: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., clearPublicID _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., appendSystemID _: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(error: ParseError..., clearSystemID _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., forceQuirks _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emitDOCTYPE _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError..., emitForceQuirksDOCTYPE _: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -699,14 +703,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .afterDOCTYPEPublicKeyword: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEPublicID)
-            case "\"":
-                self.emitError(.missingSpaceAfterDOCTYPEPublicKeyword)
-                self.clearPublicID()
-                #go(to: .doctypePublicIDDoubleQuoted)
-            case "'":
-                self.emitError(.missingSpaceAfterDOCTYPEPublicKeyword)
-                self.clearPublicID()
-                #go(to: .doctypePublicIDSingleQuoted)
+            case "\"": #go(error: .missingSpaceAfterDOCTYPEPublicKeyword, clearPublicID: .doctypePublicIDDoubleQuoted)
+            case "'": #go(error: .missingSpaceAfterDOCTYPEPublicKeyword, clearPublicID: .doctypePublicIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
@@ -716,12 +714,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .beforeDOCTYPEPublicID: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
-            case "\"":
-                self.clearPublicID()
-                #go(to: .doctypePublicIDDoubleQuoted)
-            case "'":
-                self.clearPublicID()
-                #go(to: .doctypePublicIDSingleQuoted)
+            case "\"": #go(clearPublicID: .doctypePublicIDDoubleQuoted)
+            case "'": #go(clearPublicID: .doctypePublicIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPEPublicID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
@@ -732,36 +726,26 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch self.getChar(from: &input) {
             case "\"": #go(to: .afterDOCTYPEPublicID)
             case ">": #go(error: .abruptDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
-            case "\0":
-                self.emitError(.unexpectedNull)
-                self.appendPublicID("\u{FFFD}")
+            case "\0": #go(error: .unexpectedNull, appendPublicID: "\u{FFFD}")
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
-            case let c?: self.appendPublicID(c)
+            case let c?: #go(appendPublicID: c)
             }
         }
         case .doctypePublicIDSingleQuoted: while true {
             switch self.getChar(from: &input) {
             case "'": #go(to: .afterDOCTYPEPublicID)
             case ">": #go(error: .abruptDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
-            case "\0":
-                self.emitError(.unexpectedNull)
-                self.appendPublicID("\u{FFFD}")
+            case "\0": #go(error: .unexpectedNull, appendPublicID: "\u{FFFD}")
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
-            case let c?: self.appendPublicID(c)
+            case let c?: #go(appendPublicID: c)
             }
         }
         case .afterDOCTYPEPublicID: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .betweenDOCTYPEPublicAndSystemIDs)
             case ">": #go(emitDOCTYPE: .data)
-            case "\"":
-                self.emitError(.missingSpaceBetweenDOCTYPEIDs)
-                self.clearSystemID()
-                #go(to: .doctypeSystemIDDoubleQuoted)
-            case "'":
-                self.emitError(.missingSpaceBetweenDOCTYPEIDs)
-                self.clearSystemID()
-                #go(to: .doctypeSystemIDSingleQuoted)
+            case "\"": #go(error: .missingSpaceBetweenDOCTYPEIDs, clearSystemID: .doctypeSystemIDDoubleQuoted)
+            case "'": #go(error: .missingSpaceBetweenDOCTYPEIDs, clearSystemID: .doctypeSystemIDSingleQuoted)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
             case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
@@ -771,12 +755,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case ">": #go(emitDOCTYPE: .data)
-            case "\"":
-                self.clearSystemID()
-                #go(to: .doctypeSystemIDDoubleQuoted)
-            case "'":
-                self.clearSystemID()
-                #go(to: .doctypeSystemIDSingleQuoted)
+            case "\"": #go(clearSystemID: .doctypeSystemIDDoubleQuoted)
+            case "'": #go(clearSystemID: .doctypeSystemIDSingleQuoted)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
             case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
@@ -785,14 +765,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .afterDOCTYPESystemKeyword: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPESystemID)
-            case "\"":
-                self.emitError(.missingSpaceAfterDOCTYPESystemKeyword)
-                self.clearSystemID()
-                #go(to: .doctypeSystemIDDoubleQuoted)
-            case "'":
-                self.emitError(.missingSpaceAfterDOCTYPESystemKeyword)
-                self.clearSystemID()
-                #go(to: .doctypeSystemIDSingleQuoted)
+            case "\"": #go(error: .missingSpaceAfterDOCTYPESystemKeyword, clearSystemID: .doctypeSystemIDDoubleQuoted)
+            case "'": #go(error: .missingSpaceAfterDOCTYPESystemKeyword, clearSystemID: .doctypeSystemIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
@@ -802,12 +776,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .beforeDOCTYPESystemID: while true {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
-            case "\"":
-                self.clearSystemID()
-                #go(to: .doctypeSystemIDDoubleQuoted)
-            case "'":
-                self.clearSystemID()
-                #go(to: .doctypeSystemIDSingleQuoted)
+            case "\"": #go(clearSystemID: .doctypeSystemIDDoubleQuoted)
+            case "'": #go(clearSystemID: .doctypeSystemIDSingleQuoted)
             case ">": #go(error: .missingDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
             case "\0": #go(error: .missingQuoteBeforeDOCTYPESystemID, .unexpectedNull, forceQuirks: .bogusDOCTYPE)
@@ -817,23 +787,19 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         case .doctypeSystemIDDoubleQuoted: while true {
             switch self.getChar(from: &input) {
             case "\"": #go(to: .afterDOCTYPESystemID)
-            case "\0":
-                self.emitError(.unexpectedNull)
-                self.appendSystemID("\u{FFFD}")
+            case "\0": #go(error: .unexpectedNull, appendSystemID: "\u{FFFD}")
             case ">": #go(error: .abruptDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
-            case let c?: self.appendSystemID(c)
+            case let c?: #go(appendSystemID: c)
             }
         }
         case .doctypeSystemIDSingleQuoted: while true {
             switch self.getChar(from: &input) {
             case "'": #go(to: .afterDOCTYPESystemID)
-            case "\0":
-                self.emitError(.unexpectedNull)
-                self.appendSystemID("\u{FFFD}")
+            case "\0": #go(error: .unexpectedNull, appendSystemID: "\u{FFFD}")
             case ">": #go(error: .abruptDOCTYPESystemID, emitForceQuirksDOCTYPE: .data)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitForceQuirksDOCTYPEAndEOF
-            case let c?: self.appendSystemID(c)
+            case let c?: #go(appendSystemID: c)
             }
         }
         case .afterDOCTYPESystemID: while true {

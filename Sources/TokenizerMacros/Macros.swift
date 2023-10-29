@@ -94,6 +94,20 @@ extension GoMacro: CodeItemMacro {
                 case "appendDOCTYPEName":
                     items += ["self.appendDOCTYPEName(\(arg.expression))"]
                     argList = .init(argList.dropFirst())
+                case "appendPublicID":
+                    items += ["self.appendPublicID(\(arg.expression))"]
+                    argList = .init(argList.dropFirst())
+                case "clearPublicID":
+                    precondition(argList.count == 1)
+                    items += ["self.clearPublicID()", "self.go(to: \(arg.expression))", "return .continue"]
+                    break loop
+                case "appendSystemID":
+                    items += ["self.appendSystemID(\(arg.expression))"]
+                    argList = .init(argList.dropFirst())
+                case "clearSystemID":
+                    precondition(argList.count == 1)
+                    items += ["self.clearSystemID()", "self.go(to: \(arg.expression))", "return .continue"]
+                    break loop
                 case "forceQuirks":
                     precondition(argList.count == 1)
                     items += ["self.forceQuirks()", "self.go(to: \(arg.expression))", "return .continue"]
