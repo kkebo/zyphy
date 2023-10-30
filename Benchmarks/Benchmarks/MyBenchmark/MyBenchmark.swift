@@ -1,7 +1,7 @@
 import Benchmark
 import Tokenizer
 
-struct TestSink {
+private struct TestSink {
     var tokens = [Token]()
 }
 
