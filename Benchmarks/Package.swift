@@ -6,7 +6,7 @@ let package = Package(
     name: "Benchmarks",
     platforms: [.macOS(.v13), .iOS(.v16)],
     dependencies: [
-        .package(name: "Browser", path: ".."),
+        .package(name: "zyphy", path: ".."),
         .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.11.2"),
     ],
     targets: [
@@ -14,7 +14,7 @@ let package = Package(
             name: "MyBenchmark",
             dependencies: [
                 .product(name: "Benchmark", package: "package-benchmark"),
-                .product(name: "Tokenizer", package: "Browser"),
+                .product(name: "Tokenizer", package: "zyphy"),
             ],
             path: "Benchmarks/MyBenchmark",
             swiftSettings: [
