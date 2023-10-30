@@ -88,7 +88,12 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
     // swift-format-ignore
     private mutating func step(_ input: inout String.Iterator) -> ProcessResult {
-        self.charRefTokenizer?.tokenize(&input)
+        if var charRefTokenizer {
+            if let chars = charRefTokenizer.tokenize(tokenizer: &self, input: &input) {
+                self.processCharRef(chars)
+            }
+            self.charRefTokenizer = nil
+        }
 
         switch self.state {
         case .data: while true {
@@ -845,6 +850,16 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
+    mutating func processCharRef(_ chars: consuming [Character]) {
+        switch self.state {
+        case .data, .rcdata: for c in chars { #go(emit: c) }
+        case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted:
+            for c in chars { #go(appendAttrValue: c) }
+        case _: preconditionFailure("unreachable")
+        }
+    }
+
+    @inline(__always)
     private mutating func getChar(from input: inout String.Iterator) -> Character? {
         guard let reconsumeChar else {
             guard let c = input.next() else { return nil }
@@ -865,6 +880,23 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         }
         self.reconsumeChar = nil
         return reconsumeChar
+    }
+
+    @inline(__always)
+    func peek(_ input: borrowing String.Iterator) -> Character? {
+        guard let reconsumeChar else {
+            var input = copy input
+            return input.next()
+        }
+        return reconsumeChar
+    }
+
+    @inline(__always)
+    mutating func discardChar(_ input: inout String.Iterator) {
+        switch self.reconsumeChar {
+        case .some: self.reconsumeChar = nil
+        case .none: _ = input.next()
+        }
     }
 
     @inline(__always)
@@ -933,7 +965,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func emitError(_ error: consuming ParseError) {
+    mutating func emitError(_ error: consuming ParseError) {
         self.sink.process(.error(consume error))
     }
 
