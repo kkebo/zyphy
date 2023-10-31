@@ -1,5 +1,5 @@
 // Reference: https://html.spec.whatwg.org/multipage/parsing.html#tokenization
-enum State {
+enum State: Equatable {
     case data
     case rcdata
     case rawtext

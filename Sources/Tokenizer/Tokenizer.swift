@@ -1116,3 +1116,5 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         self.charRefTokenizer = .init()
     }
 }
+
+extension Tokenizer: Sendable where Sink: Sendable {}
