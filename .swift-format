@@ -19,7 +19,7 @@
       "XCTAssertNoThrow"
     ]
   },
-  "prioritizeKeepingFunctionOutputTogether" : true,
+  "prioritizeKeepingFunctionOutputTogether" : false,
   "respectsExistingLineBreaks" : true,
   "rules" : {
     "AllPublicDeclarationsHaveDocumentation" : false,
