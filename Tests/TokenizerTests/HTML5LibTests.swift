@@ -31,73 +31,14 @@ public func html5libTests(_ testCase: TestCase) throws {
     // TODO: Do not ignore any test cases
     switch testCase.title {
     // test1.test
-    case "Ampersand EOF": return
-    case "Ampersand ampersand EOF": return
-    case "Ampersand space EOF": return
-    case "Unfinished entity": return
-    case "Ampersand, number sign": return
-    case "Unfinished numeric entity": return
     case "Entity with trailing semicolon (1)": return
     case "Entity with trailing semicolon (2)": return
     case "Entity without trailing semicolon (1)": return
     case "Entity without trailing semicolon (2)": return
-    case "Partial entity match at end of file": return
-    case "Non-ASCII character reference name": return
-    case "ASCII decimal entity": return
-    case "ASCII hexadecimal entity": return
-    case "Hexadecimal entity in attribute": return
-    case "Entity in attribute without semicolon ending in x": return
-    case "Entity in attribute without semicolon ending in 1": return
-    case "Entity in attribute without semicolon ending in i": return
     case "Entity in attribute without semicolon": return
-    case "Unquoted attribute ending in ampersand": return
-    case "Unquoted attribute at end of tag with final character of &, with tag followed by characters": return
     // test2.test
-    case "Numeric entity representing the NUL character": return
-    case "Hexadecimal entity representing the NUL character": return
-    case "Numeric entity representing a codepoint after 1114111 (U+10FFFF)": return
-    case "Hexadecimal entity representing a codepoint after 1114111 (U+10FFFF)": return
-    case "Hexadecimal entity pair representing a surrogate pair": return
-    case "Hexadecimal entity with mixed uppercase and lowercase": return
-    case "Entity without a name": return
-    case "Unescaped ampersand in attribute value": return
     case "Entity + newline": return
-    // test3.test
-    case "&": return
-    case "<!-- &": return
-    case "<!-- -&": return
-    case "<!--&": return
-    case "<!---&": return
-    case "<!----&": return
-    case "<&": return
-    case "<a a=\"&\">": return
-    case "<a a=&>": return
-    case "<a a='&'>": return
-    case "<a a=a&>": return
     // test4.test
-    case "\" after ampersand in double-quoted attribute value": return
-    case "' after ampersand in double-quoted attribute value": return
-    case "' after ampersand in single-quoted attribute value": return
-    case "\" after ampersand in single-quoted attribute value": return
-    case "Text after bogus character reference": return
-    case "Text after hex character reference": return
-    case "Zero hex numeric entity": return
-    case "Zero decimal numeric entity": return
-    case "Zero-prefixed hex numeric entity": return
-    case "Zero-prefixed decimal numeric entity": return
-    case "Empty hex numeric entities": return
-    case "Invalid digit in hex numeric entity": return
-    case "Empty decimal numeric entities": return
-    case "Invalid digit in decimal numeric entity": return
-    case "Non-BMP numeric entity": return
-    case "Maximum non-BMP numeric entity": return
-    case "Above maximum numeric entity": return
-    case "32-bit hex numeric entity": return
-    case "33-bit hex numeric entity": return
-    case "33-bit decimal numeric entity": return
-    case "65-bit hex numeric entity": return
-    case "65-bit decimal numeric entity": return
-    case "Surrogate code point edge cases": return
     case "U+FDD1 in lookahead region": return
     case "U+1FFFF in lookahead region": return
     // unicodeChars.test
@@ -167,7 +108,6 @@ public func html5libTests(_ testCase: TestCase) throws {
     case "Invalid Unicode character U+FFFFF": return
     case "Invalid Unicode character U+10FFFE": return
     case "Invalid Unicode character U+10FFFF": return
-    case "Valid Unicode character U+0026": return
     case _: break
     }
 
