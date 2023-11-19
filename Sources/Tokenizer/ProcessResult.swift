@@ -1,4 +1,4 @@
-enum ProcessResult: ~Copyable, Sendable {
+enum ProcessResult: ~Copyable {
     case `continue`
     case suspend
 }
