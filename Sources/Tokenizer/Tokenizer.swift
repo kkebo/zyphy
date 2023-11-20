@@ -47,17 +47,17 @@
 
 public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     public var sink: Sink
-    var state: State
-    var reconsumeChar: Optional<Character>
-    var tempBuffer: String
-    var currentComment: String
-    var currentTagName: String
-    var currentTagKind: TagKind
-    var currentAttrName: String
-    var currentAttrValue: String
-    var currentAttrs: [String: String]
-    var lastStartTagName: Optional<String>
-    var currentDOCTYPE: DOCTYPE
+    package var state: State
+    private var reconsumeChar: Optional<Character>
+    private var tempBuffer: String
+    private var currentComment: String
+    private var currentTagName: String
+    private var currentTagKind: TagKind
+    private var currentAttrName: String
+    private var currentAttrValue: String
+    private var currentAttrs: [String: String]
+    private var lastStartTagName: Optional<String>
+    private var currentDOCTYPE: DOCTYPE
     var charRefTokenizer: Optional<CharRefTokenizer>
 
     public init(sink: consuming Sink) {
