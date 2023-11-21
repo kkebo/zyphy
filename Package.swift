@@ -5,7 +5,14 @@ import PackageDescription
 
 let package = Package(
     name: "zyphy",
-    platforms: [.macOS(.v13), .iOS(.v16)],
+    platforms: [
+        .macOS(.v10_15),
+        .iOS(.v13),
+        .watchOS(.v6),
+        .tvOS(.v13),
+        .macCatalyst(.v13),
+        .visionOS(.v1),
+    ],
     products: [
         .library(name: "Tokenizer", targets: ["Tokenizer"])
     ],
