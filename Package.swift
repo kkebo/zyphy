@@ -73,6 +73,7 @@ let package = Package(
                 .process("Resources/html5lib-tests/tokenizer/test3.test"),
                 .process("Resources/html5lib-tests/tokenizer/test4.test"),
                 .process("Resources/html5lib-tests/tokenizer/unicodeChars.test"),
+                .process("Resources/entities.json"),
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
