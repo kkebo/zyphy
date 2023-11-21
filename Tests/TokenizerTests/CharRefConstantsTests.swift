@@ -3,7 +3,7 @@ public import Testing
 import Tokenizer
 
 // swift-format-ignore: NeverForceUnwrap
-@Test func namedCharRef() throws {
+@Test public func namedCharRef() throws {
     struct CodePointsAndCharacters: Codable {
         var codepoints: [UInt32]
         var characters: String
