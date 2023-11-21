@@ -58,7 +58,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     private var currentAttrs: [String: String]
     private var lastStartTagName: Optional<String>
     private var currentDOCTYPE: DOCTYPE
-    var charRefTokenizer: Optional<CharRefTokenizer>
+    private var charRefTokenizer: Optional<CharRefTokenizer>
 
     public init(sink: consuming Sink) {
         self.sink = consume sink
