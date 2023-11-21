@@ -20,5 +20,5 @@ jobs:
             ${{ runner.os }}-spm-
       - run: swift --version
       - run: swift build
-      - run: swift test
+      - run: swift test --enable-experimental-swift-testing --disable-xctest
       - run: swift package lint-source-code
