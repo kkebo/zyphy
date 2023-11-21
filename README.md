@@ -36,7 +36,7 @@ swift build
 
 ```shell
 git submodule update --init --recursive
-swift test
+swift test --enable-experimental-swift-testing --disable-xctest
 ```
 
 ## Benchmarking
