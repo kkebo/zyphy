@@ -1,3 +1,5 @@
+import HTMLEntities
+
 private enum CharRefState {
     case initial
     case named

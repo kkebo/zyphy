@@ -26,7 +26,8 @@ let package = Package(
         .target(
             name: "Tokenizer",
             dependencies: [
-                "TokenizerMacros"
+                "TokenizerMacros",
+                "HTMLEntities",
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
@@ -47,6 +48,7 @@ let package = Package(
                 .unsafeFlags(["-swift-version", "6"]),
             ]
         ),
+        .target(name: "HTMLEntities"),
         .testTarget(
             name: "TokenizerTests",
             dependencies: [
@@ -80,7 +82,19 @@ let package = Package(
                 .process("Resources/html5lib-tests/tokenizer/test3.test"),
                 .process("Resources/html5lib-tests/tokenizer/test4.test"),
                 .process("Resources/html5lib-tests/tokenizer/unicodeChars.test"),
-                .process("Resources/entities.json"),
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-swift-version", "6"])
+            ]
+        ),
+        .testTarget(
+            name: "HTMLEntitiesTests",
+            dependencies: [
+                "HTMLEntities",
+                .product(name: "Testing", package: "swift-testing"),
+            ],
+            resources: [
+                .process("Resources")
             ],
             swiftSettings: [
                 .unsafeFlags(["-swift-version", "6"])

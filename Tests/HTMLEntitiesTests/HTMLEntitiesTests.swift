@@ -1,6 +1,6 @@
 import Foundation
+import HTMLEntities
 public import Testing
-import Tokenizer
 
 // swift-format-ignore: NeverForceUnwrap
 @Test public func namedCharRef() throws {
