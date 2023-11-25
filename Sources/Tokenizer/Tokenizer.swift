@@ -871,8 +871,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
             }
             for scalar in c.unicodeScalars {
                 switch scalar.value {
-                case 0xD800...0xDBFF, 0xDC00...0xDFFF:
-                    self.emitError(.surrogateInInput)
+                // Swift's String cannot have surrogates
+                // case 0xD800...0xDBFF, 0xDC00...0xDFFF:
+                //     self.emitError(.surrogateInInput)
                 case 0xFDD0...0xFDEF, 0xFFFE, 0xFFFF, 0x1FFFE, 0x1FFFF, 0x2FFFE, 0x2FFFF,
                     0x3FFFE, 0x3FFFF, 0x4FFFE, 0x4FFFF, 0x5FFFE, 0x5FFFF, 0x6FFFE, 0x6FFFF,
                     0x7FFFE, 0x7FFFF, 0x8FFFE, 0x8FFFF, 0x9FFFE, 0x9FFFF, 0xAFFFE, 0xAFFFF,
