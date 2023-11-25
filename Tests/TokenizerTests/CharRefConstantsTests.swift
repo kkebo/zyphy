@@ -4,20 +4,22 @@ import Tokenizer
 
 // swift-format-ignore: NeverForceUnwrap
 @Test public func namedCharRef() throws {
-    struct CodePointsAndCharacters: Codable {
+    struct Entry: Decodable {
         var codepoints: [UInt32]
-        var characters: String
     }
 
     let dict = try JSONDecoder()
         .decode(
-            [String: CodePointsAndCharacters].self,
+            [String: Entry].self,
             from: Data(contentsOf: Bundle.module.url(forResource: "entities", withExtension: "json")!)
         )
 
-    for (k, v) in namedChars {
-        #expect(v.unicodeScalars.map(\.value) == dict["&\(k)"]!.codepoints, .comment(k))
+    for (k, v) in dict {
+        let (c1, c2) = namedChars[String(k.dropFirst())]!
+        if c2.value != 0 {
+            #expect(v.codepoints == [c1.value, c2.value])
+        } else {
+            #expect(v.codepoints == [c1.value])
+        }
     }
-    // TODO: minus 2
-    #expect(namedChars.count + 2 == dict.count)
 }
