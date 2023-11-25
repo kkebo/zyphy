@@ -34,8 +34,8 @@ struct CharRefTokenizer {
     private mutating func step(tokenizer: inout Tokenizer<some TokenSink>, input: inout String.Iterator) -> CharRefProcessResult {
         switch self.state {
         case .initial:
-            switch tokenizer.peek(input) {
-            case let c? where c.isASCII && (c.isLetter || c.isWholeNumber):
+            switch tokenizer.peek(input)?.firstScalar {
+            case ("0"..."9")?, ("A"..."Z")?, ("a"..."z")?:
                 self.state = .named
                 return .progress
             case "#":
@@ -53,16 +53,16 @@ struct CharRefTokenizer {
                 return .progress
             }
         case .ambiguousAmpersand:
-            switch tokenizer.peek(input) {
-            case let c? where c.isASCII && c.isLetter:
+            guard let c = tokenizer.peek(input) else { return .doneNone }
+            switch c.firstScalar {
+            case "0"..."9", "A"..."Z", "a"..."z":
                 tokenizer.discardChar(&input)
                 tokenizer.processCharRef(c)
                 return .progress
             case ";":
                 tokenizer.emitError(.unknownNamedCharRef)
                 return .doneNone
-            case _?: return .doneNone
-            case nil: return .doneNone
+            case _: return .doneNone
             }
         case .numeric:
             switch tokenizer.peek(input) {
@@ -79,52 +79,76 @@ struct CharRefTokenizer {
                 return .progress
             }
         case .hexadecimalStart(let uppercase):
-            guard let c = tokenizer.peek(input), c.isHexDigit else {
+            switch tokenizer.peek(input)?.firstScalar {
+            case ("0"..."9")?, ("A"..."F")?, ("a"..."f")?:
+                self.state = .hexadecimal
+                return .progress
+            case _:
                 tokenizer.emitError(.absenceDigits)
                 return .done(["&", "#", uppercase ? "X" : "x"])
             }
-            self.state = .hexadecimal
-            return .progress
         case .decimalStart:
-            guard let c = tokenizer.peek(input), c.isASCII && c.isWholeNumber else {
+            switch tokenizer.peek(input)?.firstScalar {
+            case ("0"..."9")?:
+                self.state = .decimal
+                return .progress
+            case _:
                 tokenizer.emitError(.absenceDigits)
                 return .done(["&", "#"])
             }
-            self.state = .decimal
-            return .progress
         case .hexadecimal:
-            if let c = tokenizer.peek(input) {
-                if let n = c.hexDigitValue {
+            if let firstScalar = tokenizer.peek(input)?.firstScalar {
+                switch firstScalar {
+                case "0"..."9":
                     tokenizer.discardChar(&input)
                     self.num &*= 16
                     if self.num > 0x10FFFF {
                         self.numTooBig = true
                     }
-                    self.num &+= n
+                    self.num &+= Int(firstScalar.value - 0x30)
                     return .progress
-                } else if ";" ~= c {
+                case "A"..."F":
+                    tokenizer.discardChar(&input)
+                    self.num &*= 16
+                    if self.num > 0x10FFFF {
+                        self.numTooBig = true
+                    }
+                    self.num &+= Int(firstScalar.value - 0x37)
+                    return .progress
+                case "a"..."f":
+                    tokenizer.discardChar(&input)
+                    self.num &*= 16
+                    if self.num > 0x10FFFF {
+                        self.numTooBig = true
+                    }
+                    self.num &+= Int(firstScalar.value - 0x57)
+                    return .progress
+                case ";":
                     tokenizer.discardChar(&input)
                     self.state = .numericEnd
                     return .progress
+                case _: break
                 }
             }
             tokenizer.emitError(.missingSemicolon)
             self.state = .numericEnd
             return .progress
         case .decimal:
-            if let c = tokenizer.peek(input) {
-                if c.isASCII, let n = c.wholeNumberValue {
+            if let firstScalar = tokenizer.peek(input)?.firstScalar {
+                switch firstScalar {
+                case "0"..."9":
                     tokenizer.discardChar(&input)
                     self.num &*= 10
                     if self.num > 0x10FFFF {
                         self.numTooBig = true
                     }
-                    self.num &+= n
+                    self.num &+= Int(firstScalar.value - 0x30)
                     return .progress
-                } else if ";" ~= c {
+                case ";":
                     tokenizer.discardChar(&input)
                     self.state = .numericEnd
                     return .progress
+                case _: break
                 }
             }
             tokenizer.emitError(.missingSemicolon)
