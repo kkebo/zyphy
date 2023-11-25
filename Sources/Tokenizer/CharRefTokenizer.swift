@@ -11,7 +11,7 @@ private enum CharRefState {
 }
 
 private enum CharRefProcessResult: ~Copyable {
-    case done([Character])
+    case done([Unicode.Scalar])
     case doneNone
     case progress
 }
@@ -21,10 +21,10 @@ struct CharRefTokenizer {
     private var num: Int = 0
     private var numTooBig: Bool = false
 
-    mutating func tokenize(tokenizer: inout Tokenizer<some TokenSink>, input: inout String.Iterator) -> [Character]? {
+    mutating func tokenize(tokenizer: inout Tokenizer<some TokenSink>, input: inout String.Iterator) -> [Unicode.Scalar]? {
         while true {
             switch self.step(tokenizer: &tokenizer, input: &input) {
-            case .done(let chars): return chars
+            case .done(let scalars): return scalars
             case .doneNone: return nil
             case .progress: break
             }
@@ -48,7 +48,7 @@ struct CharRefTokenizer {
             // TODO: If there is a match
             guard false else {
                 // TODO: Flush code points consumed as a character reference
-                tokenizer.processCharRef(["&"])
+                tokenizer.processCharRef("&")
                 self.state = .ambiguousAmpersand
                 return .progress
             }
@@ -56,7 +56,7 @@ struct CharRefTokenizer {
             switch tokenizer.peek(input) {
             case let c? where c.isASCII && c.isLetter:
                 tokenizer.discardChar(&input)
-                tokenizer.processCharRef([c])
+                tokenizer.processCharRef(c)
                 return .progress
             case ";":
                 tokenizer.emitError(.unknownNamedCharRef)
@@ -131,10 +131,9 @@ struct CharRefTokenizer {
             self.state = .numericEnd
             return .progress
         case .numericEnd:
-            func conv(_ n: Int) -> Character {
-                guard let scalar = Unicode.Scalar(self.num) else { preconditionFailure("unreachable") }
-                return .init(scalar)
-            }
+            // swift-format-ignore: NeverForceUnwrap
+            @inline(__always)
+            func conv(_ n: Int) -> Unicode.Scalar { .init(n)! }
             switch self.num {
             case 0x00:
                 tokenizer.emitError(.nullCharRef)
@@ -158,8 +157,8 @@ struct CharRefTokenizer {
             case 0x80...0x9F:
                 tokenizer.emitError(.controlCharRef)
                 return switch replacements[self.num - 0x80] {
-                case let c?: .done([c])
-                case nil: .done([conv(self.num)])
+                case "\0": .done([conv(self.num)])
+                case let c: .done([c])
                 }
             case let n: return .done([conv(n)])
             }

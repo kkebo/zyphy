@@ -88,8 +88,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     // swift-format-ignore
     private mutating func step(_ input: inout String.Iterator) -> ProcessResult {
         if var charRefTokenizer {
-            if let chars = charRefTokenizer.tokenize(tokenizer: &self, input: &input) {
-                self.processCharRef(chars)
+            if let scalars = charRefTokenizer.tokenize(tokenizer: &self, input: &input) {
+                self.processCharRef(scalars)
             }
             self.charRefTokenizer = nil
         }
@@ -849,11 +849,21 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    mutating func processCharRef(_ chars: consuming [Character]) {
+    mutating func processCharRef(_ scalars: consuming [Unicode.Scalar]) {
         switch self.state {
-        case .data, .rcdata: for c in chars { #go(emit: c) }
+        case .data, .rcdata: for scalar in scalars { #go(emit: Character(scalar)) }
         case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted:
-            for c in chars { #go(appendAttrValue: c) }
+            for scalar in scalars { #go(appendAttrValue: Character(scalar)) }
+        case _: preconditionFailure("unreachable")
+        }
+    }
+
+    @inline(__always)
+    mutating func processCharRef(_ c: consuming Character) {
+        switch self.state {
+        case .data, .rcdata: #go(emit: c)
+        case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted:
+            #go(appendAttrValue: c)
         case _: preconditionFailure("unreachable")
         }
     }

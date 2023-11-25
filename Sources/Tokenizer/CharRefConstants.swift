@@ -1,6 +1,6 @@
-let replacements: [Character?] = [
+let replacements: [Unicode.Scalar] = [
     "\u{20AC}",
-    nil,
+    "\0",
     "\u{201A}",
     "\u{0192}",
     "\u{201E}",
@@ -12,10 +12,10 @@ let replacements: [Character?] = [
     "\u{0160}",
     "\u{2039}",
     "\u{0152}",
-    nil,
+    "\0",
     "\u{017D}",
-    nil,
-    nil,
+    "\0",
+    "\0",
     "\u{2018}",
     "\u{2019}",
     "\u{201C}",
@@ -28,7 +28,7 @@ let replacements: [Character?] = [
     "\u{0161}",
     "\u{203A}",
     "\u{0153}",
-    nil,
+    "\0",
     "\u{017E}",
     "\u{0178}",
 ]
