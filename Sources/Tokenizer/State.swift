@@ -71,13 +71,4 @@ package enum State: Equatable {
     case cdataSection
     case cdataSectionBracket
     case cdataSectionEnd
-    // case characterReference
-    // case namedCharacterReference
-    // case ambiguousAmpersand
-    // case numericCharacterReference
-    // case hexadecimalCharacterReferenceStart
-    // case decimalCharacterReferenceStart
-    // case hexadecimalCharacterReference
-    // case decimalCharacterReference
-    // case numericCharacterReferenceEnd
 }
