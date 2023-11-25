@@ -105,7 +105,7 @@ struct CharRefTokenizer {
                     if self.num > 0x10FFFF {
                         self.numTooBig = true
                     }
-                    self.num &+= Int(firstScalar.value - 0x30)
+                    self.num &+= Int(firstScalar.value &- 0x30)
                     return .progress
                 case "A"..."F":
                     tokenizer.discardChar(&input)
@@ -113,7 +113,7 @@ struct CharRefTokenizer {
                     if self.num > 0x10FFFF {
                         self.numTooBig = true
                     }
-                    self.num &+= Int(firstScalar.value - 0x37)
+                    self.num &+= Int(firstScalar.value &- 0x37)
                     return .progress
                 case "a"..."f":
                     tokenizer.discardChar(&input)
@@ -121,7 +121,7 @@ struct CharRefTokenizer {
                     if self.num > 0x10FFFF {
                         self.numTooBig = true
                     }
-                    self.num &+= Int(firstScalar.value - 0x57)
+                    self.num &+= Int(firstScalar.value &- 0x57)
                     return .progress
                 case ";":
                     tokenizer.discardChar(&input)
@@ -142,7 +142,7 @@ struct CharRefTokenizer {
                     if self.num > 0x10FFFF {
                         self.numTooBig = true
                     }
-                    self.num &+= Int(firstScalar.value - 0x30)
+                    self.num &+= Int(firstScalar.value &- 0x30)
                     return .progress
                 case ";":
                     tokenizer.discardChar(&input)
@@ -180,7 +180,7 @@ struct CharRefTokenizer {
                 return .done([conv(self.num)])
             case 0x80...0x9F:
                 tokenizer.emitError(.controlCharRef)
-                return switch replacements[self.num - 0x80] {
+                return switch replacements[self.num &- 0x80] {
                 case "\0": .done([conv(self.num)])
                 case let c: .done([c])
                 }

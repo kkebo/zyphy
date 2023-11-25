@@ -3,7 +3,7 @@
 func lowerASCIIOrNil(_ c: consuming Character) -> Character? {
     let firstScalar = c.firstScalar
     return switch firstScalar {
-    case "A"..."Z": .init(.init(UInt8(firstScalar.value) + 0x20))
+    case "A"..."Z": .init(.init(UInt8(firstScalar.value) &+ 0x20))
     case "a"..."z": consume c
     case _: nil
     }
@@ -14,7 +14,7 @@ func lowerASCIIOrNil(_ c: consuming Character) -> Character? {
 func lowerASCII(_ c: consuming Character) -> Character {
     let firstScalar = c.firstScalar
     return switch firstScalar {
-    case "A"..."Z": .init(.init(UInt8(firstScalar.value) + 0x20))
+    case "A"..."Z": .init(.init(UInt8(firstScalar.value) &+ 0x20))
     case _: consume c
     }
 }
