@@ -136,7 +136,7 @@ struct CharRefTokenizer {
                 return .init(scalar)
             }
             switch self.num {
-            case 0:
+            case 0x00:
                 tokenizer.emitError(.nullCharRef)
                 return .done(["\u{FFFD}"])
             case let n where n > 0x10FFFF || self.numTooBig:
@@ -152,7 +152,7 @@ struct CharRefTokenizer {
                 0xFFFFE, 0xFFFFF, 0x10FFFE, 0x10FFFF:
                 tokenizer.emitError(.noncharacterCharRef)
                 return .done([conv(self.num)])
-            case 0x0D, 0...0x1F, 0x7F:
+            case 0x0D, 0x01...0x08, 0x0B, 0x0D...0x1F, 0x7F:
                 tokenizer.emitError(.controlCharRef)
                 return .done([conv(self.num)])
             case 0x80...0x9F:
