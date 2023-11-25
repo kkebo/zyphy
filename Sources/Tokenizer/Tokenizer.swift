@@ -872,27 +872,21 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     private mutating func getChar(from input: inout String.Iterator) -> Character? {
         guard let reconsumeChar else {
             guard let c = input.next() else { return nil }
-            if c == "\r\n" {
-                return "\n"
-            }
-            if c == "\r" {
-                return "\n"
-            }
-            for scalar in c.unicodeScalars {
-                switch scalar.value {
-                // Swift's String cannot have surrogates
-                // case 0xD800...0xDBFF, 0xDC00...0xDFFF:
-                //     self.emitError(.surrogateInInput)
-                case 0xFDD0...0xFDEF, 0xFFFE, 0xFFFF, 0x1FFFE, 0x1FFFF, 0x2FFFE, 0x2FFFF,
-                    0x3FFFE, 0x3FFFF, 0x4FFFE, 0x4FFFF, 0x5FFFE, 0x5FFFF, 0x6FFFE, 0x6FFFF,
-                    0x7FFFE, 0x7FFFF, 0x8FFFE, 0x8FFFF, 0x9FFFE, 0x9FFFF, 0xAFFFE, 0xAFFFF,
-                    0xBFFFE, 0xBFFFF, 0xCFFFE, 0xCFFFF, 0xDFFFE, 0xDFFFF, 0xEFFFE, 0xEFFFF,
-                    0xFFFFE, 0xFFFFF, 0x10FFFE, 0x10FFFF:
-                    self.emitError(.noncharacterInInput)
-                case 0x01...0x08, 0x0B, 0x0E...0x1F, 0x7F...0x9F:
-                    self.emitError(.controlCharInInput)
-                case _: break
-                }
+            guard c != "\r\n", c != "\r" else { return "\n" }
+            // swift-format-ignore: NeverForceUnwrap
+            switch c.unicodeScalars.first!.value {
+            // Swift's String cannot have surrogates
+            // case 0xD800...0xDBFF, 0xDC00...0xDFFF:
+            //     self.emitError(.surrogateInInput)
+            case 0xFDD0...0xFDEF, 0xFFFE, 0xFFFF, 0x1FFFE, 0x1FFFF, 0x2FFFE, 0x2FFFF,
+                0x3FFFE, 0x3FFFF, 0x4FFFE, 0x4FFFF, 0x5FFFE, 0x5FFFF, 0x6FFFE, 0x6FFFF,
+                0x7FFFE, 0x7FFFF, 0x8FFFE, 0x8FFFF, 0x9FFFE, 0x9FFFF, 0xAFFFE, 0xAFFFF,
+                0xBFFFE, 0xBFFFF, 0xCFFFE, 0xCFFFF, 0xDFFFE, 0xDFFFF, 0xEFFFE, 0xEFFFF,
+                0xFFFFE, 0xFFFFF, 0x10FFFE, 0x10FFFF:
+                self.emitError(.noncharacterInInput)
+            case 0x01...0x08, 0x0B, 0x0E...0x1F, 0x7F...0x9F:
+                self.emitError(.controlCharInInput)
+            case _: break
             }
             return c
         }
