@@ -83,9 +83,7 @@ let package = Package(
                 .process("Resources/entities.json"),
             ],
             swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
-                .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
-                .unsafeFlags(["-swift-version", "6"]),
+                .unsafeFlags(["-swift-version", "6"])
             ]
         ),
     ]
