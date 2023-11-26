@@ -23,6 +23,13 @@ struct CharRefTokenizer {
     private var state: CharRefState = .initial
     private var num: Int = 0
     private var numTooBig: Bool = false
+    private var nameBuffer: String = ""
+    private var lastMatch: (endIndex: String.Index, c1: Unicode.Scalar, c2: Unicode.Scalar)?
+    private let isInAttr: Bool
+
+    init(inAttr isInAttr: Bool) {
+        self.isInAttr = isInAttr
+    }
 
     mutating func tokenize(tokenizer: inout Tokenizer<some TokenSink>, input: inout Deque<Character>) -> [Unicode.Scalar]? {
         repeat {
@@ -48,25 +55,81 @@ struct CharRefTokenizer {
             case _: return .done(["&"])
             }
         case .named:
-            // TODO: If there is a match
-            guard false else {
-                // TODO: Flush code points consumed as a character reference
-                tokenizer.processCharRef("&")
+            guard let c = tokenizer.peek(input) else {
+                guard let (endIndex, c1, c2) = self.lastMatch else {
+                    tokenizer.processCharRef("&")
+                    input.prepend(contentsOf: self.nameBuffer)
+                    return .doneNone
+                }
+                // swift-format-ignore: NeverForceUnwrap
+                let lastChar = self.nameBuffer[..<endIndex].last!.firstScalar
+                let nextChar: Unicode.Scalar? =
+                    if self.nameBuffer.endIndex != endIndex {
+                        self.nameBuffer[endIndex].firstScalar
+                    } else {
+                        nil
+                    }
+                switch (isInAttr, lastChar, nextChar) {
+                case (_, ";", _): break
+                case (true, _, "="?), (true, _, ("0"..."9")?), (true, _, ("A"..."Z")?), (true, _, ("a"..."z")?):
+                    tokenizer.processCharRef("&")
+                    input.prepend(contentsOf: self.nameBuffer)
+                    return .doneNone
+                case _: tokenizer.emitError(.missingSemicolon)
+                }
+                input.prepend(contentsOf: self.nameBuffer[endIndex...])
+                return if c2 != "\0" {
+                    .done([c1, c2])
+                } else {
+                    .done([c1])
+                }
+            }
+            tokenizer.discardChar(&input)
+            self.nameBuffer.append(c)
+            if let (c1, c2) = processedNamedChars[self.nameBuffer] {
+                if c1 != "\0" {
+                    self.lastMatch = (self.nameBuffer.endIndex, c1, c2)
+                }
+                return .progress
+            } else if let (endIndex, c1, c2) = self.lastMatch {
+                // swift-format-ignore: NeverForceUnwrap
+                let lastChar = self.nameBuffer[..<endIndex].last!.firstScalar
+                let nextChar = self.nameBuffer[endIndex].firstScalar
+                switch (isInAttr, lastChar, nextChar) {
+                case (_, ";", _): break
+                case (true, _, "="), (true, _, "0"..."9"), (true, _, "A"..."Z"), (true, _, "a"..."z"):
+                    tokenizer.processCharRef("&")
+                    input.prepend(contentsOf: self.nameBuffer)
+                    return .doneNone
+                case _: tokenizer.emitError(.missingSemicolon)
+                }
+                input.prepend(contentsOf: self.nameBuffer[endIndex...])
+                return if c2 != "\0" {
+                    .done([c1, c2])
+                } else {
+                    .done([c1])
+                }
+            } else {
                 self.state = .ambiguousAmpersand
                 return .progress
             }
         case .ambiguousAmpersand:
-            guard let c = tokenizer.peek(input) else { return .doneNone }
+            guard let c = tokenizer.peek(input) else {
+                tokenizer.processCharRef("&")
+                input.prepend(contentsOf: self.nameBuffer)
+                return .doneNone
+            }
             switch c.firstScalar {
             case "0"..."9", "A"..."Z", "a"..."z":
                 tokenizer.discardChar(&input)
-                tokenizer.processCharRef(c)
+                self.nameBuffer.append(c)
                 return .progress
-            case ";":
-                tokenizer.emitError(.unknownNamedCharRef)
-                return .doneNone
-            case _: return .doneNone
+            case ";": tokenizer.emitError(.unknownNamedCharRef)
+            case _: break
             }
+            tokenizer.processCharRef("&")
+            input.prepend(contentsOf: self.nameBuffer)
+            return .doneNone
         case .numeric:
             switch tokenizer.peek(input) {
             case "X":

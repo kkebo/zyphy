@@ -162,7 +162,7 @@ extension GoMacro: CodeItemMacro {
         case "goEmitNewForceQuirksDOCTYPEAndEOF":
             return ["self.createDOCTYPE()", "self.forceQuirks()", "self.emitDOCTYPE()", "self.emitEOF()", "return .suspend"]
         case "goConsumeCharRef":
-            return ["self.consumeCharRef()", "return .continue"]
+            return ["self.consumeCharRef(\(node.arguments))", "return .continue"]
         case let name:
             preconditionFailure("not supported: \(name)")
         }
