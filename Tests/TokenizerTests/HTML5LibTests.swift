@@ -24,8 +24,12 @@ private let testCases = try! [
     Bundle.module.url(forResource: "test4", withExtension: "test")!,
     Bundle.module.url(forResource: "unicodeChars", withExtension: "test")!,
     Bundle.module.url(forResource: "entities", withExtension: "test")!,
+    // Bundle.module.url(forResource: "namedEntities", withExtension: "test")!,
     Bundle.module.url(forResource: "numericEntities", withExtension: "test")!,
     Bundle.module.url(forResource: "pendingSpecChanges", withExtension: "test")!,
+    // Bundle.module.url(forResource: "contentModelFlags", withExtension: "test")!,
+    // Bundle.module.url(forResource: "escapeFlag", withExtension: "test")!,
+    // Bundle.module.url(forResource: "domjs", withExtension: "test")!,
 ]
 .flatMap { try parseTestCases(from: Data(contentsOf: $0)) }
 

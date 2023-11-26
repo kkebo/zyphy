@@ -61,10 +61,6 @@ let package = Package(
                 "Resources/html5lib-tests/lint_lib",
                 "Resources/html5lib-tests/serializer",
                 "Resources/html5lib-tests/tokenizer/README.md",
-                "Resources/html5lib-tests/tokenizer/contentModelFlags.test",
-                "Resources/html5lib-tests/tokenizer/domjs.test",
-                "Resources/html5lib-tests/tokenizer/escapeFlag.test",
-                "Resources/html5lib-tests/tokenizer/namedEntities.test",
                 "Resources/html5lib-tests/tokenizer/unicodeCharsProblematic.test",
                 "Resources/html5lib-tests/tokenizer/xmlViolation.test",
                 "Resources/html5lib-tests/tree-construction",
@@ -80,8 +76,12 @@ let package = Package(
                 .process("Resources/html5lib-tests/tokenizer/test4.test"),
                 .process("Resources/html5lib-tests/tokenizer/unicodeChars.test"),
                 .process("Resources/html5lib-tests/tokenizer/entities.test"),
+                .process("Resources/html5lib-tests/tokenizer/namedEntities.test"),
                 .process("Resources/html5lib-tests/tokenizer/numericEntities.test"),
                 .process("Resources/html5lib-tests/tokenizer/pendingSpecChanges.test"),
+                .process("Resources/html5lib-tests/tokenizer/contentModelFlags.test"),
+                .process("Resources/html5lib-tests/tokenizer/escapeFlag.test"),
+                .process("Resources/html5lib-tests/tokenizer/domjs.test"),
             ],
             swiftSettings: [
                 .unsafeFlags(["-swift-version", "6"])
