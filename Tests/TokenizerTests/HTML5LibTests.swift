@@ -23,6 +23,9 @@ private let testCases = try! [
     Bundle.module.url(forResource: "test3", withExtension: "test")!,
     Bundle.module.url(forResource: "test4", withExtension: "test")!,
     Bundle.module.url(forResource: "unicodeChars", withExtension: "test")!,
+    Bundle.module.url(forResource: "entities", withExtension: "test")!,
+    Bundle.module.url(forResource: "numericEntities", withExtension: "test")!,
+    Bundle.module.url(forResource: "pendingSpecChanges", withExtension: "test")!,
 ]
 .flatMap { try parseTestCases(from: Data(contentsOf: $0)) }
 
@@ -38,6 +41,11 @@ public func html5libTests(_ testCase: TestCase) throws {
     case "Entity in attribute without semicolon": return
     // test2.test
     case "Entity + newline": return
+    // entities.test
+    case "Undefined named entity in a double-quoted attribute value ending in semicolon and whose name starts with a known entity name.": return
+    case "Undefined named entity in a single-quoted attribute value ending in semicolon and whose name starts with a known entity name.": return
+    case "Undefined named entity in an unquoted attribute value ending in semicolon and whose name starts with a known entity name.": return
+    case "Semicolonless named entity 'not' followed by 'i;' in body": return
     case _: break
     }
 
