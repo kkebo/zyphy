@@ -3,9 +3,9 @@
     import SwiftSyntaxMacros
 
     @main
-    struct MyPlugin: CompilerPlugin {
-        let providingMacros: [any Macro.Type] = [
-            GoMacro.self
-        ]
+    struct TokenizerMacrosPlugin {}
+
+    extension TokenizerMacrosPlugin: CompilerPlugin {
+        var providingMacros: [any Macro.Type] { [GoMacro.self] }
     }
 #endif

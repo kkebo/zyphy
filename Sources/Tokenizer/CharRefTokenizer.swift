@@ -1,4 +1,4 @@
-import HTMLEntities
+private import HTMLEntities
 
 private enum CharRefState {
     case initial

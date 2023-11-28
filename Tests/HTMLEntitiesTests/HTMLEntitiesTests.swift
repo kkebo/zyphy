@@ -1,5 +1,5 @@
 import Foundation
-import HTMLEntities
+private import HTMLEntities
 public import Testing
 
 // swift-format-ignore: NeverForceUnwrap

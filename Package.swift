@@ -48,7 +48,12 @@ let package = Package(
                 .unsafeFlags(["-swift-version", "6"]),
             ]
         ),
-        .target(name: "HTMLEntities"),
+        .target(
+            name: "HTMLEntities",
+            swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny")
+            ]
+        ),
         .testTarget(
             name: "TokenizerTests",
             dependencies: [
@@ -97,7 +102,7 @@ let package = Package(
                 .process("Resources")
             ],
             swiftSettings: [
-                .unsafeFlags(["-swift-version", "6"])
+                .enableUpcomingFeature("ExistentialAny")
             ]
         ),
     ]

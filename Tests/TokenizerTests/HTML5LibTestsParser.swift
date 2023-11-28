@@ -1,6 +1,5 @@
 import Foundation
-
-@testable import Tokenizer
+import Tokenizer
 
 struct TestFile: Decodable {
     var tests: [TestFileEntry]

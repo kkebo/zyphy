@@ -1,13 +1,13 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-public struct GoMacro {}
+struct GoMacro {}
 
 extension GoMacro: CodeItemMacro {
     static func expansion(
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
-    ) throws -> [CodeBlockItemSyntax] {
+    ) -> [CodeBlockItemSyntax] {
         switch node.macro.text {
         case "go":
             var items = [CodeBlockItemSyntax]()
