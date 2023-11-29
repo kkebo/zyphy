@@ -1,9 +1,9 @@
 import Foundation
 private import HTMLEntities
-public import Testing
+import Testing
 
 // swift-format-ignore: NeverForceUnwrap
-@Test public func namedCharRef() throws {
+@Test func namedCharRef() throws {
     struct Entry: Decodable {
         var codepoints: [UInt32]
     }
