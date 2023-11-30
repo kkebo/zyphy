@@ -1,5 +1,5 @@
 private import Foundation
-public import Testing
+import Testing
 private import Tokenizer
 
 private struct TestSink {
@@ -34,7 +34,7 @@ private let testCases = try! [
 .flatMap { try parseTestCases(from: Data(contentsOf: $0)) }
 
 @Test("html5lib-tests", arguments: testCases)
-public func html5libTests(_ testCase: TestCase) throws {
+func html5libTests(_ testCase: TestCase) throws {
     // TODO: Do not ignore any test cases
     switch testCase.title {
     // test1.test
