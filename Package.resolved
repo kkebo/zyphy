@@ -1,5 +1,5 @@
 {
-  "originHash" : "22a04a21140196049d5354904e37c4e174c1ecff90c26c815f0cbf526bc2b546",
+  "originHash" : "6706258e439697592a89f2e85998fece48941ba639d23af1f939c746ed8c03d6",
   "pins" : [
     {
       "identity" : "swift-argument-parser",
@@ -52,7 +52,7 @@
       "location" : "https://github.com/apple/swift-testing",
       "state" : {
         "branch" : "main",
-        "revision" : "2edf71053199cb275e241f6ba21bc9be61248937"
+        "revision" : "5ffe034aca54c01c8e3d38102cef8ea7505e07d2"
       }
     }
   ],
