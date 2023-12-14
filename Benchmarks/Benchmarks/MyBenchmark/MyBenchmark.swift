@@ -1,14 +1,10 @@
 import Benchmark
 import Tokenizer
 
-private struct TestSink {
-    var tokens = [Token]()
-}
+private struct TestSink {}
 
 extension TestSink: TokenSink {
-    mutating func process(_ token: consuming Token) {
-        self.tokens.append(consume token)
-    }
+    func process(_: consuming Token) {}
 }
 
 let benchmarks = {
@@ -25,11 +21,16 @@ let benchmarks = {
         </html>
         """#
 
-    Benchmark("TokenizerBenchmark", configuration: .init(scalingFactor: .mega)) { benchmark in
-        var tokenizer = Tokenizer(sink: TestSink())
-        var iter = html.makeIterator()
-        benchmark.startMeasurement()
+    Benchmark(
+        "TokenizerBenchmark",
+        configuration: .init(
+            metrics: .microbenchmark,
+            scalingFactor: .kilo
+        )
+    ) { benchmark in
         for _ in benchmark.scaledIterations {
+            var tokenizer = Tokenizer(sink: TestSink())
+            var iter = html.makeIterator()
             tokenizer.tokenize(&iter)
         }
     }
