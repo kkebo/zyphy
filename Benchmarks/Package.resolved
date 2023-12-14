@@ -1,13 +1,13 @@
 {
-  "originHash" : "c5163a2fbcdcefd89108991bf3f3b8a3032e66417c4ff177f242828281be156c",
+  "originHash" : "fc325cfb94a1899379e04301205c99cf2d932e9a3258b43cadec89745e46bf5d",
   "pins" : [
     {
       "identity" : "package-benchmark",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ordo-one/package-benchmark",
       "state" : {
-        "revision" : "0b15255d21fabe55bc67a34d167f1ed5e51f9af1",
-        "version" : "1.14.0"
+        "revision" : "81bfd1f52d3df7f3c91994b09c7eec0d6ac0a3d6",
+        "version" : "1.15.0"
       }
     },
     {

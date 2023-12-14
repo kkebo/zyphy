@@ -7,7 +7,7 @@ let package = Package(
     platforms: [.macOS(.v13), .iOS(.v16)],
     dependencies: [
         .package(name: "zyphy", path: ".."),
-        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.14.0"),
+        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.15.0"),
         // dev
         .package(url: "https://github.com/apple/swift-format", from: "509.0.0"),
     ],
