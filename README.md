@@ -41,10 +41,8 @@ swift test --enable-experimental-swift-testing --disable-xctest
 
 ## Benchmarking
 
-You must install jemalloc beforehand. (`pacman -S jemalloc`, `apt install libjemalloc-dev`, or something)
-
 ```shell
-swift package --package-path Benchmarks benchmark
+BENCHMARK_DISABLE_JEMALLOC=true swift package --package-path Benchmarks benchmark
 ```
 
 For more details, please see https://github.com/ordo-one/package-benchmark.
