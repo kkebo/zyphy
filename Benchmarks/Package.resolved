@@ -1,5 +1,5 @@
 {
-  "originHash" : "354dd06ba86d303fae82b67c3f244bd0acdc4ce882bc3dbcbe26fcd445efacaa",
+  "originHash" : "9b76fd50c250dd35e7b842a529398e06c05c4e1fe5e0b4596c209c1a38a71ec1",
   "pins" : [
     {
       "identity" : "hdrhistogram-swift",
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ordo-one/package-benchmark",
       "state" : {
-        "revision" : "c53cdcaf09495b61190b86fd031438da8988e60c",
-        "version" : "1.21.0"
+        "revision" : "174c8b6552d7c80f2ae8fb465a8aa352b270ed2c",
+        "version" : "1.21.2"
       }
     },
     {
@@ -78,8 +78,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-syntax",
       "state" : {
-        "revision" : "6ad4ea24b01559dde0773e3d091f1b9e36175036",
-        "version" : "509.0.2"
+        "revision" : "43c802fb7f96e090dde015344a94b5e85779eff1",
+        "version" : "509.1.0"
       }
     },
     {
