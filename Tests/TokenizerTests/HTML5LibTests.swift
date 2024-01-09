@@ -1,6 +1,6 @@
-private import Foundation
+import Foundation
 import Testing
-private import Tokenizer
+import Tokenizer
 
 private struct TestSink {
     var tokens = [Token]()

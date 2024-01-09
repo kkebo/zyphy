@@ -89,7 +89,7 @@ let package = Package(
                 .process("Resources/html5lib-tests/tokenizer/domjs.test"),
             ],
             swiftSettings: [
-                .unsafeFlags(["-swift-version", "6"])
+                // .unsafeFlags(["-swift-version", "6"])
             ]
         ),
         .testTarget(

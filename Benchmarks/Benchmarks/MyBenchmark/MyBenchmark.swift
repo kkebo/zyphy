@@ -7,6 +7,7 @@ extension TestSink: TokenSink {
     func process(_: consuming Token) {}
 }
 
+@MainActor
 let benchmarks = {
     let html = #"""
         <!DOCTYPE html>
