@@ -52,7 +52,7 @@
       "location" : "https://github.com/apple/swift-testing",
       "state" : {
         "branch" : "main",
-        "revision" : "2171dce1ddcc8f2cf939256879403a3431f7f328"
+        "revision" : "ccdf06c14251e99f8fac121943a903dcf558e850"
       }
     }
   ],
