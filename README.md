@@ -1,5 +1,7 @@
 # Zyphy
 
+[![codecov](https://codecov.io/gh/kkk669/zyphy/graph/badge.svg?token=AGD0MP5FCP)](https://codecov.io/gh/kkk669/zyphy)
+
 Zyphy is (or will be) a fast web browser engine written in Swift.
 
 > [!IMPORTANT]

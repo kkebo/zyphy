@@ -20,5 +20,11 @@ jobs:
             ${{ runner.os }}-spm-
       - run: swift --version
       - run: swift build
-      - run: swift test --disable-xctest
+      - run: swift test --disable-xctest --enable-code-coverage
       - run: swift package lint-source-code
+      - run: llvm-cov export -format="lcov" .build/debug/zyphyPackageTests.swift-testing -instr-profile .build/debug/codecov/default.profdata -ignore-filename-regex=".build|Tests" > coverage_report.lcov
+      - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: fail
+          file: ./coverage_report.lcov
