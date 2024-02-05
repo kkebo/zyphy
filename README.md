@@ -34,6 +34,13 @@ swiftly install main-snapshot
 swift build
 ```
 
+> [!WARNING]
+> If you used swiftly to install Swift, you have to use `swift-legacy-driver` instead of `swift` until https://github.com/swift-server/swiftly/issues/92 is resolved.
+>
+> ```shell
+> swift-legacy-driver build
+> ```
+
 ## Testing
 
 ```shell
@@ -41,10 +48,25 @@ git submodule update --init --recursive
 swift test --disable-xctest
 ```
 
+> [!WARNING]
+> If you used swiftly to install Swift, you have to use `swift-legacy-driver` instead of `swift` until https://github.com/swift-server/swiftly/issues/92 is resolved.
+>
+> ```shell
+> git submodule update --init --recursive
+> swift-legacy-driver test --disable-xctest
+> ```
+
 ## Benchmarking
 
 ```shell
 BENCHMARK_DISABLE_JEMALLOC=true swift package --package-path Benchmarks benchmark
 ```
+
+> [!WARNING]
+> If you used swiftly to install Swift, you have to use `swift-legacy-driver` instead of `swift` until https://github.com/swift-server/swiftly/issues/92 is resolved.
+>
+> ```shell
+> BENCHMARK_DISABLE_JEMALLOC=true swift-legacy-driver package --package-path Benchmarks benchmark
+> ```
 
 For more details, please see https://github.com/ordo-one/package-benchmark.
