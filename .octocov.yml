@@ -4,6 +4,11 @@ coverage:
   exclude:
     - '**/Sources/TokenizerMacros/**'
     - '**/Tests/**'
+  badge:
+    path: coverage.svg
+push:
+  if: is_default_branch
+  message: 'docs: update by octocov [skip ci]'
 testExecutionTime:
   if: false
 diff:
