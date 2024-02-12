@@ -18,7 +18,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-syntax", "509.0.0"..<"510.0.0"),
-        .package(url: "https://github.com/apple/swift-testing", from: "0.4.1"),
+        .package(url: "https://github.com/apple/swift-testing", from: "0.4.2"),
         // dev
         .package(url: "https://github.com/apple/swift-format", from: "509.0.0"),
     ],
