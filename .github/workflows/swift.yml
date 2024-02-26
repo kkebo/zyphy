@@ -21,6 +21,11 @@ jobs:
       - run: swift --version
       - run: swift build
       - run: swift test --disable-xctest --enable-code-coverage --no-parallel
-      - run: swift package lint-source-code
       - run: llvm-cov export -format="lcov" .build/debug/zyphyPackageTests.swift-testing -instr-profile .build/debug/codecov/default.profdata -ignore-filename-regex=".build|Tests" > coverage_report.lcov
       - uses: k1LoW/octocov-action@v1
+  lint:
+    runs-on: ubuntu-latest
+    container: swiftlang/swift:nightly-main-jammy
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift format lint -rs .
