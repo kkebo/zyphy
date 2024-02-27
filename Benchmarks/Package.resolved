@@ -1,5 +1,5 @@
 {
-  "originHash" : "da2d8685996c22e50d5f3ea9604fdd68d6d691c484d1a2c5ca3c692848f7de3f",
+  "originHash" : "c5522218311ed34b27fc0276b3ebe431ca32b9faa9993378585a242777c3d74f",
   "pins" : [
     {
       "identity" : "hdrhistogram-swift",
@@ -35,33 +35,6 @@
       "state" : {
         "revision" : "cd142fd2f64be2100422d658e7411e39489da985",
         "version" : "1.2.0"
-      }
-    },
-    {
-      "identity" : "swift-cmark",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-cmark.git",
-      "state" : {
-        "revision" : "f218e5d7691f78b55bfa39b367763f4612486c35",
-        "version" : "0.3.0"
-      }
-    },
-    {
-      "identity" : "swift-format",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-format",
-      "state" : {
-        "revision" : "83248b4fa37919f78ffbd4650946759bcc54c2b5",
-        "version" : "509.0.0"
-      }
-    },
-    {
-      "identity" : "swift-markdown",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-markdown.git",
-      "state" : {
-        "revision" : "e4f95e2dc23097a1a9a1dfdfe3fe3ee44de77378",
-        "version" : "0.3.0"
       }
     },
     {

@@ -8,8 +8,6 @@ let package = Package(
     dependencies: [
         .package(name: "zyphy", path: ".."),
         .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.22.1"),
-        // dev
-        .package(url: "https://github.com/apple/swift-format", from: "509.0.0"),
     ],
     targets: [
         .executableTarget(
