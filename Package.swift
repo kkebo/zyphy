@@ -18,7 +18,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-syntax", "509.0.0"..<"510.0.0"),
-        .package(url: "https://github.com/apple/swift-testing", from: "0.5.0"),
+        .package(url: "https://github.com/apple/swift-testing", branch: "main"),
     ],
     targets: [
         .target(
