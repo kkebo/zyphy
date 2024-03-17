@@ -17,7 +17,7 @@ let package = Package(
         .library(name: "Tokenizer", targets: ["Tokenizer"])
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-syntax", "509.0.0"..<"511.0.0"),
+        .package(url: "https://github.com/apple/swift-syntax", "509.0.0"..<"601.0.0"),
         .package(url: "https://github.com/apple/swift-testing", from: "0.6.0"),
     ],
     targets: [
