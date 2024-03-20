@@ -8,10 +8,10 @@ extension GoMacro: CodeItemMacro {
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
     ) -> [CodeBlockItemSyntax] {
-        switch node.macro.text {
+        switch node.macroName.text {
         case "go":
             var items = [CodeBlockItemSyntax]()
-            var argList = node.argumentList
+            var argList = node.arguments
             loop: while let arg = argList.first, let label = arg.label {
                 switch label.text {
                 case "to":
