@@ -174,6 +174,5 @@ enum TestParseError: Error {
 
 // swift-format-ignore: NeverForceUnwrap
 func parseTestCases(from data: consuming Data) throws -> [TestCase] {
-    try JSONDecoder().decode(TestFile.self, from: data).tests
-        .flatMap { try $0.into() }
+    try JSONDecoder().decode(TestFile.self, from: data).tests.flatMap { try $0.into() }
 }
