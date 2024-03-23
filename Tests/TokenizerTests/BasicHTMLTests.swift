@@ -7,7 +7,7 @@ private struct TestSink {
 
 extension TestSink: TokenSink {
     mutating func process(_ token: consuming Token) {
-        self.tokens.append(consume token)
+        self.tokens.append(token)
     }
 }
 

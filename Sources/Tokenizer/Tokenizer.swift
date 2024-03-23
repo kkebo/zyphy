@@ -56,7 +56,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     private var charRefTokenizer: Optional<CharRefTokenizer>
 
     public init(sink: consuming Sink) {
-        self.sink = consume sink
+        self.sink = sink
         self.state = .data
         self.reconsumeChar = nil
         self.tempBuffer = ""
@@ -885,9 +885,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     mutating func processCharRef(_ c: consuming Character) {
         switch self.state {
-        case .data, .rcdata: #go(emit: consume c)
+        case .data, .rcdata: #go(emit: c)
         case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted:
-            #go(appendAttrValue: consume c)
+            #go(appendAttrValue: c)
         case _: preconditionFailure("unreachable")
         }
     }
@@ -940,12 +940,12 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         with pattern: consuming some StringProtocol
     ) -> Bool? {
         let initial = input
-        for pc in consume pattern {
+        for pc in pattern {
             guard let c = input.next() else {
                 input = consume initial
                 return nil
             }
-            guard c == pc else {
+            guard consume c == consume pc else {
                 input = consume initial
                 return false
             }
@@ -959,7 +959,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         with pattern: consuming some StringProtocol
     ) -> Bool? {
         let initial = input
-        for pc in consume pattern {
+        for pc in pattern {
             guard let c = input.next() else {
                 input = consume initial
                 return nil
@@ -974,24 +974,24 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func go(to state: consuming State) {
-        self.state = consume state
+        self.state = state
     }
 
     @inline(__always)
     private mutating func go(reconsume c: consuming Character, in state: consuming State) {
-        self.reconsumeChar = consume c
-        self.state = consume state
+        self.reconsumeChar = c
+        self.state = state
     }
 
     @inline(__always)
     private mutating func emit(_ c: consuming Character) {
-        self.sink.process(.char(consume c))
+        self.sink.process(.char(c))
     }
 
     @_disfavoredOverload
     @inline(__always)
     private mutating func emit(_ token: consuming Token) {
-        self.sink.process(consume token)
+        self.sink.process(token)
     }
 
     @inline(__always)
@@ -1001,12 +1001,12 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
     @inline(__always)
     mutating func emitError(_ error: consuming ParseError) {
-        self.sink.process(.error(consume error))
+        self.sink.process(.error(error))
     }
 
     @inline(__always)
     private mutating func createTempBuffer(with c: consuming Character) {
-        self.tempBuffer = String(consume c)
+        self.tempBuffer = String(c)
     }
 
     @inline(__always)
@@ -1019,13 +1019,13 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func createComment(with c: consuming Character) {
-        self.currentComment = String(consume c)
+        self.currentComment = String(c)
     }
 
     @_disfavoredOverload
     @inline(__always)
     private mutating func createComment(with s: consuming String) {
-        self.currentComment = consume s
+        self.currentComment = s
     }
 
     @inline(__always)
@@ -1046,14 +1046,14 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func createStartTag(with c: consuming Character) {
-        self.currentTagName = String(consume c)
+        self.currentTagName = String(c)
         self.currentTagKind = .start
         self.currentAttrs.removeAll()
     }
 
     @inline(__always)
     private mutating func createEndTag(with c: consuming Character) {
-        self.currentTagName = String(consume c)
+        self.currentTagName = String(c)
         self.currentTagKind = .end
         self.currentAttrs.removeAll()
     }
@@ -1061,7 +1061,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func createAttr(with c: consuming Character) {
         self.pushAttr()
-        self.currentAttrName = String(consume c)
+        self.currentAttrName = String(c)
     }
 
     @inline(__always)
@@ -1086,10 +1086,10 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         switch self.currentTagKind {
         case .start:
             self.lastStartTagName = name
-            self.sink.process(.tag(Tag(name: name, kind: .start, attrs: attrs, selfClosing: consume selfClosing)))
+            self.sink.process(.tag(Tag(name: name, kind: .start, attrs: attrs, selfClosing: selfClosing)))
         case .end:
             if !attrs.isEmpty { self.emitError(.endTagWithAttrs) }
-            if consume selfClosing { self.emitError(.endTagWithTrailingSolidus) }
+            if selfClosing { self.emitError(.endTagWithTrailingSolidus) }
             self.sink.process(.tag(Tag(name: name, kind: .end, attrs: [:], selfClosing: false)))
         }
     }
@@ -1101,22 +1101,22 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func createDOCTYPE(with c: consuming Character) {
-        self.currentDOCTYPE = .init(name: String(consume c))
+        self.currentDOCTYPE = .init(name: String(c))
     }
 
     @inline(__always)
     private mutating func appendDOCTYPEName(_ c: consuming Character) {
         switch self.currentDOCTYPE.name {
-        case .some: self.currentDOCTYPE.name?.append(consume c)
-        case .none: self.currentDOCTYPE.name = String(consume c)
+        case .some: self.currentDOCTYPE.name?.append(c)
+        case .none: self.currentDOCTYPE.name = String(c)
         }
     }
 
     @inline(__always)
     private mutating func appendPublicID(_ c: consuming Character) {
         switch self.currentDOCTYPE.publicID {
-        case .some: self.currentDOCTYPE.publicID?.append(consume c)
-        case .none: self.currentDOCTYPE.publicID = String(consume c)
+        case .some: self.currentDOCTYPE.publicID?.append(c)
+        case .none: self.currentDOCTYPE.publicID = String(c)
         }
     }
 
@@ -1128,8 +1128,8 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func appendSystemID(_ c: consuming Character) {
         switch self.currentDOCTYPE.systemID {
-        case .some: self.currentDOCTYPE.systemID?.append(consume c)
-        case .none: self.currentDOCTYPE.systemID = String(consume c)
+        case .some: self.currentDOCTYPE.systemID?.append(c)
+        case .none: self.currentDOCTYPE.systemID = String(c)
         }
     }
 

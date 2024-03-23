@@ -9,8 +9,8 @@ private struct TestSink {
 
 extension TestSink: TokenSink {
     mutating func process(_ token: consuming Token) {
-        switch consume token {
-        case .error(let error): self.errors.append(consume error)
+        switch token {
+        case .error(let error): self.errors.append(error)
         case let token: self.tokens.append(token)
         }
     }

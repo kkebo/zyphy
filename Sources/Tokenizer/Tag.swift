@@ -10,9 +10,9 @@ public struct Tag: Equatable, Sendable {
         attrs: consuming [String: String] = [:],
         selfClosing: consuming Bool = false
     ) {
-        self.name = consume name
-        self.kind = consume kind
-        self.attrs = consume attrs
-        self.selfClosing = consume selfClosing
+        self.name = name
+        self.kind = kind
+        self.attrs = attrs
+        self.selfClosing = selfClosing
     }
 }

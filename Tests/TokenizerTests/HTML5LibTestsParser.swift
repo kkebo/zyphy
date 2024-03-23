@@ -133,7 +133,7 @@ enum InitialState: String, Decodable {
 extension State {
     init(_ state: consuming InitialState) {
         self =
-            switch consume state {
+            switch state {
             case .data: .data
             case .plaintext: .plaintext
             case .rcdata: .rcdata
@@ -162,7 +162,7 @@ extension TestCase: CustomStringConvertible {
     public var description: String {
         switch self.initialState {
         case .data: self.title
-        case let state: "\(self.title) (\(consume state))"
+        case let state: "\(self.title) (\(state))"
         }
     }
 }
@@ -174,6 +174,6 @@ enum TestParseError: Error {
 
 // swift-format-ignore: NeverForceUnwrap
 func parseTestCases(from data: consuming Data) throws -> [TestCase] {
-    try JSONDecoder().decode(TestFile.self, from: consume data).tests
+    try JSONDecoder().decode(TestFile.self, from: data).tests
         .flatMap { try $0.into() }
 }

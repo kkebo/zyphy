@@ -10,9 +10,9 @@ public struct DOCTYPE: Equatable, Sendable {
         systemID: consuming String? = nil,
         forceQuirks: consuming Bool = false
     ) {
-        self.name = consume name
-        self.publicID = consume publicID
-        self.systemID = consume systemID
-        self.forceQuirks = consume forceQuirks
+        self.name = name
+        self.publicID = publicID
+        self.systemID = systemID
+        self.forceQuirks = forceQuirks
     }
 }
