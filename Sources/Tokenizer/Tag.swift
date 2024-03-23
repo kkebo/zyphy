@@ -8,7 +8,7 @@ public struct Tag: Equatable, Sendable {
         name: consuming String,
         kind: consuming TagKind,
         attrs: consuming [String: String] = [:],
-        selfClosing: consuming Bool = false
+        selfClosing: Bool = false
     ) {
         self.name = name
         self.kind = kind

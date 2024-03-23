@@ -8,7 +8,7 @@ public struct DOCTYPE: Equatable, Sendable {
         name: consuming String? = nil,
         publicID: consuming String? = nil,
         systemID: consuming String? = nil,
-        forceQuirks: consuming Bool = false
+        forceQuirks: Bool = false
     ) {
         self.name = name
         self.publicID = publicID

@@ -1076,7 +1076,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func emitTag(selfClosing: consuming Bool = false) {
+    private mutating func emitTag(selfClosing: Bool = false) {
         self.pushAttr()
 
         let name = self.currentTagName
