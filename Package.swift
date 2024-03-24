@@ -30,8 +30,8 @@ let package = Package(
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
-                .unsafeFlags(["-swift-version", "6"]),
                 .enableExperimentalFeature("CodeItemMacros"),
+                .enableUpcomingFeature("ExistentialAny"),
             ]
         ),
         .macro(
@@ -43,7 +43,7 @@ let package = Package(
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
-                .unsafeFlags(["-swift-version", "6"]),
+                .enableUpcomingFeature("ExistentialAny"),
             ]
         ),
         .target(
@@ -87,7 +87,7 @@ let package = Package(
                 .process("Resources/html5lib-tests/tokenizer/domjs.test"),
             ],
             swiftSettings: [
-                // .unsafeFlags(["-swift-version", "6"])
+                .enableUpcomingFeature("ExistentialAny")
             ]
         ),
         .testTarget(
@@ -103,5 +103,6 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny")
             ]
         ),
-    ]
+    ],
+    swiftLanguageVersions: [.version("6")]
 )
