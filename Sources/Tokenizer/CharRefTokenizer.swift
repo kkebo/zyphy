@@ -24,13 +24,13 @@ struct CharRefTokenizer {
     private var numTooBig: Bool = false
 
     mutating func tokenize(tokenizer: inout Tokenizer<some TokenSink>, input: inout String.Iterator) -> [Unicode.Scalar]? {
-        while true {
+        repeat {
             switch self.step(tokenizer: &tokenizer, input: &input) {
             case .done(let scalars): return scalars
             case .doneNone: return nil
             case .progress: break
             }
-        }
+        } while true
     }
 
     private mutating func step(tokenizer: inout Tokenizer<some TokenSink>, input: inout String.Iterator) -> CharRefProcessResult {
