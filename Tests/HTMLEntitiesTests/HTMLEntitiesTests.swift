@@ -1,4 +1,4 @@
-import Foundation
+private import Foundation
 private import HTMLEntities
 import Testing
 
