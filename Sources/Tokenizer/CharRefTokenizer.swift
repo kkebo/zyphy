@@ -1,3 +1,4 @@
+import Collections
 private import HTMLEntities
 
 private enum CharRefState {
@@ -23,7 +24,7 @@ struct CharRefTokenizer {
     private var num: Int = 0
     private var numTooBig: Bool = false
 
-    mutating func tokenize(tokenizer: inout Tokenizer<some TokenSink>, input: inout String.Iterator) -> [Unicode.Scalar]? {
+    mutating func tokenize(tokenizer: inout Tokenizer<some TokenSink>, input: inout Deque<Character>) -> [Unicode.Scalar]? {
         repeat {
             switch self.step(tokenizer: &tokenizer, input: &input) {
             case .done(let scalars): return scalars
@@ -33,7 +34,7 @@ struct CharRefTokenizer {
         } while true
     }
 
-    private mutating func step(tokenizer: inout Tokenizer<some TokenSink>, input: inout String.Iterator) -> CharRefProcessResult {
+    private mutating func step(tokenizer: inout Tokenizer<some TokenSink>, input: inout Deque<Character>) -> CharRefProcessResult {
         switch self.state {
         case .initial:
             switch tokenizer.peek(input)?.firstScalar {
