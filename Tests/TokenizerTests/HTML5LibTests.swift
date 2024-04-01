@@ -1,3 +1,4 @@
+private import Collections
 private import Foundation
 import Testing
 private import Tokenizer
@@ -55,8 +56,8 @@ func html5libTests(_ testCase: TestCase) throws {
 
     var tokenizer = Tokenizer(sink: TestSink())
     tokenizer.state = testCase.initialState
-    var iter = testCase.input.makeIterator()
-    tokenizer.tokenize(&iter)
+    var input = Deque(testCase.input)
+    tokenizer.tokenize(&input)
 
     let tokens = tokenizer.sink.tokens
     let errors = tokenizer.sink.errors

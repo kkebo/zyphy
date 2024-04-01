@@ -1,4 +1,5 @@
 private import Benchmark
+private import Collections
 private import Tokenizer
 
 private struct TestSink {}
@@ -31,8 +32,8 @@ let benchmarks = {
     ) { benchmark in
         for _ in benchmark.scaledIterations {
             var tokenizer = Tokenizer(sink: TestSink())
-            var iter = html.makeIterator()
-            tokenizer.tokenize(&iter)
+            var input = Deque(html)
+            tokenizer.tokenize(&input)
         }
     }
 }

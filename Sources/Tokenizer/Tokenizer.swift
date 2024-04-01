@@ -1,3 +1,5 @@
+public import Collections
+
 @freestanding(codeItem) private macro go(emit: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError..., emit: Token...) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError..., emit: Token..., to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -71,7 +73,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
         self.charRefTokenizer = nil
     }
 
-    public mutating func tokenize(_ input: inout String.Iterator) {
+    public mutating func tokenize(_ input: inout Deque<Character>) {
         loop: repeat {
             switch self.step(&input) {
             case .continue: break
@@ -81,7 +83,7 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     // swift-format-ignore
-    private mutating func step(_ input: inout String.Iterator) -> ProcessResult {
+    private mutating func step(_ input: inout Deque<Character>) -> ProcessResult {
         if var charRefTokenizer {
             if let scalars = charRefTokenizer.tokenize(tokenizer: &self, input: &input) {
                 self.processCharRef(scalars)
@@ -892,9 +894,9 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func getChar(from input: inout String.Iterator) -> Character? {
+    private mutating func getChar(from input: inout Deque<Character>) -> Character? {
         guard let reconsumeChar else {
-            guard let c = input.next() else { return nil }
+            guard let c = input.popFirst() else { return nil }
             guard c != "\r\n", c != "\r" else { return "\n" }
             switch c.firstScalar.value {
             // Swift's String cannot have surrogates
@@ -917,57 +919,45 @@ public struct Tokenizer<Sink: TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    func peek(_ input: borrowing String.Iterator) -> Character? {
-        guard let reconsumeChar else {
-            var input = copy input
-            return input.next()
-        }
-        return reconsumeChar
+    func peek(_ input: borrowing Deque<Character>) -> Character? {
+        self.reconsumeChar ?? input.first
     }
 
     @inline(__always)
-    mutating func discardChar(_ input: inout String.Iterator) {
+    mutating func discardChar(_ input: inout Deque<Character>) {
         switch self.reconsumeChar {
         case .some: self.reconsumeChar = nil
-        case .none: _ = input.next()
+        case .none: input.removeFirst()
         }
     }
 
     @inline(__always)
     private mutating func startsExact(
-        _ input: inout String.Iterator,
+        _ input: inout Deque<Character>,
         with pattern: consuming some StringProtocol
     ) -> Bool? {
-        let initial = input
+        var iter = input.makeIterator()
+        let count = pattern.count
         for pc in pattern {
-            guard let c = input.next() else {
-                input = consume initial
-                return nil
-            }
-            guard consume c == consume pc else {
-                input = consume initial
-                return false
-            }
+            guard let c = iter.next() else { return nil }
+            guard consume c == consume pc else { return false }
         }
+        input.removeFirst(count)
         return true
     }
 
     @inline(__always)
     private mutating func starts(
-        _ input: inout String.Iterator,
+        _ input: inout Deque<Character>,
         with pattern: consuming some StringProtocol
     ) -> Bool? {
-        let initial = input
+        var iter = input.makeIterator()
+        let count = pattern.count
         for pc in pattern {
-            guard let c = input.next() else {
-                input = consume initial
-                return nil
-            }
-            guard c.lowercased() == pc.lowercased() else {
-                input = consume initial
-                return false
-            }
+            guard let c = iter.next() else { return nil }
+            guard c.lowercased() == pc.lowercased() else { return false }
         }
+        input.removeFirst(count)
         return true
     }
 

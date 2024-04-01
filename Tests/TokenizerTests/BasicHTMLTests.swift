@@ -1,3 +1,4 @@
+private import Collections
 import Testing
 private import Tokenizer
 
@@ -26,8 +27,8 @@ extension TestSink: TokenSink {
         """#
 
     var tokenizer = Tokenizer(sink: TestSink())
-    var iter = html.makeIterator()
-    tokenizer.tokenize(&iter)
+    var input = Deque(html)
+    tokenizer.tokenize(&input)
 
     let tokens: [Token] = [
         .doctype(.init(name: "html")),

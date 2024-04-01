@@ -19,6 +19,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/apple/swift-syntax", "509.0.0"..<"601.0.0"),
         .package(url: "https://github.com/apple/swift-testing", from: "0.6.0"),
+        .package(url: "https://github.com/apple/swift-collections", from: "1.1.0"),
     ],
     targets: [
         .target(
@@ -26,6 +27,7 @@ let package = Package(
             dependencies: [
                 "TokenizerMacros",
                 "HTMLEntities",
+                .product(name: "Collections", package: "swift-collections"),
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
