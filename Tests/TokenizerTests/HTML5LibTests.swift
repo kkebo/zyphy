@@ -6,14 +6,25 @@ private import Tokenizer
 private struct TestSink {
     var tokens = [Token]()
     var errors = [ParseError]()
+    var currentStr = ""
 }
 
 extension TestSink: TokenSink {
     mutating func process(_ token: consuming Token) {
         switch token {
         case .error(let error): self.errors.append(error)
-        case let token: self.tokens.append(token)
+        case .char(let c): self.currentStr.append(c)
+        case let token:
+            self.finalizeCharToken()
+            self.tokens.append(token)
         }
+    }
+
+    mutating func finalizeCharToken() {
+        for c in self.currentStr {
+            self.tokens.append(.char(c))
+        }
+        self.currentStr.removeAll()
     }
 }
 
@@ -25,7 +36,7 @@ private let testCases = try! [
     Bundle.module.url(forResource: "test4", withExtension: "test")!,
     Bundle.module.url(forResource: "unicodeChars", withExtension: "test")!,
     Bundle.module.url(forResource: "entities", withExtension: "test")!,
-    // Bundle.module.url(forResource: "namedEntities", withExtension: "test")!,
+    Bundle.module.url(forResource: "namedEntities", withExtension: "test")!,
     Bundle.module.url(forResource: "numericEntities", withExtension: "test")!,
     Bundle.module.url(forResource: "pendingSpecChanges", withExtension: "test")!,
     // Bundle.module.url(forResource: "contentModelFlags", withExtension: "test")!,
@@ -36,28 +47,12 @@ private let testCases = try! [
 
 @Test("html5lib-tests", arguments: testCases)
 func html5libTests(_ testCase: TestCase) throws {
-    // TODO: Do not ignore any test cases
-    switch testCase.title {
-    // test1.test
-    case "Entity with trailing semicolon (1)": return
-    case "Entity with trailing semicolon (2)": return
-    case "Entity without trailing semicolon (1)": return
-    case "Entity without trailing semicolon (2)": return
-    case "Entity in attribute without semicolon": return
-    // test2.test
-    case "Entity + newline": return
-    // entities.test
-    case "Undefined named entity in a double-quoted attribute value ending in semicolon and whose name starts with a known entity name.": return
-    case "Undefined named entity in a single-quoted attribute value ending in semicolon and whose name starts with a known entity name.": return
-    case "Undefined named entity in an unquoted attribute value ending in semicolon and whose name starts with a known entity name.": return
-    case "Semicolonless named entity 'not' followed by 'i;' in body": return
-    case _: break
-    }
-
     var tokenizer = Tokenizer(sink: TestSink())
     tokenizer.state = testCase.initialState
     var input = Deque(testCase.input)
     tokenizer.tokenize(&input)
+
+    tokenizer.sink.finalizeCharToken()
 
     let tokens = tokenizer.sink.tokens
     let errors = tokenizer.sink.errors
