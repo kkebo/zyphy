@@ -1,5 +1,5 @@
-import Benchmark
-import Tokenizer
+private import Benchmark
+private import Tokenizer
 
 private struct TestSink {}
 
