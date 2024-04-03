@@ -36,7 +36,7 @@ struct CharRefTokenizer {
         repeat {
             switch self.step(tokenizer: &tokenizer, input: &input) {
             case .done(let scalars): return scalars
-            case .doneNone: return nil
+            case .doneNone: return ["&"]
             case .progress: break
             }
         } while true
@@ -53,12 +53,11 @@ struct CharRefTokenizer {
                 tokenizer.discardChar(&input)
                 self.state = .numeric
                 return .progress
-            case _: return .done(["&"])
+            case _: return .doneNone
             }
         case .named:
             guard let c = tokenizer.peek(input) else {
                 guard let (endIndex, chars) = lastMatch else {
-                    tokenizer.processCharRef("&")
                     input.prepend(contentsOf: self.nameBuffer)
                     return .doneNone
                 }
@@ -90,7 +89,6 @@ struct CharRefTokenizer {
             switch (isInAttr, lastChar, nextChar) {
             case (_, ";", _): break
             case (true, _, "="?), (true, _, ("0"..."9")?), (true, _, ("A"..."Z")?), (true, _, ("a"..."z")?):
-                tokenizer.processCharRef("&")
                 input.prepend(contentsOf: self.nameBuffer)
                 return .doneNone
             case _: tokenizer.emitError(.missingSemicolon)
@@ -102,7 +100,6 @@ struct CharRefTokenizer {
             }
         case .ambiguousAmpersand:
             guard let c = tokenizer.peek(input) else {
-                tokenizer.processCharRef("&")
                 input.prepend(contentsOf: self.nameBuffer)
                 return .doneNone
             }
@@ -114,7 +111,6 @@ struct CharRefTokenizer {
             case ";": tokenizer.emitError(.unknownNamedCharRef)
             case _: break
             }
-            tokenizer.processCharRef("&")
             input.prepend(contentsOf: self.nameBuffer)
             return .doneNone
         case .numeric:
