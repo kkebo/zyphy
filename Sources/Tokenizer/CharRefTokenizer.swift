@@ -134,7 +134,8 @@ struct CharRefTokenizer {
                 return .progress
             case _:
                 tokenizer.emitError(.absenceDigits)
-                return .done(["&", "#", uppercase ? "X" : "x"])
+                input.prepend(contentsOf: uppercase ? "#X" : "#x")
+                return .doneNone
             }
         case .decimalStart:
             switch tokenizer.peek(input)?.firstScalar {
@@ -143,7 +144,8 @@ struct CharRefTokenizer {
                 return .progress
             case _:
                 tokenizer.emitError(.absenceDigits)
-                return .done(["&", "#"])
+                input.prepend("#")
+                return .doneNone
             }
         case .hexadecimal:
             if let firstScalar = tokenizer.peek(input)?.firstScalar {
