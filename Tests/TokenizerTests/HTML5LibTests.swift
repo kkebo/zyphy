@@ -6,25 +6,28 @@ private import Tokenizer
 private struct TestSink {
     var tokens = [Token]()
     var errors = [ParseError]()
-    var currentStr = ""
+    var pendingChars = ""
+
+    consuming func finalize() -> ([Token], [ParseError]) {
+        self.processChars()
+        return (self.tokens, self.errors)
+    }
+
+    private mutating func processChars() {
+        self.tokens.append(contentsOf: self.pendingChars.map(Token.char))
+        self.pendingChars.removeAll()
+    }
 }
 
 extension TestSink: TokenSink {
     mutating func process(_ token: consuming Token) {
         switch token {
         case .error(let error): self.errors.append(error)
-        case .char(let c): self.currentStr.append(c)
+        case .char(let c): self.pendingChars.append(c)
         case let token:
-            self.finalizeCharToken()
+            self.processChars()
             self.tokens.append(token)
         }
-    }
-
-    mutating func finalizeCharToken() {
-        for c in self.currentStr {
-            self.tokens.append(.char(c))
-        }
-        self.currentStr.removeAll()
     }
 }
 
@@ -52,10 +55,7 @@ func html5libTests(_ testCase: TestCase) throws {
     var input = Deque(testCase.input)
     tokenizer.tokenize(&input)
 
-    tokenizer.sink.finalizeCharToken()
-
-    let tokens = tokenizer.sink.tokens
-    let errors = tokenizer.sink.errors
+    let (tokens, errors) = tokenizer.sink.finalize()
     #expect(tokens == testCase.tokens)
     #expect(errors.count == testCase.errors.count)  // TODO: Make it stricter
 }
