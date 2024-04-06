@@ -2231,3 +2231,17 @@ public let namedChars: [String: (Unicode.Scalar, Unicode.Scalar)] = [
     "yen": ("\u{A5}", "\0"),
     "yuml": ("\u{FF}", "\0"),
 ]
+
+// FIXME: This process should be done at compile-time, not runtime.
+public let processedNamedChars: [String: (Unicode.Scalar, Unicode.Scalar)] = {
+    var namedChars = namedChars
+    for key in namedChars.keys {
+        for i in 1..<key.count {
+            let k = String(key.prefix(i))
+            if !namedChars.keys.contains(k) {
+                namedChars[k] = ("\0", "\0")
+            }
+        }
+    }
+    return namedChars
+}()
