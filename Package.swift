@@ -28,7 +28,7 @@ let package = Package(
             dependencies: [
                 "TokenizerMacros",
                 "HTMLEntities",
-                .product(name: "Collections", package: "swift-collections"),
+                .product(name: "DequeModule", package: "swift-collections"),
             ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),

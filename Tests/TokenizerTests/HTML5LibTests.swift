@@ -1,4 +1,4 @@
-private import Collections
+private import DequeModule
 private import Foundation
 import Testing
 private import Tokenizer
