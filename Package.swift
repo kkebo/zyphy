@@ -14,7 +14,8 @@ let package = Package(
         .visionOS(.v1),
     ],
     products: [
-        .library(name: "Tokenizer", targets: ["Tokenizer"])
+        .library(name: "Tokenizer", targets: ["Tokenizer"]),
+        .library(name: "TreeConstructor", targets: ["TreeConstructor"]),
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-syntax", "509.0.0"..<"601.0.0"),
@@ -33,6 +34,17 @@ let package = Package(
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
                 .enableExperimentalFeature("CodeItemMacros"),
+                .enableUpcomingFeature("ExistentialAny"),
+            ]
+        ),
+        .target(
+            name: "TreeConstructor",
+            dependencies: [
+                "Tokenizer"
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
+                .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
                 .enableUpcomingFeature("ExistentialAny"),
             ]
         ),
