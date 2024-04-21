@@ -35,6 +35,7 @@ let package = Package(
                 .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
                 .enableExperimentalFeature("CodeItemMacros"),
                 .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("InternalImportsByDefault"),
             ]
         ),
         .target(
@@ -46,6 +47,7 @@ let package = Package(
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
                 .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("InternalImportsByDefault"),
             ]
         ),
         .macro(
@@ -58,12 +60,14 @@ let package = Package(
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
                 .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("InternalImportsByDefault"),
             ]
         ),
         .target(
             name: "HTMLEntities",
             swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny")
+                .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("InternalImportsByDefault"),
             ]
         ),
         .testTarget(
@@ -101,7 +105,8 @@ let package = Package(
                 .process("Resources/html5lib-tests/tokenizer/domjs.test"),
             ],
             swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny")
+                .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("InternalImportsByDefault"),
             ]
         ),
         .testTarget(
@@ -114,7 +119,8 @@ let package = Package(
                 .process("Resources")
             ],
             swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny")
+                .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("InternalImportsByDefault"),
             ]
         ),
     ],
