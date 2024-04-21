@@ -1,4 +1,4 @@
-public import Collections
+public import DequeModule
 
 @freestanding(codeItem) private macro go(emit: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError..., emit: Token...) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")

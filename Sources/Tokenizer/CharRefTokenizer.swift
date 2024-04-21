@@ -1,4 +1,4 @@
-import Collections
+import DequeModule
 private import HTMLEntities
 
 private enum CharRefState {

@@ -1,5 +1,5 @@
 private import Benchmark
-private import Collections
+private import DequeModule
 private import Tokenizer
 
 private struct TestSink {}
