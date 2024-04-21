@@ -17,6 +17,9 @@ let package = Package(
                 .product(name: "Tokenizer", package: "zyphy"),
             ],
             path: "Benchmarks/MyBenchmark",
+            resources: [
+                .process("Resources")
+            ],
             swiftSettings: [
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
