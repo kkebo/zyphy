@@ -7,7 +7,7 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
-    container: swiftlang/swift:nightly-main-jammy
+    container: swiftlang/swift:nightly-6.0-jammy
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,7 +25,7 @@ jobs:
       - uses: k1LoW/octocov-action@v1
   lint:
     runs-on: ubuntu-latest
-    container: swiftlang/swift:nightly-main-jammy
+    container: swiftlang/swift:nightly-6.0-jammy
     steps:
       - uses: actions/checkout@v4
       - run: swift format lint -rs .
