@@ -70,3 +70,5 @@ BENCHMARK_DISABLE_JEMALLOC=true swift package --package-path Benchmarks benchmar
 > ```
 
 For more details, please see https://github.com/ordo-one/package-benchmark.
+
+The benchmark data are from [html5ever](https://github.com/servo/html5ever/tree/1ae2de3a1796a9b52a804a02039c6c1499e2f461/html5ever/data/bench), which is dual-licensed under [the MIT license](https://github.com/servo/html5ever/blob/1ae2de3a1796a9b52a804a02039c6c1499e2f461/LICENSE-MIT) and [the Apache 2.0 license](https://github.com/servo/html5ever/blob/1ae2de3a1796a9b52a804a02039c6c1499e2f461/LICENSE-APACHE).
