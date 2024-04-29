@@ -2,7 +2,7 @@ private import DequeModule
 import Testing
 private import Tokenizer
 
-private struct TestSink {
+private struct TestSink: ~Copyable {
     var tokens = [Token]()
 }
 

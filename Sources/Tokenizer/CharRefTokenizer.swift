@@ -32,7 +32,7 @@ struct CharRefTokenizer {
         self.isInAttr = isInAttr
     }
 
-    mutating func tokenize(tokenizer: inout Tokenizer<some TokenSink>, input: inout Deque<Character>) -> [Unicode.Scalar]? {
+    mutating func tokenize(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout Deque<Character>) -> [Unicode.Scalar]? {
         repeat {
             switch self.step(tokenizer: &tokenizer, input: &input) {
             case .done(let scalars): return scalars
@@ -42,7 +42,7 @@ struct CharRefTokenizer {
         } while true
     }
 
-    private mutating func step(tokenizer: inout Tokenizer<some TokenSink>, input: inout Deque<Character>) -> CharRefProcessResult {
+    private mutating func step(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout Deque<Character>) -> CharRefProcessResult {
         switch self.state {
         case .initial:
             switch tokenizer.peek(input)?.firstScalar {

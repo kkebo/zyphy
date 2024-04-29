@@ -1,6 +1,6 @@
 import Tokenizer
 
-public struct TreeConstructor {
+public struct TreeConstructor: ~Copyable {
     private var mode: InsertionMode
 
     public init() {

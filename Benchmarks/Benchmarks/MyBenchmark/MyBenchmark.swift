@@ -3,7 +3,7 @@ private import DequeModule
 private import Foundation
 private import Tokenizer
 
-private struct TestSink {}
+private struct TestSink: ~Copyable {}
 
 extension TestSink: TokenSink {
     func process(_ token: consuming Token) {

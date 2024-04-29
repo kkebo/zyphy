@@ -82,7 +82,7 @@ public import DequeModule
 @freestanding(codeItem) private macro go(error: consuming ParseError, emitForceQuirksDOCTYPE: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: consuming ParseError, emitNewForceQuirksDOCTYPE: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 
-public struct Tokenizer<Sink: TokenSink>: ~Copyable {
+public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     public var sink: Sink
     package var state: State
     private var reconsumeChar: Optional<Character>
