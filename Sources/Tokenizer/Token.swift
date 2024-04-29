@@ -6,9 +6,3 @@ public enum Token: Equatable, Sendable {
     case eof
     case error(ParseError)
 }
-
-extension Token: ExpressibleByExtendedGraphemeClusterLiteral {
-    public init(extendedGraphemeClusterLiteral value: Character) {
-        self = .char(value)
-    }
-}
