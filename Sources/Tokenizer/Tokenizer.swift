@@ -2,19 +2,27 @@ public import DequeModule
 
 @freestanding(codeItem) private macro go(to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Unicode.Scalar, _: Unicode.Scalar, _: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Unicode.Scalar, _: Unicode.Scalar, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Unicode.Scalar, _: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Unicode.Scalar, _: Unicode.Scalar, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Unicode.Scalar, _: Unicode.Scalar, emitTempAndEmit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Unicode.Scalar, _: Unicode.Scalar, emitTempAndReconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Unicode.Scalar, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Unicode.Scalar, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Unicode.Scalar, clearTemp: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, _: Token, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, _: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, _: Token, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(emit: Token, _: Token, emitTempAndReconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(emit: Token, _: Token, emitTempAndEmit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(emit: Token, clearTemp: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(createTemp: Unicode.Scalar, emit: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(appendTemp: Unicode.Scalar, emit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(createTemp: Unicode.Scalar, emit: Unicode.Scalar, _: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(appendTemp: Unicode.Scalar, emit: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(clearTemp: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(appendComment: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(appendComment: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -52,14 +60,19 @@ public import DequeModule
 @freestanding(codeItem) private macro go(error: ParseError, _: ParseError, createDOCTYPE: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, _: ParseError, forceQuirks: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, emit: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, emit: Unicode.Scalar, _: Unicode.Scalar, _: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, emit: Unicode.Scalar, _: Unicode.Scalar, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, emit: Unicode.Scalar, _: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, emit: Unicode.Scalar, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, emit: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, emit: Unicode.Scalar, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, emitTempAndReconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, emitTempAndEmit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, createComment: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -139,41 +152,41 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             switch self.getChar(from: &input) {
             case "&": #goConsumeCharRef(inAttr: false)
             case "<": #go(to: .tagOpen)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\0"))
+            case "\0": #go(error: .unexpectedNull, emit: "\0")
             case nil: #go(emit: .eof)
-            case let c?: #go(emit: .char(c))
+            case let c?: #go(emit: c)
             }
         } while true
         case .rcdata: repeat {
             switch self.getChar(from: &input) {
             case "&": #goConsumeCharRef(inAttr: false)
             case "<": #go(to: .rcdataLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"))
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
             case nil: #go(emit: .eof)
-            case let c?: #go(emit: .char(c))
+            case let c?: #go(emit: c)
             }
         } while true
         case .rawtext: repeat {
             switch self.getChar(from: &input) {
             case "<": #go(to: .rawtextLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"))
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
             case nil: #go(emit: .eof)
-            case let c?: #go(emit: .char(c))
+            case let c?: #go(emit: c)
             }
         } while true
         case .scriptData: repeat {
             switch self.getChar(from: &input) {
             case "<": #go(to: .scriptDataLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"))
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
             case nil: #go(emit: .eof)
-            case let c?: #go(emit: .char(c))
+            case let c?: #go(emit: c)
             }
         } while true
         case .plaintext: repeat {
             switch self.getChar(from: &input) {
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"))
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
             case nil: #go(emit: .eof)
-            case let c?: #go(emit: .char(c))
+            case let c?: #go(emit: c)
             }
         } while true
         case .tagOpen: repeat {
@@ -181,11 +194,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case "!": #go(to: .markupDeclarationOpen)
             case "/": #go(to: .endTagOpen)
             case "?": #go(error: .unexpectedQuestionMark, createComment: "?", to: .bogusComment)
-            case nil: #go(error: .eofBeforeTagName, emit: .char("<"), .eof)
+            case nil: #go(error: .eofBeforeTagName, emit: "<", .eof)
             case let c?:
                 switch lowerASCIIOrNil(c) {
                 case let cl?: #go(createStartTag: cl, to: .tagName)
-                case nil: #go(error: .invalidFirstChar, emit: .char("<"), reconsume: c, in: .data)
+                case nil: #go(error: .invalidFirstChar, emit: "<", reconsume: c, in: .data)
                 }
             }
         } while true
@@ -193,7 +206,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             switch self.getChar(from: &input) {
             case ">": #go(error: .missingEndTagName, to: .data)
             case "\0": #go(error: .invalidFirstChar, .unexpectedNull, createComment: "\u{FFFD}", to: .bogusComment)
-            case nil: #go(error: .eofBeforeTagName, emit: .char("<"), .char("/"), .eof)
+            case nil: #go(error: .eofBeforeTagName, emit: "<", "/", .eof)
             case let c?:
                 switch lowerASCIIOrNil(c) {
                 case let cl?: #go(createEndTag: cl, to: .tagName)
@@ -214,8 +227,8 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         case .rcdataLessThanSign: repeat {
             switch self.getChar(from: &input) {
             case "/": #go(clearTemp: .rcdataEndTagOpen)
-            case nil: #go(emit: .char("<"), .eof)
-            case let c?: #go(emit: .char("<"), reconsume: c, in: .rcdata)
+            case nil: #go(emit: "<", .eof)
+            case let c?: #go(emit: "<", reconsume: c, in: .rcdata)
             }
         } while true
         case .rcdataEndTagOpen: repeat {
@@ -223,9 +236,9 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?:
                 switch lowerASCIIOrNil(c) {
                 case let cl?: #go(createEndTag: cl, appendTemp: c, to: .rcdataEndTagName)
-                case nil: #go(emit: .char("<"), .char("/"), reconsume: c, in: .rcdata)
+                case nil: #go(emit: "<", "/", reconsume: c, in: .rcdata)
                 }
-            case nil: #go(emit: .char("<"), .char("/"), .eof)
+            case nil: #go(emit: "<", "/", .eof)
             }
         } while true
         case .rcdataEndTagName: repeat {
@@ -242,29 +255,29 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?:
                 switch lowerASCIIOrNil(c) {
                 case let cl?: #go(appendTagName: cl, appendTemp: c)
-                case nil: #go(emit: .char("<"), .char("/"), emitTempAndReconsume: c, in: .rcdata)
+                case nil: #go(emit: "<", "/", emitTempAndReconsume: c, in: .rcdata)
                 }
-            case nil: #go(emit: .char("<"), .char("/"), emitTempAndEmit: .eof)
+            case nil: #go(emit: "<", "/", emitTempAndEmit: .eof)
             }
         } while true
         case .rawtextLessThanSign: repeat {
             switch self.getChar(from: &input) {
             case "/": #go(clearTemp: .rawtextEndTagOpen)
-            case "<": #go(emit: .char("<"), to: .rawtextLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("<"), .char("\u{FFFD}"), to: .rawtext)
-            case nil: #go(emit: .char("<"), .eof)
-            case let c?: #go(emit: .char("<"), .char(c), to: .rawtext)
+            case "<": #go(emit: "<", to: .rawtextLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", "\u{FFFD}", to: .rawtext)
+            case nil: #go(emit: "<", .eof)
+            case let c?: #go(emit: "<", c, to: .rawtext)
             }
         } while true
         case .rawtextEndTagOpen: repeat {
             switch self.getChar(from: &input) {
-            case "<": #go(emit: .char("<"), .char("/"), to: .rawtextLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("<"), .char("/"), .char("\u{FFFD}"), to: .rawtext)
-            case nil: #go(emit: .char("<"), .char("/"), .eof)
+            case "<": #go(emit: "<", "/", to: .rawtextLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", "/", "\u{FFFD}", to: .rawtext)
+            case nil: #go(emit: "<", "/", .eof)
             case let c?:
                 switch lowerASCIIOrNil(c) {
                 case let cl?: #go(createEndTag: cl, appendTemp: c, to: .rawtextEndTagName)
-                case nil: #go(emit: .char("<"), .char("/"), .char(c), to: .rawtext)
+                case nil: #go(emit: "<", "/", c, to: .rawtext)
                 }
             }
         } while true
@@ -282,30 +295,30 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?:
                 switch lowerASCIIOrNil(c) {
                 case let cl?: #go(appendTagName: cl, appendTemp: c)
-                case nil: #go(emit: .char("<"), .char("/"), emitTempAndReconsume: c, in: .rawtext)
+                case nil: #go(emit: "<", "/", emitTempAndReconsume: c, in: .rawtext)
                 }
-            case nil: #go(emit: .char("<"), .char("/"), emitTempAndEmit: .eof)
+            case nil: #go(emit: "<", "/", emitTempAndEmit: .eof)
             }
         } while true
         case .scriptDataLessThanSign: repeat {
             switch self.getChar(from: &input) {
             case "/": #go(clearTemp: .scriptDataEndTagOpen)
-            case "!": #go(emit: .char("<"), .char("!"), to: .scriptDataEscapeStart)
-            case "<": #go(emit: .char("<"), to: .scriptDataLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("<"), .char("\u{FFFD}"), to: .scriptData)
-            case nil: #go(emit: .char("<"), .eof)
-            case let c?: #go(emit: .char("<"), .char(c), to: .scriptData)
+            case "!": #go(emit: "<", "!", to: .scriptDataEscapeStart)
+            case "<": #go(emit: "<", to: .scriptDataLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", "\u{FFFD}", to: .scriptData)
+            case nil: #go(emit: "<", .eof)
+            case let c?: #go(emit: "<", c, to: .scriptData)
             }
         } while true
         case .scriptDataEndTagOpen: repeat {
             switch self.getChar(from: &input) {
-            case "<": #go(emit: .char("<"), .char("/"), to: .scriptDataLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("<"), .char(","), .char("\u{FFFD}"), to: .scriptData)
-            case nil: #go(emit: .char("<"), .char("/"), .eof)
+            case "<": #go(emit: "<", "/", to: .scriptDataLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", ",", "\u{FFFD}", to: .scriptData)
+            case nil: #go(emit: "<", "/", .eof)
             case let c?:
                 switch lowerASCIIOrNil(c) {
                 case let cl?: #go(createEndTag: cl, appendTemp: c, to: .scriptDataEndTagName)
-                case nil: #go(emit: .char("<"), .char("/"), .char(c), to: .scriptData)
+                case nil: #go(emit: "<", "/", c, to: .scriptData)
                 }
             }
         } while true
@@ -323,81 +336,81 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?:
                 switch lowerASCIIOrNil(c) {
                 case let cl?: #go(appendTagName: cl, appendTemp: c)
-                case nil: #go(emit: .char("<"), .char("/"), emitTempAndReconsume: c, in: .scriptData)
+                case nil: #go(emit: "<", "/", emitTempAndReconsume: c, in: .scriptData)
                 }
-            case nil: #go(emit: .char("<"), .char("/"), emitTempAndEmit: .eof)
+            case nil: #go(emit: "<", "/", emitTempAndEmit: .eof)
             }
         } while true
         case .scriptDataEscapeStart: repeat {
             switch self.getChar(from: &input) {
-            case "-": #go(emit: .char("-"), to: .scriptDataEscapeStartDash)
+            case "-": #go(emit: "-", to: .scriptDataEscapeStartDash)
             case "<": #go(to: .scriptDataLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"))
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
             case nil: #go(emit: .eof)
-            case let c?: #go(emit: .char(c))
+            case let c?: #go(emit: c)
             }
         } while true
         case .scriptDataEscapeStartDash: repeat {
             switch self.getChar(from: &input) {
-            case "-": #go(emit: .char("-"), to: .scriptDataEscapedDashDash)
+            case "-": #go(emit: "-", to: .scriptDataEscapedDashDash)
             case "<": #go(to: .scriptDataLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"))
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
             case nil: #go(emit: .eof)
-            case let c?: #go(emit: .char(c))
+            case let c?: #go(emit: c)
             }
         } while true
         case .scriptDataEscaped: repeat {
             switch self.getChar(from: &input) {
-            case "-": #go(emit: .char("-"), to: .scriptDataEscapedDash)
+            case "-": #go(emit: "-", to: .scriptDataEscapedDash)
             case "<": #go(to: .scriptDataEscapedLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"))
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
             case nil: #go(error: .eofInScriptComment, emit: .eof)
-            case let c?: #go(emit: .char(c))
+            case let c?: #go(emit: c)
             }
         } while true
         case .scriptDataEscapedDash: repeat {
             switch self.getChar(from: &input) {
-            case "-": #go(emit: .char("-"), to: .scriptDataEscapedDashDash)
+            case "-": #go(emit: "-", to: .scriptDataEscapedDashDash)
             case "<": #go(to: .scriptDataEscapedLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"), to: .scriptDataEscaped)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataEscaped)
             case nil: #go(error: .eofInScriptComment, emit: .eof)
-            case let c?: #go(emit: .char(c), to: .scriptDataEscaped)
+            case let c?: #go(emit: c, to: .scriptDataEscaped)
             }
         } while true
         case .scriptDataEscapedDashDash: repeat {
             switch self.getChar(from: &input) {
-            case "-": #go(emit: .char("-"))
+            case "-": #go(emit: "-")
             case "<": #go(to: .scriptDataEscapedLessThanSign)
-            case ">": #go(emit: .char(">"), to: .scriptData)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"), to: .scriptDataEscaped)
+            case ">": #go(emit: ">", to: .scriptData)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataEscaped)
             case nil: #go(error: .eofInScriptComment, emit: .eof)
-            case let c?: #go(emit: .char(c), to: .scriptDataEscaped)
+            case let c?: #go(emit: c, to: .scriptDataEscaped)
             }
         } while true
         case .scriptDataEscapedLessThanSign: repeat {
             switch self.getChar(from: &input) {
             case "/": #go(clearTemp: .scriptDataEscapedEndTagOpen)
-            case "-": #go(emit: .char("<"), .char("-"), to: .scriptDataEscapedDash)
-            case "<": #go(emit: .char("<"), to: .scriptDataEscapedLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("<"), .char("\u{FFFD}"), to: .scriptDataEscaped)
-            case nil: #go(error: .eofInScriptComment, emit: .char("<"), .eof)
+            case "-": #go(emit: "<", "-", to: .scriptDataEscapedDash)
+            case "<": #go(emit: "<", to: .scriptDataEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", "\u{FFFD}", to: .scriptDataEscaped)
+            case nil: #go(error: .eofInScriptComment, emit: "<", .eof)
             case let c?:
                 switch lowerASCIIOrNil(c) {
-                case let cl?: #go(createTemp: cl, emit: .char("<"), .char(c), to: .scriptDataDoubleEscapeStart)
-                case nil: #go(emit: .char("<"), .char(c), to: .scriptDataEscaped)
+                case let cl?: #go(createTemp: cl, emit: "<", c, to: .scriptDataDoubleEscapeStart)
+                case nil: #go(emit: "<", c, to: .scriptDataEscaped)
                 }
             }
         } while true
         case .scriptDataEscapedEndTagOpen: repeat {
             switch self.getChar(from: &input) {
-            case "-": #go(emit: .char("<"), .char("/"), .char("-"), to: .scriptDataEscapedDash)
-            case "<": #go(emit: .char("<"), .char("/"), to: .scriptDataEscapedLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("<"), .char("/"), .char("\u{FFFD}"), to: .scriptDataEscaped)
-            case nil: #go(error: .eofInScriptComment, emit: .char("<"), .char("/"), .eof)
+            case "-": #go(emit: "<", "/", "-", to: .scriptDataEscapedDash)
+            case "<": #go(emit: "<", "/", to: .scriptDataEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "<", "/", "\u{FFFD}", to: .scriptDataEscaped)
+            case nil: #go(error: .eofInScriptComment, emit: "<", "/", .eof)
             case let c?:
                 switch lowerASCIIOrNil(c) {
                 case let cl?: #go(createEndTag: cl, appendTemp: c, to: .scriptDataEscapedEndTagName)
-                case nil: #go(emit: .char("<"), .char("/"), .char(c), to: .scriptDataEscaped)
+                case nil: #go(emit: "<", "/", c, to: .scriptDataEscaped)
                 }
             }
         } while true
@@ -415,9 +428,9 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?:
                 switch lowerASCIIOrNil(c) {
                 case let cl?: #go(appendTagName: cl, appendTemp: c)
-                case nil: #go(emit: .char("<"), .char("/"), emitTempAndReconsume: c, in: .scriptDataEscaped)
+                case nil: #go(emit: "<", "/", emitTempAndReconsume: c, in: .scriptDataEscaped)
                 }
-            case nil: #go(emit: .char("<"), .char("/"), emitTempAndEmit: .eof)
+            case nil: #go(emit: "<", "/", emitTempAndEmit: .eof)
             }
         } while true
         case .scriptDataDoubleEscapeStart: repeat {
@@ -425,56 +438,56 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             switch c {
             case "\t", "\n", "\u{0C}", " ", "/", ">":
                 if self.tempBuffer == "script" {
-                    #go(emit: .char(c), to: .scriptDataDoubleEscaped)
+                    #go(emit: c, to: .scriptDataDoubleEscaped)
                 } else {
-                    #go(emit: .char(c), to: .scriptDataEscaped)
+                    #go(emit: c, to: .scriptDataEscaped)
                 }
-            case "-": #go(emit: .char("-"), to: .scriptDataEscapedDash)
+            case "-": #go(emit: "-", to: .scriptDataEscapedDash)
             case "<": #go(to: .scriptDataEscapedLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"), to: .scriptDataEscaped)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataEscaped)
             case let c:
                 switch lowerASCIIOrNil(c) {
-                case let cl?: #go(appendTemp: cl, emit: .char(c))
-                case nil: #go(emit: .char(c), to: .scriptDataEscaped)
+                case let cl?: #go(appendTemp: cl, emit: c)
+                case nil: #go(emit: c, to: .scriptDataEscaped)
                 }
             }
         } while true
         case .scriptDataDoubleEscaped: repeat {
             switch self.getChar(from: &input) {
-            case "-": #go(emit: .char("-"), to: .scriptDataDoubleEscapedDash)
-            case "<": #go(emit: .char("<"), to: .scriptDataDoubleEscapedLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"))
+            case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDash)
+            case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
             case nil: #go(error: .eofInScriptComment, emit: .eof)
-            case let c?: #go(emit: .char(c))
+            case let c?: #go(emit: c)
             }
         } while true
         case .scriptDataDoubleEscapedDash: repeat {
             switch self.getChar(from: &input) {
-            case "-": #go(emit: .char("-"), to: .scriptDataDoubleEscapedDashDash)
-            case "<": #go(emit: .char("<"), to: .scriptDataDoubleEscapedLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"), to: .scriptDataDoubleEscaped)
+            case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDashDash)
+            case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataDoubleEscaped)
             case nil: #go(error: .eofInScriptComment, emit: .eof)
-            case let c?: #go(emit: .char(c), to: .scriptDataDoubleEscaped)
+            case let c?: #go(emit: c, to: .scriptDataDoubleEscaped)
             }
         } while true
         case .scriptDataDoubleEscapedDashDash: repeat {
             switch self.getChar(from: &input) {
-            case "-": #go(emit: .char("-"))
-            case "<": #go(emit: .char("<"), to: .scriptDataDoubleEscapedLessThanSign)
-            case ">": #go(emit: .char(">"), to: .scriptData)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"), to: .scriptDataDoubleEscaped)
+            case "-": #go(emit: "-")
+            case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
+            case ">": #go(emit: ">", to: .scriptData)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataDoubleEscaped)
             case nil: #go(error: .eofInScriptComment, emit: .eof)
-            case let c?: #go(emit: .char(c), to: .scriptDataDoubleEscaped)
+            case let c?: #go(emit: c, to: .scriptDataDoubleEscaped)
             }
         } while true
         case .scriptDataDoubleEscapedLessThanSign: repeat {
             switch self.getChar(from: &input) {
-            case "/": #go(emit: .char("/"), clearTemp: .scriptDataDoubleEscapeEnd)
-            case "-": #go(emit: .char("-"), to: .scriptDataDoubleEscapedDash)
-            case "<": #go(emit: .char("<"), to: .scriptDataDoubleEscapedLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"), to: .scriptDataDoubleEscaped)
+            case "/": #go(emit: "/", clearTemp: .scriptDataDoubleEscapeEnd)
+            case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDash)
+            case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataDoubleEscaped)
             case nil: #go(error: .eofInScriptComment, emit: .eof)
-            case let c?: #go(emit: .char(c), to: .scriptDataDoubleEscaped)
+            case let c?: #go(emit: c, to: .scriptDataDoubleEscaped)
             }
         } while true
         case .scriptDataDoubleEscapeEnd: repeat {
@@ -482,17 +495,17 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             switch c {
             case "\t", "\n", "\u{0C}", " ", "/", ">":
                 if self.tempBuffer == "script" {
-                    #go(emit: .char(c), to: .scriptDataEscaped)
+                    #go(emit: c, to: .scriptDataEscaped)
                 } else {
-                    #go(emit: .char(c), to: .scriptDataDoubleEscaped)
+                    #go(emit: c, to: .scriptDataDoubleEscaped)
                 }
-            case "-": #go(emit: .char("-"), to: .scriptDataDoubleEscapedDash)
-            case "<": #go(emit: .char("<"), to: .scriptDataDoubleEscapedLessThanSign)
-            case "\0": #go(error: .unexpectedNull, emit: .char("\u{FFFD}"), to: .scriptDataDoubleEscaped)
+            case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDash)
+            case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
+            case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}", to: .scriptDataDoubleEscaped)
             case let c:
                 switch lowerASCIIOrNil(c) {
-                case let cl?: #go(appendTemp: cl, emit: .char(c))
-                case nil: #go(emit: .char(c), to: .scriptDataDoubleEscaped)
+                case let cl?: #go(appendTemp: cl, emit: c)
+                case nil: #go(emit: c, to: .scriptDataDoubleEscaped)
                 }
             }
         } while true
@@ -896,22 +909,22 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             switch self.getChar(from: &input) {
             case "]": #go(to: .cdataSectionBracket)
             case nil: #go(error: .eofInCDATA, emit: .eof)
-            case let c?: #go(emit: .char(c))
+            case let c?: #go(emit: c)
             }
         } while true
         case .cdataSectionBracket: repeat {
             switch self.getChar(from: &input) {
             case "]": #go(to: .cdataSectionEnd)
-            case nil: #go(error: .eofInCDATA, emit: .char("]"), .eof)
-            case let c?: #go(emit: .char("]"), .char(c), to: .cdataSection)
+            case nil: #go(error: .eofInCDATA, emit: "]", .eof)
+            case let c?: #go(emit: "]", c, to: .cdataSection)
             }
         } while true
         case .cdataSectionEnd: repeat {
             switch self.getChar(from: &input) {
-            case "]": #go(emit: .char("]"))
+            case "]": #go(emit: "]")
             case ">": #go(to: .data)
-            case nil: #go(error: .eofInCDATA, emit: .char("]"), .eof)
-            case let c?: #go(emit: .char("]"), .char(c), to: .cdataSection)
+            case nil: #go(error: .eofInCDATA, emit: "]", .eof)
+            case let c?: #go(emit: "]", c, to: .cdataSection)
             }
         } while true
         }
@@ -920,7 +933,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     @inline(__always)
     mutating func processCharRef(_ scalars: consuming [Unicode.Scalar]) {
         switch self.state {
-        case .data, .rcdata: for scalar in scalars { #go(emit: .char(scalar)) }
+        case .data, .rcdata: for scalar in scalars { #go(emit: scalar) }
         case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted:
             for scalar in scalars { #go(appendAttrValue: scalar) }
         case _: preconditionFailure("unreachable")
@@ -930,7 +943,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     @inline(__always)
     mutating func processCharRef(_ c: consuming Unicode.Scalar) {
         switch self.state {
-        case .data, .rcdata: #go(emit: .char(c))
+        case .data, .rcdata: #go(emit: c)
         case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted: #go(appendAttrValue: c)
         case _: preconditionFailure("unreachable")
         }
