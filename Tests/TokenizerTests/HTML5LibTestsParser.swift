@@ -84,7 +84,7 @@ struct ExpectedToken {
             return [.comment(data)]
         case .str("Character"):
             guard case .str(let data) = fields[1] else { throw TestParseError.invalidTokenFormat(fields) }
-            return data.map(Token.char)
+            return data.unicodeScalars.map(Token.char)
         case let type: throw TestParseError.invalidTokenType(type)
         }
     }

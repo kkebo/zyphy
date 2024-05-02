@@ -1,5 +1,5 @@
 public enum Token: Equatable, Sendable {
-    case char(Character)
+    case char(Unicode.Scalar)
     case tag(Tag)
     case comment(String)
     case doctype(DOCTYPE)

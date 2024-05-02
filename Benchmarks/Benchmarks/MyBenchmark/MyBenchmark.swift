@@ -13,7 +13,7 @@ extension TestSink: TokenSink {
 
 private func runBench(_ name: String, configuration conf: Benchmark.Configuration) {
     // swift-format-ignore: NeverUseForceTry, NeverForceUnwrap
-    let html = try! String(contentsOf: Bundle.module.url(forResource: name, withExtension: "html")!)
+    let html = try! String(contentsOf: Bundle.module.url(forResource: name, withExtension: "html")!).unicodeScalars
     let input = Deque(consume html)
     Benchmark(name, configuration: conf) { benchmark in
         for _ in benchmark.scaledIterations {

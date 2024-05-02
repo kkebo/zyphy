@@ -32,7 +32,7 @@ struct CharRefTokenizer {
         self.isInAttr = isInAttr
     }
 
-    mutating func tokenize(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout Deque<Character>) -> [Unicode.Scalar]? {
+    mutating func tokenize(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout Deque<Unicode.Scalar>) -> [Unicode.Scalar]? {
         repeat {
             switch self.step(tokenizer: &tokenizer, input: &input) {
             case .done(let scalars): return scalars
@@ -42,10 +42,10 @@ struct CharRefTokenizer {
         } while true
     }
 
-    private mutating func step(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout Deque<Character>) -> CharRefProcessResult {
+    private mutating func step(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout Deque<Unicode.Scalar>) -> CharRefProcessResult {
         switch self.state {
         case .initial:
-            switch tokenizer.peek(input)?.firstScalar {
+            switch tokenizer.peek(input) {
             case ("0"..."9")?, ("A"..."Z")?, ("a"..."z")?:
                 self.state = .named
                 return .progress
@@ -58,14 +58,14 @@ struct CharRefTokenizer {
         case .named:
             guard let c = tokenizer.peek(input) else {
                 guard let (endIndex, chars) = lastMatch else {
-                    input.prepend(contentsOf: self.nameBuffer)
+                    input.prepend(contentsOf: self.nameBuffer.unicodeScalars)
                     return .doneNone
                 }
                 self.state = .namedEnd(endIndex: endIndex, replaceChars: chars)
                 return .progress
             }
             tokenizer.discardChar(&input)
-            self.nameBuffer.append(c)
+            self.nameBuffer.append(Character(c))
             switch processedNamedChars[self.nameBuffer] {
             case ("\0", _)?: break
             case let chars?: lastMatch = (self.nameBuffer.endIndex, chars)
@@ -79,7 +79,7 @@ struct CharRefTokenizer {
             return .progress
         case .namedEnd(let endIndex, let replaceChars):
             // swift-format-ignore: NeverForceUnwrap
-            let lastChar = self.nameBuffer[..<endIndex].last!.firstScalar
+            let lastChar = self.nameBuffer[..<endIndex].last!
             let nextChar: Unicode.Scalar? =
                 if self.nameBuffer.endIndex != endIndex {
                     self.nameBuffer[endIndex].firstScalar
@@ -89,29 +89,29 @@ struct CharRefTokenizer {
             switch (isInAttr, lastChar, nextChar) {
             case (_, ";", _): break
             case (true, _, "="?), (true, _, ("0"..."9")?), (true, _, ("A"..."Z")?), (true, _, ("a"..."z")?):
-                input.prepend(contentsOf: self.nameBuffer)
+                input.prepend(contentsOf: self.nameBuffer.unicodeScalars)
                 return .doneNone
             case _: tokenizer.emitError(.missingSemicolon)
             }
-            input.prepend(contentsOf: self.nameBuffer[endIndex...])
+            input.prepend(contentsOf: self.nameBuffer[endIndex...].unicodeScalars)
             return switch replaceChars {
             case (let c1, "\0"): .done([c1])
             case (let c1, let c2): .done([c1, c2])
             }
         case .ambiguousAmpersand:
             guard let c = tokenizer.peek(input) else {
-                input.prepend(contentsOf: self.nameBuffer)
+                input.prepend(contentsOf: self.nameBuffer.unicodeScalars)
                 return .doneNone
             }
-            switch c.firstScalar {
+            switch c {
             case "0"..."9", "A"..."Z", "a"..."z":
                 tokenizer.discardChar(&input)
-                self.nameBuffer.append(c)
+                self.nameBuffer.append(Character(c))
                 return .progress
             case ";": tokenizer.emitError(.unknownNamedCharRef)
             case _: break
             }
-            input.prepend(contentsOf: self.nameBuffer)
+            input.prepend(contentsOf: self.nameBuffer.unicodeScalars)
             return .doneNone
         case .numeric:
             switch tokenizer.peek(input) {
@@ -128,17 +128,18 @@ struct CharRefTokenizer {
                 return .progress
             }
         case .hexadecimalStart(let uppercase):
-            switch tokenizer.peek(input)?.firstScalar {
+            switch tokenizer.peek(input) {
             case ("0"..."9")?, ("A"..."F")?, ("a"..."f")?:
                 self.state = .hexadecimal
                 return .progress
             case _:
                 tokenizer.emitError(.absenceDigits)
-                input.prepend(contentsOf: uppercase ? "#X" : "#x")
+                input.prepend(uppercase ? "X" : "x")
+                input.prepend("#")
                 return .doneNone
             }
         case .decimalStart:
-            switch tokenizer.peek(input)?.firstScalar {
+            switch tokenizer.peek(input) {
             case ("0"..."9")?:
                 self.state = .decimal
                 return .progress
@@ -148,7 +149,7 @@ struct CharRefTokenizer {
                 return .doneNone
             }
         case .hexadecimal:
-            if let firstScalar = tokenizer.peek(input)?.firstScalar {
+            if let firstScalar = tokenizer.peek(input) {
                 switch firstScalar {
                 case "0"..."9":
                     tokenizer.discardChar(&input)
@@ -185,7 +186,7 @@ struct CharRefTokenizer {
             self.state = .numericEnd
             return .progress
         case .decimal:
-            if let firstScalar = tokenizer.peek(input)?.firstScalar {
+            if let firstScalar = tokenizer.peek(input) {
                 switch firstScalar {
                 case "0"..."9":
                     tokenizer.discardChar(&input)

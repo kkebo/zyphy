@@ -27,7 +27,7 @@ extension TestSink: TokenSink {
         """#
 
     var tokenizer = Tokenizer(sink: TestSink())
-    var input = Deque(html)
+    var input = Deque(html.unicodeScalars)
     tokenizer.tokenize(&input)
 
     let tokens: [Token] = [

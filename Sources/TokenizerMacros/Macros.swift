@@ -69,16 +69,16 @@ extension GoMacro: CodeItemMacro {
                     items += ["self.createEndTag(with: \(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "appendTagName":
-                    items += ["self.currentTagName.append(\(arg.expression))"]
+                    items += ["self.appendTagName(\(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "createAttr":
                     items += ["self.createAttr(with: \(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "appendAttrName":
-                    items += ["self.currentAttrName.append(\(arg.expression))"]
+                    items += ["self.appendAttrName(\(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "appendAttrValue":
-                    items += ["self.currentAttrValue.append(\(arg.expression))"]
+                    items += ["self.appendAttrValue(\(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "emitTag":
                     precondition(argList.count == 1)
@@ -128,7 +128,7 @@ extension GoMacro: CodeItemMacro {
                     items += ["self.createTempBuffer(with: \(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "appendTemp":
-                    items += ["self.tempBuffer.append(\(arg.expression))"]
+                    items += ["self.appendTempBuffer(\(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "clearTemp":
                     items += ["self.tempBuffer.removeAll()", "self.go(to: \(arg.expression))", "return .continue"]
