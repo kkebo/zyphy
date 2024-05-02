@@ -1,41 +1,43 @@
 public import DequeModule
 
 @freestanding(codeItem) private macro go(to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(reconsume: Character, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, _: Token, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, _: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(emit: Token, _: Token, reconsume: Character, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(emit: Token, _: Token, emitTempAndReconsume: Character, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Token, _: Token, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Token, _: Token, emitTempAndReconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, _: Token, emitTempAndEmit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(emit: Token, reconsume: Character, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(emit: Token, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emit: Token, clearTemp: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(createTemp: Character, emit: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(appendTemp: Character, emit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(createTemp: Unicode.Scalar, emit: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(appendTemp: Unicode.Scalar, emit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(clearTemp: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(appendComment: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(appendComment: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(appendComment: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(appendComment: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(appendComment: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(clearComment: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emitComment: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(createStartTag: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(createEndTag: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(createEndTag: Character, appendTemp: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(appendTagName: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(appendTagName: Character, appendTemp: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(createAttr: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(appendAttrName: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(appendAttrValue: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(createStartTag: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(createEndTag: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(createEndTag: Unicode.Scalar, appendTemp: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(appendTagName: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(appendTagName: Unicode.Scalar, appendTemp: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(createAttr: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(createAttr: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(appendAttrName: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(appendAttrValue: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emitTag: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emitSelfClosingTag: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(createDOCTYPE: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(appendDOCTYPEName: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(appendPublicID: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(createDOCTYPE: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(createDOCTYPE: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(appendDOCTYPEName: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(appendPublicID: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(clearPublicID: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(appendSystemID: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(appendSystemID: Unicode.Scalar) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(clearSystemID: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(emitDOCTYPE: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro goEmitCommentAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -44,10 +46,10 @@ public import DequeModule
 @freestanding(codeItem) private macro goEmitNewForceQuirksDOCTYPEAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro goConsumeCharRef(inAttr: Bool) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, _: ParseError, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, _: ParseError, createComment: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, _: ParseError, createComment: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, _: ParseError, appendComment: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, _: ParseError, createAttr: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, _: ParseError, createDOCTYPE: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, _: ParseError, createAttr: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, _: ParseError, createDOCTYPE: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, _: ParseError, forceQuirks: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -55,23 +57,25 @@ public import DequeModule
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, reconsume: Character, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, emitTempAndReconsume: Character, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, emitTempAndReconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, emitTempAndEmit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, emit: Token, reconsume: Character, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, createComment: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, emit: Token, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, createComment: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, createComment: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, appendComment: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, appendComment: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, clearComment: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emitComment: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, appendTagName: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, createAttr: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, createAttr: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, createAttr: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, appendAttrName: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, appendAttrValue: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emitTag: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, createDOCTYPE: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, createDOCTYPE: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) private macro go(error: ParseError, createDOCTYPE: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, appendDOCTYPEName: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, appendPublicID: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, clearPublicID: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
@@ -84,7 +88,7 @@ public import DequeModule
 public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     public var sink: Sink
     package var state: State
-    private var reconsumeChar: Optional<Character>
+    private var reconsumeChar: Optional<Unicode.Scalar>
     private var tempBuffer: String
     private var currentComment: String
     private var currentTagName: String
@@ -112,7 +116,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.charRefTokenizer = nil
     }
 
-    public mutating func tokenize(_ input: inout Deque<Character>) {
+    public mutating func tokenize(_ input: inout Deque<Unicode.Scalar>) {
         loop: repeat {
             switch self.step(&input) {
             case .continue: break
@@ -122,7 +126,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     // swift-format-ignore
-    private mutating func step(_ input: inout Deque<Character>) -> ProcessResult {
+    private mutating func step(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
         if var charRefTokenizer {
             if let scalars = charRefTokenizer.tokenize(tokenizer: &self, input: &input) {
                 self.processCharRef(scalars)
@@ -916,15 +920,15 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     @inline(__always)
     mutating func processCharRef(_ scalars: consuming [Unicode.Scalar]) {
         switch self.state {
-        case .data, .rcdata: for scalar in scalars { #go(emit: .char(Character(scalar))) }
+        case .data, .rcdata: for scalar in scalars { #go(emit: .char(scalar)) }
         case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted:
-            for scalar in scalars { #go(appendAttrValue: Character(scalar)) }
+            for scalar in scalars { #go(appendAttrValue: scalar) }
         case _: preconditionFailure("unreachable")
         }
     }
 
     @inline(__always)
-    mutating func processCharRef(_ c: consuming Character) {
+    mutating func processCharRef(_ c: consuming Unicode.Scalar) {
         switch self.state {
         case .data, .rcdata: #go(emit: .char(c))
         case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted: #go(appendAttrValue: c)
@@ -933,11 +937,16 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func getChar(from input: inout Deque<Character>) -> Character? {
+    private mutating func getChar(from input: inout Deque<Unicode.Scalar>) -> Unicode.Scalar? {
         guard let reconsumeChar else {
             guard let c = input.popFirst() else { return nil }
-            guard c != "\r\n", c != "\r" else { return "\n" }
-            switch c.firstScalar.value {
+            guard c != "\r" else {
+                if self.peek(input) == "\n" {
+                    self.discardChar(&input)
+                }
+                return "\n"
+            }
+            switch c.value {
             // Swift's String cannot have surrogates
             // case 0xD800...0xDBFF, 0xDC00...0xDFFF:
             //     self.emitError(.surrogateInInput)
@@ -958,12 +967,12 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    func peek(_ input: borrowing Deque<Character>) -> Character? {
+    func peek(_ input: borrowing Deque<Unicode.Scalar>) -> Unicode.Scalar? {
         self.reconsumeChar ?? input.first
     }
 
     @inline(__always)
-    mutating func discardChar(_ input: inout Deque<Character>) {
+    mutating func discardChar(_ input: inout Deque<Unicode.Scalar>) {
         switch self.reconsumeChar {
         case .some: self.reconsumeChar = nil
         case .none: input.removeFirst()
@@ -972,12 +981,12 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func startsExact(
-        _ input: inout Deque<Character>,
+        _ input: inout Deque<Unicode.Scalar>,
         with pattern: consuming some StringProtocol
     ) -> Bool? {
         var iter = input.makeIterator()
         let count = pattern.count
-        for pc in pattern {
+        for pc in pattern.unicodeScalars {
             guard let c = iter.next() else { return nil }
             guard consume c == consume pc else { return false }
         }
@@ -987,14 +996,14 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func starts(
-        _ input: inout Deque<Character>,
+        _ input: inout Deque<Unicode.Scalar>,
         with pattern: consuming some StringProtocol
     ) -> Bool? {
         var iter = input.makeIterator()
         let count = pattern.count
-        for pc in pattern {
+        for pc in pattern.unicodeScalars {
             guard let c = iter.next() else { return nil }
-            guard c.lowercased() == pc.lowercased() else { return false }
+            guard lowerASCII(consume c) == lowerASCII(consume pc) else { return false }
         }
         input.removeFirst(count)
         return true
@@ -1006,17 +1015,16 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func go(reconsume c: consuming Character, in state: consuming State) {
+    private mutating func go(reconsume c: consuming Unicode.Scalar, in state: consuming State) {
         self.reconsumeChar = c
         self.state = state
     }
 
     @inline(__always)
-    private mutating func emit(_ c: consuming Character) {
+    private mutating func emit(_ c: consuming Unicode.Scalar) {
         self.sink.process(.char(c))
     }
 
-    @_disfavoredOverload
     @inline(__always)
     private mutating func emit(_ token: consuming Token) {
         self.sink.process(token)
@@ -1033,27 +1041,38 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func createTempBuffer(with c: consuming Character) {
+    private mutating func createTempBuffer(with c: consuming Unicode.Scalar) {
         self.tempBuffer = String(c)
     }
 
     @inline(__always)
+    private mutating func appendTempBuffer(_ c: consuming Unicode.Scalar) {
+        self.tempBuffer.append(Character(c))
+    }
+
+    @inline(__always)
     private mutating func emitTempBuffer() {
-        for c in self.tempBuffer {
+        for c in self.tempBuffer.unicodeScalars {
             self.sink.process(.char(c))
         }
         self.tempBuffer.removeAll()
     }
 
+    @_disfavoredOverload
     @inline(__always)
-    private mutating func createComment(with c: consuming Character) {
+    private mutating func createComment(with c: consuming Unicode.Scalar) {
         self.currentComment = String(c)
+    }
+
+    @inline(__always)
+    private mutating func createComment(with s: consuming String) {
+        self.currentComment = s
     }
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func createComment(with s: consuming String) {
-        self.currentComment = s
+    private mutating func appendComment(_ c: consuming Unicode.Scalar) {
+        self.currentComment.append(Character(c))
     }
 
     @inline(__always)
@@ -1073,23 +1092,63 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func createStartTag(with c: consuming Character) {
+    private mutating func createStartTag(with c: consuming Unicode.Scalar) {
         self.currentTagName = String(c)
         self.currentTagKind = .start
         self.currentAttrs.removeAll()
     }
 
     @inline(__always)
-    private mutating func createEndTag(with c: consuming Character) {
+    private mutating func createEndTag(with c: consuming Unicode.Scalar) {
         self.currentTagName = String(c)
         self.currentTagKind = .end
         self.currentAttrs.removeAll()
     }
 
+    @_disfavoredOverload
     @inline(__always)
-    private mutating func createAttr(with c: consuming Character) {
+    private mutating func appendTagName(_ c: consuming Unicode.Scalar) {
+        self.currentTagName.append(Character(c))
+    }
+
+    @inline(__always)
+    private mutating func appendTagName(_ c: consuming Character) {
+        self.currentTagName.append(c)
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func createAttr(with c: consuming Unicode.Scalar) {
         self.pushAttr()
         self.currentAttrName = String(c)
+    }
+
+    @inline(__always)
+    private mutating func createAttr(with s: consuming String) {
+        self.pushAttr()
+        self.currentAttrName = s
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func appendAttrName(_ c: consuming Unicode.Scalar) {
+        self.currentAttrName.append(Character(c))
+    }
+
+    @inline(__always)
+    private mutating func appendAttrName(_ c: consuming Character) {
+        self.currentAttrName.append(c)
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func appendAttrValue(_ c: consuming Unicode.Scalar) {
+        self.currentAttrValue.append(Character(c))
+    }
+
+    @inline(__always)
+    private mutating func appendAttrValue(_ c: consuming Character) {
+        self.currentAttrValue.append(c)
     }
 
     @inline(__always)
@@ -1127,9 +1186,24 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.currentDOCTYPE = .init()
     }
 
+    @_disfavoredOverload
     @inline(__always)
-    private mutating func createDOCTYPE(with c: consuming Character) {
+    private mutating func createDOCTYPE(with c: consuming Unicode.Scalar) {
         self.currentDOCTYPE = .init(name: String(c))
+    }
+
+    @inline(__always)
+    private mutating func createDOCTYPE(with s: consuming String) {
+        self.currentDOCTYPE = .init(name: s)
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func appendDOCTYPEName(_ c: consuming Unicode.Scalar) {
+        switch self.currentDOCTYPE.name {
+        case .some: self.currentDOCTYPE.name?.append(Character(c))
+        case .none: self.currentDOCTYPE.name = String(c)
+        }
     }
 
     @inline(__always)
@@ -1137,6 +1211,15 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         switch self.currentDOCTYPE.name {
         case .some: self.currentDOCTYPE.name?.append(c)
         case .none: self.currentDOCTYPE.name = String(c)
+        }
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func appendPublicID(_ c: consuming Unicode.Scalar) {
+        switch self.currentDOCTYPE.publicID {
+        case .some: self.currentDOCTYPE.publicID?.append(Character(c))
+        case .none: self.currentDOCTYPE.publicID = String(c)
         }
     }
 
@@ -1151,6 +1234,15 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func clearPublicID() {
         self.currentDOCTYPE.publicID = ""
+    }
+
+    @_disfavoredOverload
+    @inline(__always)
+    private mutating func appendSystemID(_ c: consuming Unicode.Scalar) {
+        switch self.currentDOCTYPE.systemID {
+        case .some: self.currentDOCTYPE.systemID?.append(Character(c))
+        case .none: self.currentDOCTYPE.systemID = String(c)
+        }
     }
 
     @inline(__always)

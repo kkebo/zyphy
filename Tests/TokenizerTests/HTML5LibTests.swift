@@ -6,7 +6,7 @@ private import Tokenizer
 private struct TestSink {
     var tokens = [Token]()
     var errors = [ParseError]()
-    var pendingChars = ""
+    var pendingChars = [Unicode.Scalar]()
 
     consuming func finalize() -> ([Token], [ParseError]) {
         self.processChars()
@@ -52,7 +52,7 @@ private let testCases = try! [
 func html5libTests(_ testCase: TestCase) throws {
     var tokenizer = Tokenizer(sink: TestSink())
     tokenizer.state = testCase.initialState
-    var input = Deque(testCase.input)
+    var input = Deque(testCase.input.unicodeScalars)
     tokenizer.tokenize(&input)
 
     let (tokens, errors) = tokenizer.sink.finalize()
