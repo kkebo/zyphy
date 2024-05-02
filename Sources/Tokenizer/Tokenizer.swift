@@ -60,7 +60,6 @@ public import DequeModule
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, _: Token, emitTempAndEmit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, emit: Token, reconsume: Character, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) private macro go(error: ParseError, createTemp: Character, emit: Token, _: Token, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, createComment: Character, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, createComment: String, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) private macro go(error: ParseError, appendComment: Character) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
