@@ -3,30 +3,16 @@ private import Foundation
 import Testing
 private import Tokenizer
 
-private struct TestSink {
+private struct TestSink: ~Copyable {
     var tokens = [Token]()
     var errors = [ParseError]()
-    var pendingChars = [Unicode.Scalar]()
-
-    consuming func finalize() -> ([Token], [ParseError]) {
-        self.processChars()
-        return (self.tokens, self.errors)
-    }
-
-    private mutating func processChars() {
-        self.tokens.append(contentsOf: self.pendingChars.map(Token.char))
-        self.pendingChars.removeAll()
-    }
 }
 
 extension TestSink: TokenSink {
     mutating func process(_ token: consuming Token) {
         switch token {
         case .error(let error): self.errors.append(error)
-        case .char(let c): self.pendingChars.append(c)
-        case let token:
-            self.processChars()
-            self.tokens.append(token)
+        case let token: self.tokens.append(token)
         }
     }
 }
@@ -49,13 +35,12 @@ private let testCases = try! [
 .flatMap { try parseTestCases(from: Data(contentsOf: $0)) }
 
 @Test("html5lib-tests", arguments: testCases)
-func html5libTests(_ testCase: TestCase) throws {
+func html5libTests(_ testCase: TestCase) {
     var tokenizer = Tokenizer(sink: TestSink())
     tokenizer.state = testCase.initialState
     var input = Deque(testCase.input.unicodeScalars)
     tokenizer.tokenize(&input)
 
-    let (tokens, errors) = tokenizer.sink.finalize()
-    #expect(tokens == testCase.tokens)
-    #expect(errors.count == testCase.errors.count)  // TODO: Make it stricter
+    #expect(tokenizer.sink.tokens == testCase.tokens)
+    #expect(tokenizer.sink.errors.count == testCase.errors.count)  // TODO: Make it stricter
 }
