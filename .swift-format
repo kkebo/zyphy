@@ -27,7 +27,7 @@
     "AlwaysUseLowerCamelCase" : true,
     "AmbiguousTrailingClosureOverload" : true,
     "BeginDocumentationCommentWithOneLineSummary" : true,
-    "DoNotUseSemicolons" : true,
+    "DoNotUseSemicolons" : false,
     "DontRepeatTypeInStaticProperties" : true,
     "FileScopedDeclarationPrivacy" : true,
     "FullyIndirectEnum" : true,

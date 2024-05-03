@@ -40,7 +40,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    // swift-format-ignore
     private mutating func step(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
         if var charRefTokenizer {
             if let scalars = charRefTokenizer.tokenize(tokenizer: &self, input: &input) {
@@ -49,8 +48,84 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             self.charRefTokenizer = nil
         }
 
-        switch self.state {
-        case .data: repeat {
+        return switch self.state {
+        case .data: self.data(&input)
+        case .rcdata: self.rcdata(&input)
+        case .rawtext: self.rawtext(&input)
+        case .scriptData: self.scriptData(&input)
+        case .plaintext: self.plaintext(&input)
+        case .tagOpen: self.tagOpen(&input)
+        case .endTagOpen: self.endTagOpen(&input)
+        case .tagName: self.tagName(&input)
+        case .rcdataLessThanSign: self.rcdataLessThanSign(&input)
+        case .rcdataEndTagOpen: self.rcdataEndTagOpen(&input)
+        case .rcdataEndTagName: self.rcdataEndTagName(&input)
+        case .rawtextLessThanSign: self.rawtextLessThanSign(&input)
+        case .rawtextEndTagOpen: self.rawtextEndTagOpen(&input)
+        case .rawtextEndTagName: self.rawtextEndTagName(&input)
+        case .scriptDataLessThanSign: self.scriptDataLessThanSign(&input)
+        case .scriptDataEndTagOpen: self.scriptDataEndTagOpen(&input)
+        case .scriptDataEndTagName: self.scriptDataEndTagName(&input)
+        case .scriptDataEscapeStart: self.scriptDataEscapeStart(&input)
+        case .scriptDataEscapeStartDash: self.scriptDataEscapeStartDash(&input)
+        case .scriptDataEscaped: self.scriptDataEscaped(&input)
+        case .scriptDataEscapedDash: self.scriptDataEscapedDash(&input)
+        case .scriptDataEscapedDashDash: self.scriptDataEscapedDashDash(&input)
+        case .scriptDataEscapedLessThanSign: self.scriptDataEscapedLessThanSign(&input)
+        case .scriptDataEscapedEndTagOpen: self.scriptDataEscapedEndTagOpen(&input)
+        case .scriptDataEscapedEndTagName: self.scriptDataEscapedEndTagName(&input)
+        case .scriptDataDoubleEscapeStart: self.scriptDataDoubleEscapeStart(&input)
+        case .scriptDataDoubleEscaped: self.scriptDataDoubleEscaped(&input)
+        case .scriptDataDoubleEscapedDash: self.scriptDataDoubleEscapedDash(&input)
+        case .scriptDataDoubleEscapedDashDash: self.scriptDataDoubleEscapedDashDash(&input)
+        case .scriptDataDoubleEscapedLessThanSign: self.scriptDataDoubleEscapedLessThanSign(&input)
+        case .scriptDataDoubleEscapeEnd: self.scriptDataDoubleEscapeEnd(&input)
+        case .beforeAttributeName: self.beforeAttributeName(&input)
+        case .attributeName: self.attributeName(&input)
+        case .afterAttributeName: self.afterAttributeName(&input)
+        case .beforeAttributeValue: self.beforeAttributeValue(&input)
+        case .attributeValueDoubleQuoted: self.attributeValueDoubleQuoted(&input)
+        case .attributeValueSingleQuoted: self.attributeValueSingleQuoted(&input)
+        case .attributeValueUnquoted: self.attributeValueUnquoted(&input)
+        case .afterAttributeValueQuoted: self.afterAttributeValueQuoted(&input)
+        case .selfClosingStartTag: self.selfClosingStartTag(&input)
+        case .bogusComment: self.bogusComment(&input)
+        case .markupDeclarationOpen: self.markupDeclarationOpen(&input)
+        case .commentStart: self.commentStart(&input)
+        case .commentStartDash: self.commentStartDash(&input)
+        case .comment: self.comment(&input)
+        case .commentLessThanSign: self.commentLessThanSign(&input)
+        case .commentLessThanSignBang: self.commentLessThanSignBang(&input)
+        case .commentLessThanSignBangDash: self.commentLessThanSignBangDash(&input)
+        case .commentLessThanSignBangDashDash: self.commentLessThanSignBangDashDash(&input)
+        case .commentEndDash: self.commentEndDash(&input)
+        case .commentEnd: self.commentEnd(&input)
+        case .commentEndBang: self.commentEndBang(&input)
+        case .doctype: self.doctype(&input)
+        case .beforeDOCTYPEName: self.beforeDOCTYPEName(&input)
+        case .doctypeName: self.doctypeName(&input)
+        case .afterDOCTYPEName: self.afterDOCTYPEName(&input)
+        case .afterDOCTYPEPublicKeyword: self.afterDOCTYPEPublicKeyword(&input)
+        case .beforeDOCTYPEPublicID: self.beforeDOCTYPEPublicID(&input)
+        case .doctypePublicIDDoubleQuoted: self.doctypePublicIDDoubleQuoted(&input)
+        case .doctypePublicIDSingleQuoted: self.doctypePublicIDSingleQuoted(&input)
+        case .afterDOCTYPEPublicID: self.afterDOCTYPEPublicID(&input)
+        case .betweenDOCTYPEPublicAndSystemIDs: self.betweenDOCTYPEPublicAndSystemIDs(&input)
+        case .afterDOCTYPESystemKeyword: self.afterDOCTYPESystemKeyword(&input)
+        case .beforeDOCTYPESystemID: self.beforeDOCTYPESystemID(&input)
+        case .doctypeSystemIDDoubleQuoted: self.doctypeSystemIDDoubleQuoted(&input)
+        case .doctypeSystemIDSingleQuoted: self.doctypeSystemIDSingleQuoted(&input)
+        case .afterDOCTYPESystemID: self.afterDOCTYPESystemID(&input)
+        case .bogusDOCTYPE: self.bogusDOCTYPE(&input)
+        case .cdataSection: self.cdataSection(&input)
+        case .cdataSectionBracket: self.cdataSectionBracket(&input)
+        case .cdataSectionEnd: self.cdataSectionEnd(&input)
+        }
+    }
+
+    @inline(__always)
+    private mutating func data(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "&": #goConsumeCharRef(inAttr: false)
             case "<": #go(to: .tagOpen)
@@ -59,7 +134,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c)
             }
         } while true
-        case .rcdata: repeat {
+    }
+
+    @inline(__always)
+    private mutating func rcdata(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "&": #goConsumeCharRef(inAttr: false)
             case "<": #go(to: .rcdataLessThanSign)
@@ -68,7 +147,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c)
             }
         } while true
-        case .rawtext: repeat {
+    }
+
+    @inline(__always)
+    private mutating func rawtext(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "<": #go(to: .rawtextLessThanSign)
             case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
@@ -76,7 +159,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c)
             }
         } while true
-        case .scriptData: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptData(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "<": #go(to: .scriptDataLessThanSign)
             case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
@@ -84,14 +171,22 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c)
             }
         } while true
-        case .plaintext: repeat {
+    }
+
+    @inline(__always)
+    private mutating func plaintext(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\0": #go(error: .unexpectedNull, emit: "\u{FFFD}")
             case nil: #go(emit: .eof)
             case let c?: #go(emit: c)
             }
         } while true
-        case .tagOpen: repeat {
+    }
+
+    @inline(__always)
+    private mutating func tagOpen(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "!": #go(to: .markupDeclarationOpen)
             case "/": #go(to: .endTagOpen)
@@ -104,7 +199,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
                 }
             }
         } while true
-        case .endTagOpen: repeat {
+    }
+
+    @inline(__always)
+    private mutating func endTagOpen(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case ">": #go(error: .missingEndTagName, to: .data)
             case "\0": #go(error: .invalidFirstChar, .unexpectedNull, createComment: "\u{FFFD}", to: .bogusComment)
@@ -116,7 +215,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
                 }
             }
         } while true
-        case .tagName: repeat {
+    }
+
+    @inline(__always)
+    private mutating func tagName(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
             case "/": #go(to: .selfClosingStartTag)
@@ -126,14 +229,22 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendTagName: lowerASCII(c))
             }
         } while true
-        case .rcdataLessThanSign: repeat {
+    }
+
+    @inline(__always)
+    private mutating func rcdataLessThanSign(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "/": #go(clearTemp: .rcdataEndTagOpen)
             case nil: #go(emit: "<", .eof)
             case let c?: #go(emit: "<", reconsume: c, in: .rcdata)
             }
         } while true
-        case .rcdataEndTagOpen: repeat {
+    }
+
+    @inline(__always)
+    private mutating func rcdataEndTagOpen(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case let c?:
                 switch lowerASCIIOrNil(c) {
@@ -143,7 +254,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case nil: #go(emit: "<", "/", .eof)
             }
         } while true
-        case .rcdataEndTagName: repeat {
+    }
+
+    @inline(__always)
+    private mutating func rcdataEndTagName(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             let c = self.getChar(from: &input)
             if case .end = self.currentTagKind, self.currentTagName == self.lastStartTagName {
                 switch c {
@@ -162,7 +277,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case nil: #go(emit: "<", "/", emitTempAndEmit: .eof)
             }
         } while true
-        case .rawtextLessThanSign: repeat {
+    }
+
+    @inline(__always)
+    private mutating func rawtextLessThanSign(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "/": #go(clearTemp: .rawtextEndTagOpen)
             case "<": #go(emit: "<", to: .rawtextLessThanSign)
@@ -171,7 +290,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: "<", c, to: .rawtext)
             }
         } while true
-        case .rawtextEndTagOpen: repeat {
+    }
+
+    @inline(__always)
+    private mutating func rawtextEndTagOpen(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "<": #go(emit: "<", "/", to: .rawtextLessThanSign)
             case "\0": #go(error: .unexpectedNull, emit: "<", "/", "\u{FFFD}", to: .rawtext)
@@ -183,7 +306,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
                 }
             }
         } while true
-        case .rawtextEndTagName: repeat {
+    }
+
+    @inline(__always)
+    private mutating func rawtextEndTagName(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             let c = self.getChar(from: &input)
             if case .end = self.currentTagKind, self.currentTagName == self.lastStartTagName {
                 switch c {
@@ -202,7 +329,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case nil: #go(emit: "<", "/", emitTempAndEmit: .eof)
             }
         } while true
-        case .scriptDataLessThanSign: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataLessThanSign(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "/": #go(clearTemp: .scriptDataEndTagOpen)
             case "!": #go(emit: "<", "!", to: .scriptDataEscapeStart)
@@ -212,7 +343,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: "<", c, to: .scriptData)
             }
         } while true
-        case .scriptDataEndTagOpen: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataEndTagOpen(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "<": #go(emit: "<", "/", to: .scriptDataLessThanSign)
             case "\0": #go(error: .unexpectedNull, emit: "<", ",", "\u{FFFD}", to: .scriptData)
@@ -224,7 +359,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
                 }
             }
         } while true
-        case .scriptDataEndTagName: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataEndTagName(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             let c = self.getChar(from: &input)
             if case .end = self.currentTagKind, self.currentTagName == self.lastStartTagName {
                 switch c {
@@ -243,7 +382,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case nil: #go(emit: "<", "/", emitTempAndEmit: .eof)
             }
         } while true
-        case .scriptDataEscapeStart: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataEscapeStart(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(emit: "-", to: .scriptDataEscapeStartDash)
             case "<": #go(to: .scriptDataLessThanSign)
@@ -252,7 +395,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c)
             }
         } while true
-        case .scriptDataEscapeStartDash: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataEscapeStartDash(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(emit: "-", to: .scriptDataEscapedDashDash)
             case "<": #go(to: .scriptDataLessThanSign)
@@ -261,7 +408,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c)
             }
         } while true
-        case .scriptDataEscaped: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataEscaped(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(emit: "-", to: .scriptDataEscapedDash)
             case "<": #go(to: .scriptDataEscapedLessThanSign)
@@ -270,7 +421,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c)
             }
         } while true
-        case .scriptDataEscapedDash: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataEscapedDash(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(emit: "-", to: .scriptDataEscapedDashDash)
             case "<": #go(to: .scriptDataEscapedLessThanSign)
@@ -279,7 +434,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c, to: .scriptDataEscaped)
             }
         } while true
-        case .scriptDataEscapedDashDash: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataEscapedDashDash(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(emit: "-")
             case "<": #go(to: .scriptDataEscapedLessThanSign)
@@ -289,7 +448,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c, to: .scriptDataEscaped)
             }
         } while true
-        case .scriptDataEscapedLessThanSign: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataEscapedLessThanSign(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "/": #go(clearTemp: .scriptDataEscapedEndTagOpen)
             case "-": #go(emit: "<", "-", to: .scriptDataEscapedDash)
@@ -303,7 +466,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
                 }
             }
         } while true
-        case .scriptDataEscapedEndTagOpen: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataEscapedEndTagOpen(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(emit: "<", "/", "-", to: .scriptDataEscapedDash)
             case "<": #go(emit: "<", "/", to: .scriptDataEscapedLessThanSign)
@@ -316,7 +483,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
                 }
             }
         } while true
-        case .scriptDataEscapedEndTagName: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataEscapedEndTagName(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             let c = self.getChar(from: &input)
             if case .end = self.currentTagKind, self.currentTagName == self.lastStartTagName {
                 switch c {
@@ -335,7 +506,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case nil: #go(emit: "<", "/", emitTempAndEmit: .eof)
             }
         } while true
-        case .scriptDataDoubleEscapeStart: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataDoubleEscapeStart(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             guard let c = self.getChar(from: &input) else { #go(error: .eofInScriptComment, emit: .eof) }
             switch c {
             case "\t", "\n", "\u{0C}", " ", "/", ">":
@@ -354,7 +529,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
                 }
             }
         } while true
-        case .scriptDataDoubleEscaped: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataDoubleEscaped(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDash)
             case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
@@ -363,7 +542,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c)
             }
         } while true
-        case .scriptDataDoubleEscapedDash: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataDoubleEscapedDash(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDashDash)
             case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
@@ -372,7 +555,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c, to: .scriptDataDoubleEscaped)
             }
         } while true
-        case .scriptDataDoubleEscapedDashDash: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataDoubleEscapedDashDash(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(emit: "-")
             case "<": #go(emit: "<", to: .scriptDataDoubleEscapedLessThanSign)
@@ -382,7 +569,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c, to: .scriptDataDoubleEscaped)
             }
         } while true
-        case .scriptDataDoubleEscapedLessThanSign: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataDoubleEscapedLessThanSign(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "/": #go(emit: "/", clearTemp: .scriptDataDoubleEscapeEnd)
             case "-": #go(emit: "-", to: .scriptDataDoubleEscapedDash)
@@ -392,7 +583,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: c, to: .scriptDataDoubleEscaped)
             }
         } while true
-        case .scriptDataDoubleEscapeEnd: repeat {
+    }
+
+    @inline(__always)
+    private mutating func scriptDataDoubleEscapeEnd(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             guard let c = self.getChar(from: &input) else { #go(error: .eofInScriptComment, emit: .eof) }
             switch c {
             case "\t", "\n", "\u{0C}", " ", "/", ">":
@@ -411,7 +606,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
                 }
             }
         } while true
-        case .beforeAttributeName: repeat {
+    }
+
+    @inline(__always)
+    private mutating func beforeAttributeName(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case "/": #go(to: .selfClosingStartTag)
@@ -425,7 +624,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(createAttr: lowerASCII(c), to: .attributeName)
             }
         } while true
-        case .attributeName: repeat {
+    }
+
+    @inline(__always)
+    private mutating func attributeName(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .afterAttributeName)
             case "/": #go(to: .selfClosingStartTag)
@@ -439,7 +642,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendAttrName: lowerASCII(c))
             }
         } while true
-        case .afterAttributeName: repeat {
+    }
+
+    @inline(__always)
+    private mutating func afterAttributeName(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case "/": #go(to: .selfClosingStartTag)
@@ -453,7 +660,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(createAttr: lowerASCII(c), to: .attributeName)
             }
         } while true
-        case .beforeAttributeValue: repeat {
+    }
+
+    @inline(__always)
+    private mutating func beforeAttributeValue(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case "\"": #go(to: .attributeValueDoubleQuoted)
@@ -463,7 +674,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(reconsume: c, in: .attributeValueUnquoted)
             }
         } while true
-        case .attributeValueDoubleQuoted: repeat {
+    }
+
+    @inline(__always)
+    private mutating func attributeValueDoubleQuoted(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\"": #go(to: .afterAttributeValueQuoted)
             case "&": #goConsumeCharRef(inAttr: true)
@@ -472,7 +687,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendAttrValue: c)
             }
         } while true
-        case .attributeValueSingleQuoted: repeat {
+    }
+
+    @inline(__always)
+    private mutating func attributeValueSingleQuoted(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "'": #go(to: .afterAttributeValueQuoted)
             case "&": #goConsumeCharRef(inAttr: true)
@@ -481,7 +700,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendAttrValue: c)
             }
         } while true
-        case .attributeValueUnquoted: repeat {
+    }
+
+    @inline(__always)
+    private mutating func attributeValueUnquoted(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
             case "&": #goConsumeCharRef(inAttr: true)
@@ -496,7 +719,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendAttrValue: c)
             }
         } while true
-        case .afterAttributeValueQuoted: repeat {
+    }
+
+    @inline(__always)
+    private mutating func afterAttributeValueQuoted(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
             case "/": #go(to: .selfClosingStartTag)
@@ -510,7 +737,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(error: .missingSpaceBetweenAttrs, createAttr: lowerASCII(c), to: .attributeName)
             }
         } while true
-        case .selfClosingStartTag: repeat {
+    }
+
+    @inline(__always)
+    private mutating func selfClosingStartTag(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case ">": #go(emitSelfClosingTag: .data)
             case "\t", "\n", "\u{0C}", " ": #go(error: .unexpectedSolidus, to: .beforeAttributeName)
@@ -524,7 +755,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(error: .unexpectedSolidus, createAttr: lowerASCII(c), to: .attributeName)
             }
         } while true
-        case .bogusComment: repeat {
+    }
+
+    @inline(__always)
+    private mutating func bogusComment(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case ">": #go(emitComment: .data)
             case "\0": #go(error: .unexpectedNull, appendComment: "\u{FFFD}")
@@ -532,7 +767,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendComment: c)
             }
         } while true
-        case .markupDeclarationOpen: repeat {
+    }
+
+    @inline(__always)
+    private mutating func markupDeclarationOpen(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             if self.startsExact(&input, with: "--") == true {
                 #go(clearComment: .commentStart)
             } else if self.starts(&input, with: "doctype") == true {
@@ -548,7 +787,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
                 #go(error: .incorrectlyOpenedComment, clearComment: .bogusComment)
             }
         } while true
-        case .commentStart: repeat {
+    }
+
+    @inline(__always)
+    private mutating func commentStart(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(to: .commentStartDash)
             case ">": #go(error: .abruptClosingComment, emitComment: .data)
@@ -558,7 +801,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendComment: c, to: .comment)
             }
         } while true
-        case .commentStartDash: repeat {
+    }
+
+    @inline(__always)
+    private mutating func commentStartDash(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(to: .commentEnd)
             case ">": #go(error: .abruptClosingComment, emitComment: .data)
@@ -568,7 +815,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendComment: "-\(c)", to: .comment)
             }
         } while true
-        case .comment: repeat {
+    }
+
+    @inline(__always)
+    private mutating func comment(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "<": #go(appendComment: "<", to: .commentLessThanSign)
             case "-": #go(to: .commentEndDash)
@@ -577,7 +828,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendComment: c)
             }
         } while true
-        case .commentLessThanSign: repeat {
+    }
+
+    @inline(__always)
+    private mutating func commentLessThanSign(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "!": #go(appendComment: "!", to: .commentLessThanSignBang)
             case "<": #go(appendComment: "<")
@@ -587,7 +842,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendComment: c, to: .comment)
             }
         } while true
-        case .commentLessThanSignBang: repeat {
+    }
+
+    @inline(__always)
+    private mutating func commentLessThanSignBang(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(to: .commentLessThanSignBangDash)
             case "<": #go(appendComment: "<", to: .commentLessThanSign)
@@ -596,7 +855,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendComment: c, to: .comment)
             }
         } while true
-        case .commentLessThanSignBangDash: repeat {
+    }
+
+    @inline(__always)
+    private mutating func commentLessThanSignBangDash(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(to: .commentLessThanSignBangDashDash)
             case "<": #go(appendComment: "-<", to: .commentLessThanSign)
@@ -605,7 +868,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendComment: "-\(c)", to: .comment)
             }
         } while true
-        case .commentLessThanSignBangDashDash: repeat {
+    }
+
+    @inline(__always)
+    private mutating func commentLessThanSignBangDashDash(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case ">": #go(emitComment: .data)
             case "!": #go(error: .nestedComment, to: .commentEndBang)
@@ -616,7 +883,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(error: .nestedComment, appendComment: "--\(c)", to: .comment)
             }
         } while true
-        case .commentEndDash: repeat {
+    }
+
+    @inline(__always)
+    private mutating func commentEndDash(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(to: .commentEnd)
             case "<": #go(appendComment: "-<", to: .commentLessThanSign)
@@ -625,7 +896,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendComment: "-\(c)", to: .comment)
             }
         } while true
-        case .commentEnd: repeat {
+    }
+
+    @inline(__always)
+    private mutating func commentEnd(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case ">": #go(emitComment: .data)
             case "!": #go(to: .commentEndBang)
@@ -636,7 +911,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendComment: "--\(c)", to: .comment)
             }
         } while true
-        case .commentEndBang: repeat {
+    }
+
+    @inline(__always)
+    private mutating func commentEndBang(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "-": #go(appendComment: "--!", to: .commentEndDash)
             case ">": #go(error: .incorrectlyClosedComment, emitComment: .data)
@@ -646,7 +925,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendComment: "--!\(c)", to: .comment)
             }
         } while true
-        case .doctype: repeat {
+    }
+
+    @inline(__always)
+    private mutating func doctype(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEName)
             case ">": #go(error: .missingDOCTYPEName, emitNewForceQuirksDOCTYPE: .data)
@@ -655,7 +938,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(error: .missingSpaceBeforeDOCTYPEName, createDOCTYPE: lowerASCII(c), to: .doctypeName)
             }
         } while true
-        case .beforeDOCTYPEName: repeat {
+    }
+
+    @inline(__always)
+    private mutating func beforeDOCTYPEName(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case "\0": #go(error: .unexpectedNull, createDOCTYPE: "\u{FFFD}", to: .doctypeName)
@@ -664,7 +951,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(createDOCTYPE: lowerASCII(c), to: .doctypeName)
             }
         } while true
-        case .doctypeName: repeat {
+    }
+
+    @inline(__always)
+    private mutating func doctypeName(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .afterDOCTYPEName)
             case ">": #go(emitDOCTYPE: .data)
@@ -673,7 +964,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendDOCTYPEName: lowerASCII(c))
             }
         } while true
-        case .afterDOCTYPEName: repeat {
+    }
+
+    @inline(__always)
+    private mutating func afterDOCTYPEName(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             if self.starts(&input, with: "public") == true {
                 #go(to: .afterDOCTYPEPublicKeyword)
             } else if self.starts(&input, with: "system") == true {
@@ -688,7 +983,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
                 }
             }
         } while true
-        case .afterDOCTYPEPublicKeyword: repeat {
+    }
+
+    @inline(__always)
+    private mutating func afterDOCTYPEPublicKeyword(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEPublicID)
             case "\"": #go(error: .missingSpaceAfterDOCTYPEPublicKeyword, clearPublicID: .doctypePublicIDDoubleQuoted)
@@ -699,7 +998,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case _: #go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirks: .bogusDOCTYPE)
             }
         } while true
-        case .beforeDOCTYPEPublicID: repeat {
+    }
+
+    @inline(__always)
+    private mutating func beforeDOCTYPEPublicID(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case "\"": #go(clearPublicID: .doctypePublicIDDoubleQuoted)
@@ -710,7 +1013,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case _: #go(error: .missingQuoteBeforeDOCTYPEPublicID, forceQuirks: .bogusDOCTYPE)
             }
         } while true
-        case .doctypePublicIDDoubleQuoted: repeat {
+    }
+
+    @inline(__always)
+    private mutating func doctypePublicIDDoubleQuoted(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\"": #go(to: .afterDOCTYPEPublicID)
             case ">": #go(error: .abruptDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
@@ -719,7 +1026,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendPublicID: c)
             }
         } while true
-        case .doctypePublicIDSingleQuoted: repeat {
+    }
+
+    @inline(__always)
+    private mutating func doctypePublicIDSingleQuoted(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "'": #go(to: .afterDOCTYPEPublicID)
             case ">": #go(error: .abruptDOCTYPEPublicID, emitForceQuirksDOCTYPE: .data)
@@ -728,7 +1039,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendPublicID: c)
             }
         } while true
-        case .afterDOCTYPEPublicID: repeat {
+    }
+
+    @inline(__always)
+    private mutating func afterDOCTYPEPublicID(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .betweenDOCTYPEPublicAndSystemIDs)
             case ">": #go(emitDOCTYPE: .data)
@@ -739,7 +1054,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         } while true
-        case .betweenDOCTYPEPublicAndSystemIDs: repeat {
+    }
+
+    @inline(__always)
+    private mutating func betweenDOCTYPEPublicAndSystemIDs(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case ">": #go(emitDOCTYPE: .data)
@@ -750,7 +1069,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         } while true
-        case .afterDOCTYPESystemKeyword: repeat {
+    }
+
+    @inline(__always)
+    private mutating func afterDOCTYPESystemKeyword(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPESystemID)
             case "\"": #go(error: .missingSpaceAfterDOCTYPESystemKeyword, clearSystemID: .doctypeSystemIDDoubleQuoted)
@@ -761,7 +1084,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         } while true
-        case .beforeDOCTYPESystemID: repeat {
+    }
+
+    @inline(__always)
+    private mutating func beforeDOCTYPESystemID(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case "\"": #go(clearSystemID: .doctypeSystemIDDoubleQuoted)
@@ -772,7 +1099,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case _?: #go(error: .missingQuoteBeforeDOCTYPESystemID, forceQuirks: .bogusDOCTYPE)
             }
         } while true
-        case .doctypeSystemIDDoubleQuoted: repeat {
+    }
+
+    @inline(__always)
+    private mutating func doctypeSystemIDDoubleQuoted(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\"": #go(to: .afterDOCTYPESystemID)
             case "\0": #go(error: .unexpectedNull, appendSystemID: "\u{FFFD}")
@@ -781,7 +1112,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendSystemID: c)
             }
         } while true
-        case .doctypeSystemIDSingleQuoted: repeat {
+    }
+
+    @inline(__always)
+    private mutating func doctypeSystemIDSingleQuoted(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "'": #go(to: .afterDOCTYPESystemID)
             case "\0": #go(error: .unexpectedNull, appendSystemID: "\u{FFFD}")
@@ -790,7 +1125,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(appendSystemID: c)
             }
         } while true
-        case .afterDOCTYPESystemID: repeat {
+    }
+
+    @inline(__always)
+    private mutating func afterDOCTYPESystemID(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": break
             case ">": #go(emitDOCTYPE: .data)
@@ -799,7 +1138,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case _?: #go(error: .unexpectedCharAfterDOCTYPE, to: .bogusDOCTYPE)
             }
         } while true
-        case .bogusDOCTYPE: repeat {
+    }
+
+    @inline(__always)
+    private mutating func bogusDOCTYPE(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case ">": #go(emitDOCTYPE: .data)
             case "\0": self.emitError(.unexpectedNull)
@@ -807,21 +1150,33 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case _: break
             }
         } while true
-        case .cdataSection: repeat {
+    }
+
+    @inline(__always)
+    private mutating func cdataSection(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "]": #go(to: .cdataSectionBracket)
             case nil: #go(error: .eofInCDATA, emit: .eof)
             case let c?: #go(emit: c)
             }
         } while true
-        case .cdataSectionBracket: repeat {
+    }
+
+    @inline(__always)
+    private mutating func cdataSectionBracket(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "]": #go(to: .cdataSectionEnd)
             case nil: #go(error: .eofInCDATA, emit: "]", .eof)
             case let c?: #go(emit: "]", c, to: .cdataSection)
             }
         } while true
-        case .cdataSectionEnd: repeat {
+    }
+
+    @inline(__always)
+    private mutating func cdataSectionEnd(_ input: inout Deque<Unicode.Scalar>) -> ProcessResult {
+        repeat {
             switch self.getChar(from: &input) {
             case "]": #go(emit: "]")
             case ">": #go(to: .data)
@@ -829,7 +1184,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case let c?: #go(emit: "]", c, to: .cdataSection)
             }
         } while true
-        }
     }
 
     @inline(__always)
