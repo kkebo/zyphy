@@ -1,4 +1,3 @@
-private import DequeModule
 private import Foundation
 import Testing
 private import Tokenizer
@@ -12,6 +11,7 @@ extension TestSink: TokenSink {
     mutating func process(_ token: consuming Token) {
         switch token {
         case .error(let error): self.errors.append(error)
+        case .chars(let s): for c in s { self.tokens.append(.char(c)) }
         case let token: self.tokens.append(token)
         }
     }
@@ -36,9 +36,9 @@ private let testCases = try! [
 
 @Test("html5lib-tests", arguments: testCases)
 func html5libTests(_ testCase: TestCase) {
-    var tokenizer = Tokenizer(sink: TestSink())
+    var tokenizer = Tokenizer(sink: TestSink(), emitsAllErrors: true)
     tokenizer.state = testCase.initialState
-    var input = Deque(testCase.input.unicodeScalars)
+    var input = BufferQueue(ArraySlice(testCase.input.unicodeScalars))
     tokenizer.tokenize(&input)
 
     #expect(tokenizer.sink.tokens == testCase.tokens)

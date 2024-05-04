@@ -1,4 +1,3 @@
-private import DequeModule
 import Testing
 private import Tokenizer
 
@@ -27,7 +26,7 @@ extension TestSink: TokenSink {
         """#
 
     var tokenizer = Tokenizer(sink: TestSink())
-    var input = Deque(html.unicodeScalars)
+    var input = BufferQueue(ArraySlice(html.unicodeScalars))
     tokenizer.tokenize(&input)
 
     let tokens: [Token] = [
@@ -40,19 +39,14 @@ extension TestSink: TokenSink {
         .tag(Tag(name: "meta", kind: .start, attrs: ["charset": "UTF-8"], selfClosing: true)),
         .char("\n"),
         .tag(Tag(name: "title", kind: .start)),
-        .char("t"),
-        .char("i"),
-        .char("t"),
-        .char("l"),
-        .char("e"),
+        .chars(["t", "i", "t", "l", "e"]),
         .tag(Tag(name: "title", kind: .end)),
         .char("\n"),
         .tag(Tag(name: "head", kind: .end)),
         .char("\n"),
         .tag(Tag(name: "body", kind: .start)),
         .char("\n"),
-        .char("h"),
-        .char("i"),
+        .chars(["h", "i"]),
         .char("\n"),
         .tag(Tag(name: "body", kind: .end)),
         .char("\n"),

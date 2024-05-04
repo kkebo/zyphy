@@ -1,4 +1,3 @@
-import DequeModule
 private import HTMLEntities
 
 private enum CharRefState {
@@ -15,7 +14,7 @@ private enum CharRefState {
 }
 
 private enum CharRefProcessResult: ~Copyable {
-    case done([Unicode.Scalar])
+    case done(ArraySlice<Unicode.Scalar>)
     case doneNone
     case progress
 }
@@ -32,7 +31,7 @@ struct CharRefTokenizer {
         self.isInAttr = isInAttr
     }
 
-    mutating func tokenize(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout Deque<Unicode.Scalar>) -> [Unicode.Scalar]? {
+    mutating func tokenize(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> ArraySlice<Unicode.Scalar>? {
         repeat {
             switch self.step(tokenizer: &tokenizer, input: &input) {
             case .done(let scalars): return scalars
@@ -42,7 +41,7 @@ struct CharRefTokenizer {
         } while true
     }
 
-    private mutating func step(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout Deque<Unicode.Scalar>) -> CharRefProcessResult {
+    private mutating func step(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
         switch self.state {
         case .initial:
             switch tokenizer.peek(input) {
@@ -58,7 +57,7 @@ struct CharRefTokenizer {
         case .named:
             guard let c = tokenizer.peek(input) else {
                 guard let (endIndex, chars) = lastMatch else {
-                    input.prepend(contentsOf: self.nameBuffer.unicodeScalars)
+                    input.prepend(ArraySlice(self.nameBuffer.unicodeScalars))
                     return .doneNone
                 }
                 self.state = .namedEnd(endIndex: endIndex, replaceChars: chars)
@@ -89,18 +88,18 @@ struct CharRefTokenizer {
             switch (isInAttr, lastChar, nextChar) {
             case (_, ";", _): break
             case (true, _, "="?), (true, _, ("0"..."9")?), (true, _, ("A"..."Z")?), (true, _, ("a"..."z")?):
-                input.prepend(contentsOf: self.nameBuffer.unicodeScalars)
+                input.prepend(ArraySlice(self.nameBuffer.unicodeScalars))
                 return .doneNone
             case _: tokenizer.emitError(.missingSemicolon)
             }
-            input.prepend(contentsOf: self.nameBuffer[endIndex...].unicodeScalars)
+            input.prepend(ArraySlice(self.nameBuffer[endIndex...].unicodeScalars))
             return switch replaceChars {
             case (let c1, "\0"): .done([c1])
             case (let c1, let c2): .done([c1, c2])
             }
         case .ambiguousAmpersand:
             guard let c = tokenizer.peek(input) else {
-                input.prepend(contentsOf: self.nameBuffer.unicodeScalars)
+                input.prepend(ArraySlice(self.nameBuffer.unicodeScalars))
                 return .doneNone
             }
             switch c {
@@ -111,7 +110,7 @@ struct CharRefTokenizer {
             case ";": tokenizer.emitError(.unknownNamedCharRef)
             case _: break
             }
-            input.prepend(contentsOf: self.nameBuffer.unicodeScalars)
+            input.prepend(ArraySlice(self.nameBuffer.unicodeScalars))
             return .doneNone
         case .numeric:
             switch tokenizer.peek(input) {
@@ -134,8 +133,7 @@ struct CharRefTokenizer {
                 return .progress
             case _:
                 tokenizer.emitError(.absenceDigits)
-                input.prepend(uppercase ? "X" : "x")
-                input.prepend("#")
+                input.prepend(ArraySlice(uppercase ? "#X".unicodeScalars : "#x".unicodeScalars))
                 return .doneNone
             }
         case .decimalStart:
@@ -145,7 +143,7 @@ struct CharRefTokenizer {
                 return .progress
             case _:
                 tokenizer.emitError(.absenceDigits)
-                input.prepend("#")
+                input.prepend(ArraySlice("#".unicodeScalars))
                 return .doneNone
             }
         case .hexadecimal:

@@ -11,6 +11,7 @@
 @freestanding(codeItem) macro go(emit: Unicode.Scalar, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(emit: Unicode.Scalar, reconsume: Unicode.Scalar, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(emit: Unicode.Scalar, clearTemp: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
+@freestanding(codeItem) macro go(emit: ArraySlice<Unicode.Scalar>) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(emit: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(emit: Token, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(emit: Token, _: Token, _: Token) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
