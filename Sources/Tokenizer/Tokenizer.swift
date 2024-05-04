@@ -1210,9 +1210,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         guard let reconsumeChar else {
             guard let c = input.popFirst() else { return nil }
             guard c != "\r" else {
-                if self.peek(input) == "\n" {
-                    self.discardChar(&input)
-                }
+                if input.first == "\n" { input.removeFirst() }
                 return "\n"
             }
             switch c.value {
