@@ -1357,7 +1357,8 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func createTempBuffer(with c: consuming Char) {
-        self.tempBuffer = [c]
+        self.tempBuffer.removeAll(keepingCapacity: true)
+        self.tempBuffer.append(c)
     }
 
     @inline(__always)
@@ -1368,12 +1369,13 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func emitTempBuffer() {
         self.emit(ArraySlice(self.tempBuffer))
-        self.tempBuffer.removeAll()
+        self.tempBuffer.removeAll(keepingCapacity: true)
     }
 
     @inline(__always)
     private mutating func createComment(with c: consuming Char) {
-        self.currentComment = [c]
+        self.currentComment.removeAll(keepingCapacity: true)
+        self.currentComment.append(c)
     }
 
     @_disfavoredOverload
@@ -1400,16 +1402,18 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func createStartTag(with c: consuming Char) {
-        self.currentTagName = [c]
+        self.currentTagName.removeAll(keepingCapacity: true)
+        self.currentTagName.append(c)
         self.currentTagKind = .start
-        self.currentAttrs.removeAll()
+        self.currentAttrs.removeAll(keepingCapacity: true)
     }
 
     @inline(__always)
     private mutating func createEndTag(with c: consuming Char) {
-        self.currentTagName = [c]
+        self.currentTagName.removeAll(keepingCapacity: true)
+        self.currentTagName.append(c)
         self.currentTagKind = .end
-        self.currentAttrs.removeAll()
+        self.currentAttrs.removeAll(keepingCapacity: true)
     }
 
     @inline(__always)
@@ -1420,7 +1424,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func createAttr(with c: consuming Char) {
         self.pushAttr()
-        self.currentAttrName = [c]
+        self.currentAttrName.append(c)
     }
 
     @inline(__always)
@@ -1446,8 +1450,8 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } else {
             self.currentAttrs[self.currentAttrName] = self.currentAttrValue
         }
-        self.currentAttrName.removeAll()
-        self.currentAttrValue.removeAll()
+        self.currentAttrName.removeAll(keepingCapacity: true)
+        self.currentAttrValue.removeAll(keepingCapacity: true)
     }
 
     @inline(__always)
