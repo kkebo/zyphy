@@ -93,7 +93,8 @@ struct CharRefTokenizer {
         let lastChar = self.nameBuffer[..<endIndex].last!
         let nextChar: Char? =
             if self.nameBuffer.endIndex != endIndex {
-                self.nameBuffer[endIndex].firstScalar
+                // swift-format-ignore: NeverForceUnwrap
+                self.nameBuffer[endIndex].unicodeScalars.first!
             } else {
                 nil
             }
