@@ -13,10 +13,10 @@ private enum CharRefState {
     case numericEnd
 }
 
-private enum CharRefProcessResult: ~Copyable {
-    case done(StrSlice)
-    case doneNone
-    case progress
+enum CharRefProcessResult: ~Copyable {
+    case `continue`
+    case doneChars(StrSlice)
+    case doneChar(Char)
 }
 
 struct CharRefTokenizer {
@@ -31,17 +31,7 @@ struct CharRefTokenizer {
         self.isInAttr = isInAttr
     }
 
-    mutating func tokenize(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> StrSlice? {
-        repeat {
-            switch self.step(tokenizer: &tokenizer, input: &input) {
-            case .done(let scalars): return scalars
-            case .doneNone: return ["&"]
-            case .progress: break
-            }
-        } while true
-    }
-
-    private mutating func step(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
+    mutating func step(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
         switch self.state {
         case .initial: self.initial(input: &input)
         case .named: self.named(input: &input)
@@ -61,38 +51,40 @@ struct CharRefTokenizer {
         switch input.peek() {
         case ("0"..."9")?, ("A"..."Z")?, ("a"..."z")?:
             self.state = .named
-            return .progress
+            return .continue
         case "#":
             input.removeFirst()
             self.state = .numeric
-            return .progress
-        case _: return .doneNone
+            return .continue
+        case _: return .doneChar("&")
         }
     }
 
     @inline(__always)
     private mutating func named(input: inout BufferQueue) -> CharRefProcessResult {
-        guard let c = input.peek() else {
-            guard let (endIndex, chars) = lastMatch else {
-                input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
-                return .doneNone
-            }
-            self.state = .namedEnd(endIndex: endIndex, replaceChars: chars)
-            return .progress
-        }
-        input.removeFirst()
-        self.nameBuffer.append(Character(c))
-        switch processedNamedChars[self.nameBuffer] {
-        case ("\0", _)?: break
-        case let chars?: lastMatch = (self.nameBuffer.endIndex, chars)
-        case nil:
-            if let (endIndex, chars) = lastMatch {
+        repeat {
+            guard let c = input.peek() else {
+                guard let (endIndex, chars) = lastMatch else {
+                    input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
+                    return .doneChar("&")
+                }
                 self.state = .namedEnd(endIndex: endIndex, replaceChars: chars)
-            } else {
-                self.state = .ambiguousAmpersand
+                return .continue
             }
-        }
-        return .progress
+            input.removeFirst()
+            self.nameBuffer.append(Character(c))
+            switch processedNamedChars[self.nameBuffer] {
+            case ("\0", _)?: break
+            case let chars?: lastMatch = (self.nameBuffer.endIndex, chars)
+            case nil:
+                if let (endIndex, chars) = lastMatch {
+                    self.state = .namedEnd(endIndex: endIndex, replaceChars: chars)
+                } else {
+                    self.state = .ambiguousAmpersand
+                }
+                return .continue
+            }
+        } while true
     }
 
     @inline(__always)
@@ -109,32 +101,34 @@ struct CharRefTokenizer {
         case (_, ";", _): break
         case (true, _, "="?), (true, _, ("0"..."9")?), (true, _, ("A"..."Z")?), (true, _, ("a"..."z")?):
             input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
-            return .doneNone
+            return .doneChar("&")
         case _: tokenizer.emitError(.missingSemicolon)
         }
         input.prepend(StrSlice(self.nameBuffer[endIndex...].unicodeScalars))
         return switch replaceChars {
-        case (let c1, "\0"): .done([c1])
-        case (let c1, let c2): .done([c1, c2])
+        case (let c1, "\0"): .doneChar(c1)
+        case (let c1, let c2): .doneChars([c1, c2])
         }
     }
 
     @inline(__always)
     private mutating func ambiguousAmpersand(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
-        guard let c = input.peek() else {
+        repeat {
+            guard let c = input.peek() else {
+                input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
+                return .doneChar("&")
+            }
+            switch c {
+            case "0"..."9", "A"..."Z", "a"..."z":
+                input.removeFirst()
+                self.nameBuffer.append(Character(c))
+                continue
+            case ";": tokenizer.emitError(.unknownNamedCharRef)
+            case _: break
+            }
             input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
-            return .doneNone
-        }
-        switch c {
-        case "0"..."9", "A"..."Z", "a"..."z":
-            input.removeFirst()
-            self.nameBuffer.append(Character(c))
-            return .progress
-        case ";": tokenizer.emitError(.unknownNamedCharRef)
-        case _: break
-        }
-        input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
-        return .doneNone
+            return .doneChar("&")
+        } while true
     }
 
     @inline(__always)
@@ -143,15 +137,13 @@ struct CharRefTokenizer {
         case "X":
             input.removeFirst()
             self.state = .hexadecimalStart(uppercase: true)
-            return .progress
         case "x":
             input.removeFirst()
             self.state = .hexadecimalStart(uppercase: false)
-            return .progress
         case _:
             self.state = .decimalStart
-            return .progress
         }
+        return .continue
     }
 
     @inline(__always)
@@ -159,11 +151,11 @@ struct CharRefTokenizer {
         switch input.peek() {
         case ("0"..."9")?, ("A"..."F")?, ("a"..."f")?:
             self.state = .hexadecimal
-            return .progress
+            return .continue
         case _:
             tokenizer.emitError(.absenceDigits)
             input.prepend(uppercase ? ["#", "X"] : ["#", "x"])
-            return .doneNone
+            return .doneChar("&")
         }
     }
 
@@ -172,76 +164,80 @@ struct CharRefTokenizer {
         switch input.peek() {
         case ("0"..."9")?:
             self.state = .decimal
-            return .progress
+            return .continue
         case _:
             tokenizer.emitError(.absenceDigits)
             input.prepend(["#"])
-            return .doneNone
+            return .doneChar("&")
         }
     }
 
     @inline(__always)
     private mutating func hexadecimal(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
-        if let firstScalar = input.peek() {
-            switch firstScalar {
-            case "0"..."9":
-                input.removeFirst()
-                self.num &*= 16
-                if self.num > 0x10FFFF {
-                    self.numTooBig = true
+        repeat {
+            if let c = input.peek() {
+                switch c {
+                case "0"..."9":
+                    input.removeFirst()
+                    self.num &*= 16
+                    if self.num > 0x10FFFF {
+                        self.numTooBig = true
+                    }
+                    self.num &+= Int(c.value &- 0x30)
+                    continue
+                case "A"..."F":
+                    input.removeFirst()
+                    self.num &*= 16
+                    if self.num > 0x10FFFF {
+                        self.numTooBig = true
+                    }
+                    self.num &+= Int(c.value &- 0x37)
+                    continue
+                case "a"..."f":
+                    input.removeFirst()
+                    self.num &*= 16
+                    if self.num > 0x10FFFF {
+                        self.numTooBig = true
+                    }
+                    self.num &+= Int(c.value &- 0x57)
+                    continue
+                case ";":
+                    input.removeFirst()
+                    self.state = .numericEnd
+                    return .continue
+                case _: break
                 }
-                self.num &+= Int(firstScalar.value &- 0x30)
-                return .progress
-            case "A"..."F":
-                input.removeFirst()
-                self.num &*= 16
-                if self.num > 0x10FFFF {
-                    self.numTooBig = true
-                }
-                self.num &+= Int(firstScalar.value &- 0x37)
-                return .progress
-            case "a"..."f":
-                input.removeFirst()
-                self.num &*= 16
-                if self.num > 0x10FFFF {
-                    self.numTooBig = true
-                }
-                self.num &+= Int(firstScalar.value &- 0x57)
-                return .progress
-            case ";":
-                input.removeFirst()
-                self.state = .numericEnd
-                return .progress
-            case _: break
             }
-        }
-        tokenizer.emitError(.missingSemicolon)
-        self.state = .numericEnd
-        return .progress
+            tokenizer.emitError(.missingSemicolon)
+            self.state = .numericEnd
+            return .continue
+        } while true
     }
 
     @inline(__always)
     private mutating func decimal(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
-        if let firstScalar = input.peek() {
-            switch firstScalar {
-            case "0"..."9":
-                input.removeFirst()
-                self.num &*= 10
-                if self.num > 0x10FFFF {
-                    self.numTooBig = true
+        repeat {
+            if let c = input.peek() {
+                switch c {
+                case "0"..."9":
+                    input.removeFirst()
+                    self.num &*= 10
+                    if self.num > 0x10FFFF {
+                        self.numTooBig = true
+                    }
+                    self.num &+= Int(c.value &- 0x30)
+                    continue
+                case ";":
+                    input.removeFirst()
+                    self.state = .numericEnd
+                    return .continue
+                case _: break
                 }
-                self.num &+= Int(firstScalar.value &- 0x30)
-                return .progress
-            case ";":
-                input.removeFirst()
-                self.state = .numericEnd
-                return .progress
-            case _: break
             }
-        }
-        tokenizer.emitError(.missingSemicolon)
-        self.state = .numericEnd
-        return .progress
+            tokenizer.emitError(.missingSemicolon)
+            self.state = .numericEnd
+            return .continue
+        } while true
     }
 
     @inline(__always)
@@ -252,30 +248,30 @@ struct CharRefTokenizer {
         switch self.num {
         case 0x00:
             tokenizer.emitError(.nullCharRef)
-            return .done(["\u{FFFD}"])
+            return .doneChar("\u{FFFD}")
         case let n where n > 0x10FFFF || self.numTooBig:
             tokenizer.emitError(.charRefOutOfRange)
-            return .done(["\u{FFFD}"])
+            return .doneChar("\u{FFFD}")
         case 0xD800...0xDBFF, 0xDC00...0xDFFF:
             tokenizer.emitError(.surrogateCharRef)
-            return .done(["\u{FFFD}"])
+            return .doneChar("\u{FFFD}")
         case 0xFDD0...0xFDEF, 0xFFFE, 0xFFFF, 0x1FFFE, 0x1FFFF, 0x2FFFE, 0x2FFFF,
             0x3FFFE, 0x3FFFF, 0x4FFFE, 0x4FFFF, 0x5FFFE, 0x5FFFF, 0x6FFFE, 0x6FFFF,
             0x7FFFE, 0x7FFFF, 0x8FFFE, 0x8FFFF, 0x9FFFE, 0x9FFFF, 0xAFFFE, 0xAFFFF,
             0xBFFFE, 0xBFFFF, 0xCFFFE, 0xCFFFF, 0xDFFFE, 0xDFFFF, 0xEFFFE, 0xEFFFF,
             0xFFFFE, 0xFFFFF, 0x10FFFE, 0x10FFFF:
             tokenizer.emitError(.noncharacterCharRef)
-            return .done([conv(self.num)])
+            return .doneChar(conv(self.num))
         case 0x0D, 0x01...0x08, 0x0B, 0x0D...0x1F, 0x7F:
             tokenizer.emitError(.controlCharRef)
-            return .done([conv(self.num)])
+            return .doneChar(conv(self.num))
         case 0x80...0x9F:
             tokenizer.emitError(.controlCharRef)
             return switch replacements[self.num &- 0x80] {
-            case "\0": .done([conv(self.num)])
-            case let c: .done([c])
+            case "\0": .doneChar(conv(self.num))
+            case let c: .doneChar(c)
             }
-        case let n: return .done([conv(n)])
+        case let n: return .doneChar(conv(n))
         }
     }
 }
