@@ -1200,10 +1200,10 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    mutating func processCharRef(_ scalars: consuming StrSlice) {
+    mutating func processCharRef(_ s: consuming StrSlice) {
         switch self.state {
-        case .data, .rcdata: #go(emit: scalars)
-        case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted: #go(appendAttrValue: scalars)
+        case .data, .rcdata: #go(emit: s)
+        case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted: #go(appendAttrValue: s)
         case _: preconditionFailure("unreachable")
         }
     }
