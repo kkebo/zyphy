@@ -14,7 +14,7 @@ private enum CharRefState {
 }
 
 private enum CharRefProcessResult: ~Copyable {
-    case done(Str)
+    case done(StrSlice)
     case doneNone
     case progress
 }
@@ -31,7 +31,7 @@ struct CharRefTokenizer {
         self.isInAttr = isInAttr
     }
 
-    mutating func tokenize(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> Str? {
+    mutating func tokenize(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> StrSlice? {
         repeat {
             switch self.step(tokenizer: &tokenizer, input: &input) {
             case .done(let scalars): return scalars
@@ -57,7 +57,7 @@ struct CharRefTokenizer {
         case .named:
             guard let c = tokenizer.peek(input) else {
                 guard let (endIndex, chars) = lastMatch else {
-                    input.prepend(ArraySlice(self.nameBuffer.unicodeScalars))
+                    input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
                     return .doneNone
                 }
                 self.state = .namedEnd(endIndex: endIndex, replaceChars: chars)
@@ -88,18 +88,18 @@ struct CharRefTokenizer {
             switch (isInAttr, lastChar, nextChar) {
             case (_, ";", _): break
             case (true, _, "="?), (true, _, ("0"..."9")?), (true, _, ("A"..."Z")?), (true, _, ("a"..."z")?):
-                input.prepend(ArraySlice(self.nameBuffer.unicodeScalars))
+                input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
                 return .doneNone
             case _: tokenizer.emitError(.missingSemicolon)
             }
-            input.prepend(ArraySlice(self.nameBuffer[endIndex...].unicodeScalars))
+            input.prepend(StrSlice(self.nameBuffer[endIndex...].unicodeScalars))
             return switch replaceChars {
             case (let c1, "\0"): .done([c1])
             case (let c1, let c2): .done([c1, c2])
             }
         case .ambiguousAmpersand:
             guard let c = tokenizer.peek(input) else {
-                input.prepend(ArraySlice(self.nameBuffer.unicodeScalars))
+                input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
                 return .doneNone
             }
             switch c {
@@ -110,7 +110,7 @@ struct CharRefTokenizer {
             case ";": tokenizer.emitError(.unknownNamedCharRef)
             case _: break
             }
-            input.prepend(ArraySlice(self.nameBuffer.unicodeScalars))
+            input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
             return .doneNone
         case .numeric:
             switch tokenizer.peek(input) {
@@ -133,7 +133,7 @@ struct CharRefTokenizer {
                 return .progress
             case _:
                 tokenizer.emitError(.absenceDigits)
-                input.prepend(ArraySlice(uppercase ? "#X".unicodeScalars : "#x".unicodeScalars))
+                input.prepend(uppercase ? ["#", "X"] : ["#", "x"])
                 return .doneNone
             }
         case .decimalStart:
@@ -143,7 +143,7 @@ struct CharRefTokenizer {
                 return .progress
             case _:
                 tokenizer.emitError(.absenceDigits)
-                input.prepend(ArraySlice("#".unicodeScalars))
+                input.prepend(["#"])
                 return .doneNone
             }
         case .hexadecimal:

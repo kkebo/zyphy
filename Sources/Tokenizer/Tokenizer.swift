@@ -3,14 +3,14 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     public var emitsAllErrors: Bool
     package var state: State
     private var reconsumeChar: Optional<Char>
-    private var tempBuffer: String
-    private var currentComment: String
-    private var currentTagName: String
+    private var tempBuffer: Str
+    private var currentComment: Str
+    private var currentTagName: Str
     private var currentTagKind: TagKind
-    private var currentAttrName: String
-    private var currentAttrValue: String
-    private var currentAttrs: [String: String]
-    private var lastStartTagName: Optional<String>
+    private var currentAttrName: Str
+    private var currentAttrValue: Str
+    private var currentAttrs: [Str: Str]
+    private var lastStartTagName: Optional<Str>
     private var currentDOCTYPE: DOCTYPE
     private var charRefTokenizer: Optional<CharRefTokenizer>
 
@@ -19,12 +19,12 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.emitsAllErrors = emitsAllErrors
         self.state = .data
         self.reconsumeChar = nil
-        self.tempBuffer = ""
-        self.currentComment = ""
-        self.currentTagName = ""
+        self.tempBuffer = []
+        self.currentComment = []
+        self.currentTagName = []
         self.currentTagKind = .start
-        self.currentAttrName = ""
-        self.currentAttrValue = ""
+        self.currentAttrName = []
+        self.currentAttrValue = []
         self.currentAttrs = [:]
         self.lastStartTagName = nil
         self.currentDOCTYPE = .init()
@@ -686,12 +686,13 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func attributeValueDoubleQuoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
-            switch self.getChar(from: &input) {
-            case "\"": #go(to: .afterAttributeValueQuoted)
-            case "&": #goConsumeCharRef(inAttr: true)
-            case "\0": #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
+            switch self.pop(from: &input, except: ["\r", "\n", "\"", "&", "\0"]) {
+            case .known("\""): #go(to: .afterAttributeValueQuoted)
+            case .known("&"): #goConsumeCharRef(inAttr: true)
+            case .known("\0"): #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c?: #go(appendAttrValue: c)
+            case .known(let c): #go(appendAttrValue: c)
+            case .others(let s): #go(appendAttrValue: s)
             }
         } while true
     }
@@ -699,12 +700,13 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func attributeValueSingleQuoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
-            switch self.getChar(from: &input) {
-            case "'": #go(to: .afterAttributeValueQuoted)
-            case "&": #goConsumeCharRef(inAttr: true)
-            case "\0": #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
+            switch self.pop(from: &input, except: ["\r", "\n", "'", "&", "\0"]) {
+            case .known("'"): #go(to: .afterAttributeValueQuoted)
+            case .known("&"): #goConsumeCharRef(inAttr: true)
+            case .known("\0"): #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
             case nil: #go(error: .eofInTag, emit: .eof)
-            case let c?: #go(appendAttrValue: c)
+            case .known(let c): #go(appendAttrValue: c)
+            case .others(let s): #go(appendAttrValue: s)
             }
         } while true
     }
@@ -712,18 +714,22 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func attributeValueUnquoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
-            switch self.getChar(from: &input) {
-            case "\t", "\n", "\u{0C}", " ": #go(to: .beforeAttributeName)
-            case "&": #goConsumeCharRef(inAttr: true)
-            case ">": #go(emitTag: .data)
-            case "\0": #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
+            switch self.pop(from: &input, except: ["\r", "\n", "\t", "\u{0C}", " ", "&", ">", "\0", "\"", "'", "<", "=", "`"]) {
+            case .known("\t"): #go(to: .beforeAttributeName)
+            case .known("\n"): #go(to: .beforeAttributeName)
+            case .known("\u{0C}"): #go(to: .beforeAttributeName)
+            case .known(" "): #go(to: .beforeAttributeName)
+            case .known("&"): #goConsumeCharRef(inAttr: true)
+            case .known(">"): #go(emitTag: .data)
+            case .known("\0"): #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
             case nil: #go(error: .eofInTag, emit: .eof)
-            case "\"": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
-            case "'": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "'")
-            case "<": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "<")
-            case "=": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "=")
-            case "`": #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "`")
-            case let c?: #go(appendAttrValue: c)
+            case .known("\""): #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "\"")
+            case .known("'"): #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "'")
+            case .known("<"): #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "<")
+            case .known("="): #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "=")
+            case .known("`"): #go(error: .unexpectedCharInUnquotedAttrValue, appendAttrValue: "`")
+            case .known(let c): #go(appendAttrValue: c)
+            case .others(let s): #go(appendAttrValue: s)
             }
         } while true
     }
@@ -1194,11 +1200,10 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    mutating func processCharRef(_ scalars: consuming Str) {
+    mutating func processCharRef(_ scalars: consuming StrSlice) {
         switch self.state {
         case .data, .rcdata: #go(emit: scalars)
-        case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted:
-            for scalar in scalars { #go(appendAttrValue: scalar) }
+        case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted: #go(appendAttrValue: scalars)
         case _: preconditionFailure("unreachable")
         }
     }
@@ -1339,7 +1344,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func emit(_ s: consuming Str) {
+    private mutating func emit(_ s: consuming StrSlice) {
         self.sink.process(.chars(s))
     }
 
@@ -1360,46 +1365,40 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func createTempBuffer(with c: consuming Char) {
-        self.tempBuffer = String(c)
+        self.tempBuffer = [c]
     }
 
     @inline(__always)
     private mutating func appendTempBuffer(_ c: consuming Char) {
-        self.tempBuffer.append(Character(c))
+        self.tempBuffer.append(c)
     }
 
     @inline(__always)
     private mutating func emitTempBuffer() {
-        self.emit(ArraySlice(self.tempBuffer.unicodeScalars))
+        self.emit(ArraySlice(self.tempBuffer))
         self.tempBuffer.removeAll()
     }
 
-    @_disfavoredOverload
     @inline(__always)
     private mutating func createComment(with c: consuming Char) {
-        self.currentComment = String(c)
-    }
-
-    @inline(__always)
-    private mutating func createComment(with s: consuming String) {
-        self.currentComment = s
+        self.currentComment = [c]
     }
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func appendComment(_ c: consuming Char) {
-        self.currentComment.append(Character(c))
+    private mutating func createComment(with s: consuming String) {
+        self.currentComment = .init(s.unicodeScalars)
     }
 
     @inline(__always)
-    private mutating func appendComment(_ c: consuming Character) {
+    private mutating func appendComment(_ c: consuming Char) {
         self.currentComment.append(c)
     }
 
     @_disfavoredOverload
     @inline(__always)
     private mutating func appendComment(_ s: consuming String) {
-        self.currentComment += s
+        self.currentComment += s.unicodeScalars
     }
 
     @inline(__always)
@@ -1409,62 +1408,42 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func createStartTag(with c: consuming Char) {
-        self.currentTagName = String(c)
+        self.currentTagName = [c]
         self.currentTagKind = .start
         self.currentAttrs.removeAll()
     }
 
     @inline(__always)
     private mutating func createEndTag(with c: consuming Char) {
-        self.currentTagName = String(c)
+        self.currentTagName = [c]
         self.currentTagKind = .end
         self.currentAttrs.removeAll()
     }
 
-    @_disfavoredOverload
     @inline(__always)
     private mutating func appendTagName(_ c: consuming Char) {
-        self.currentTagName.append(Character(c))
-    }
-
-    @inline(__always)
-    private mutating func appendTagName(_ c: consuming Character) {
         self.currentTagName.append(c)
     }
 
-    @_disfavoredOverload
     @inline(__always)
     private mutating func createAttr(with c: consuming Char) {
         self.pushAttr()
-        self.currentAttrName = String(c)
+        self.currentAttrName = [c]
     }
 
-    @inline(__always)
-    private mutating func createAttr(with s: consuming String) {
-        self.pushAttr()
-        self.currentAttrName = s
-    }
-
-    @_disfavoredOverload
     @inline(__always)
     private mutating func appendAttrName(_ c: consuming Char) {
-        self.currentAttrName.append(Character(c))
-    }
-
-    @inline(__always)
-    private mutating func appendAttrName(_ c: consuming Character) {
         self.currentAttrName.append(c)
     }
 
-    @_disfavoredOverload
     @inline(__always)
     private mutating func appendAttrValue(_ c: consuming Char) {
-        self.currentAttrValue.append(Character(c))
+        self.currentAttrValue.append(c)
     }
 
     @inline(__always)
-    private mutating func appendAttrValue(_ c: consuming Character) {
-        self.currentAttrValue.append(c)
+    private mutating func appendAttrValue(_ s: consuming StrSlice) {
+        self.currentAttrValue += s
     }
 
     @inline(__always)
@@ -1502,76 +1481,43 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.currentDOCTYPE = .init()
     }
 
-    @_disfavoredOverload
     @inline(__always)
     private mutating func createDOCTYPE(with c: consuming Char) {
-        self.currentDOCTYPE = .init(name: String(c))
+        self.currentDOCTYPE = .init(name: [c])
     }
 
-    @inline(__always)
-    private mutating func createDOCTYPE(with s: consuming String) {
-        self.currentDOCTYPE = .init(name: s)
-    }
-
-    @_disfavoredOverload
     @inline(__always)
     private mutating func appendDOCTYPEName(_ c: consuming Char) {
         switch self.currentDOCTYPE.name {
-        case .some: self.currentDOCTYPE.name?.append(Character(c))
-        case .none: self.currentDOCTYPE.name = String(c)
-        }
-    }
-
-    @inline(__always)
-    private mutating func appendDOCTYPEName(_ c: consuming Character) {
-        switch self.currentDOCTYPE.name {
         case .some: self.currentDOCTYPE.name?.append(c)
-        case .none: self.currentDOCTYPE.name = String(c)
+        case .none: self.currentDOCTYPE.name = [c]
         }
     }
 
-    @_disfavoredOverload
     @inline(__always)
     private mutating func appendPublicID(_ c: consuming Char) {
         switch self.currentDOCTYPE.publicID {
-        case .some: self.currentDOCTYPE.publicID?.append(Character(c))
-        case .none: self.currentDOCTYPE.publicID = String(c)
-        }
-    }
-
-    @inline(__always)
-    private mutating func appendPublicID(_ c: consuming Character) {
-        switch self.currentDOCTYPE.publicID {
         case .some: self.currentDOCTYPE.publicID?.append(c)
-        case .none: self.currentDOCTYPE.publicID = String(c)
+        case .none: self.currentDOCTYPE.publicID = [c]
         }
     }
 
     @inline(__always)
     private mutating func clearPublicID() {
-        self.currentDOCTYPE.publicID = ""
+        self.currentDOCTYPE.publicID = []
     }
 
-    @_disfavoredOverload
     @inline(__always)
     private mutating func appendSystemID(_ c: consuming Char) {
         switch self.currentDOCTYPE.systemID {
-        case .some: self.currentDOCTYPE.systemID?.append(Character(c))
-        case .none: self.currentDOCTYPE.systemID = String(c)
-        }
-    }
-
-    @inline(__always)
-    private mutating func appendSystemID(_ c: consuming Character) {
-        switch self.currentDOCTYPE.systemID {
         case .some: self.currentDOCTYPE.systemID?.append(c)
-        case .none: self.currentDOCTYPE.systemID = String(c)
+        case .none: self.currentDOCTYPE.systemID = [c]
         }
     }
 
     @inline(__always)
     private mutating func clearSystemID() {
-        self.currentDOCTYPE.systemID = ""
+        self.currentDOCTYPE.systemID = []
     }
 
     @inline(__always)

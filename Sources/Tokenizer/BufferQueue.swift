@@ -2,14 +2,14 @@ public import DequeModule
 
 public struct BufferQueue: ~Copyable, Sendable {
     @usableFromInline
-    var buffers: Deque<Str>
+    var buffers: Deque<StrSlice>
 
     @inlinable
-    public init(_ buf: Str) {
+    public init(_ buf: StrSlice) {
         self.buffers = [buf]
     }
 
-    mutating func prepend(_ buf: Str) {
+    mutating func prepend(_ buf: StrSlice) {
         guard !buf.isEmpty else { return }
         self.buffers.prepend(buf)
     }
