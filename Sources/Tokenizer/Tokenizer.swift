@@ -1263,19 +1263,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    func peek(_ input: borrowing BufferQueue) -> Char? {
-        self.reconsumeChar ?? input.peek()
-    }
-
-    @inline(__always)
-    mutating func discardChar(_ input: inout BufferQueue) {
-        switch self.reconsumeChar {
-        case .some: self.reconsumeChar = nil
-        case .none: input.removeFirst()
-        }
-    }
-
-    @inline(__always)
     private mutating func startsExact(
         _ input: inout BufferQueue,
         with pattern: consuming some StringProtocol
@@ -1358,7 +1345,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.sink.process(.eof)
     }
 
-    @inline(__always)
+    @inlinable
     mutating func emitError(_ error: consuming ParseError) {
         self.sink.process(.error(error))
     }
