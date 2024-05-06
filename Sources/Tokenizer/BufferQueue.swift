@@ -2,23 +2,23 @@ public import DequeModule
 
 public struct BufferQueue: ~Copyable, Sendable {
     @usableFromInline
-    var buffers: Deque<ArraySlice<Unicode.Scalar>>
+    var buffers: Deque<Str>
 
     @inlinable
-    public init(_ buf: ArraySlice<Unicode.Scalar>) {
+    public init(_ buf: Str) {
         self.buffers = [buf]
     }
 
-    mutating func prepend(_ buf: ArraySlice<Unicode.Scalar>) {
+    mutating func prepend(_ buf: Str) {
         guard !buf.isEmpty else { return }
         self.buffers.prepend(buf)
     }
 
-    func peek() -> Unicode.Scalar? {
+    func peek() -> Char? {
         self.buffers.first.flatMap { $0.first }
     }
 
-    mutating func popFirst() -> Unicode.Scalar? {
+    mutating func popFirst() -> Char? {
         guard !self.buffers.isEmpty else { return nil }
         defer { if self.buffers[0].isEmpty { self.buffers.removeFirst() } }
         return self.buffers[0].popFirst()

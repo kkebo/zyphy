@@ -1,4 +1,4 @@
 enum PopResult: ~Copyable {
-    case known(Unicode.Scalar)
-    case others(ArraySlice<Unicode.Scalar>)
+    case known(Char)
+    case others(Str)
 }

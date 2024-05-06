@@ -3,7 +3,7 @@ private import HTMLEntities
 private enum CharRefState {
     case initial
     case named
-    case namedEnd(endIndex: String.Index, replaceChars: (Unicode.Scalar, Unicode.Scalar))
+    case namedEnd(endIndex: String.Index, replaceChars: (Char, Char))
     case ambiguousAmpersand
     case numeric
     case hexadecimalStart(uppercase: Bool)
@@ -14,7 +14,7 @@ private enum CharRefState {
 }
 
 private enum CharRefProcessResult: ~Copyable {
-    case done(ArraySlice<Unicode.Scalar>)
+    case done(Str)
     case doneNone
     case progress
 }
@@ -24,14 +24,14 @@ struct CharRefTokenizer {
     private var num: Int = 0
     private var numTooBig: Bool = false
     private var nameBuffer: String = ""
-    private var lastMatch: (endIndex: String.Index, replaceChars: (Unicode.Scalar, Unicode.Scalar))?
+    private var lastMatch: (endIndex: String.Index, replaceChars: (Char, Char))?
     private let isInAttr: Bool
 
     init(inAttr isInAttr: Bool) {
         self.isInAttr = isInAttr
     }
 
-    mutating func tokenize(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> ArraySlice<Unicode.Scalar>? {
+    mutating func tokenize(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> Str? {
         repeat {
             switch self.step(tokenizer: &tokenizer, input: &input) {
             case .done(let scalars): return scalars
@@ -79,7 +79,7 @@ struct CharRefTokenizer {
         case .namedEnd(let endIndex, let replaceChars):
             // swift-format-ignore: NeverForceUnwrap
             let lastChar = self.nameBuffer[..<endIndex].last!
-            let nextChar: Unicode.Scalar? =
+            let nextChar: Char? =
                 if self.nameBuffer.endIndex != endIndex {
                     self.nameBuffer[endIndex].firstScalar
                 } else {
@@ -207,7 +207,7 @@ struct CharRefTokenizer {
         case .numericEnd:
             // swift-format-ignore: NeverForceUnwrap
             @inline(__always)
-            func conv(_ n: Int) -> Unicode.Scalar { .init(n)! }
+            func conv(_ n: Int) -> Char { .init(n)! }
             switch self.num {
             case 0x00:
                 tokenizer.emitError(.nullCharRef)
