@@ -1200,7 +1200,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    mutating func processCharRef(_ s: consuming StrSlice) {
+    private mutating func processCharRef(_ s: consuming StrSlice) {
         switch self.state {
         case .data, .rcdata: #go(emit: s)
         case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted: #go(appendAttrValue: s)
@@ -1209,7 +1209,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    mutating func processCharRef(_ c: consuming Char) {
+    private mutating func processCharRef(_ c: consuming Char) {
         switch self.state {
         case .data, .rcdata: #go(emit: c)
         case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted: #go(appendAttrValue: c)
