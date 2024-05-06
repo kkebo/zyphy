@@ -1,5 +1,4 @@
 private import Benchmark
-private import DequeModule
 private import Foundation
 private import Tokenizer
 
@@ -14,11 +13,11 @@ extension TestSink: TokenSink {
 private func runBench(_ name: String, configuration conf: Benchmark.Configuration) {
     // swift-format-ignore: NeverUseForceTry, NeverForceUnwrap
     let html = try! String(contentsOf: Bundle.module.url(forResource: name, withExtension: "html")!).unicodeScalars
-    let input = Deque(consume html)
+    let input = ArraySlice(consume html)
     Benchmark(name, configuration: conf) { benchmark in
         for _ in benchmark.scaledIterations {
             var tokenizer = Tokenizer(sink: TestSink())
-            var input = input
+            var input = BufferQueue(input)
             tokenizer.tokenize(&input)
         }
     }

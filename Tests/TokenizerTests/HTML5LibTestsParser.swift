@@ -81,7 +81,7 @@ struct ExpectedToken {
             return [.tag(.init(name: name, kind: .end))]
         case .str("Comment"):
             guard case .str(let data) = fields[1] else { throw TestParseError.invalidTokenFormat(fields) }
-            return [.comment(data)]
+            return [.comment(Str(data.unicodeScalars))]
         case .str("Character"):
             guard case .str(let data) = fields[1] else { throw TestParseError.invalidTokenFormat(fields) }
             return data.unicodeScalars.map(Token.char)
