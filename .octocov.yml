@@ -1,9 +1,6 @@
 coverage:
   paths:
     - coverage_report.lcov
-  exclude:
-    - '**/Sources/TokenizerMacros/**'
-    - '**/Tests/**'
   badge:
     path: coverage.svg
 push:
