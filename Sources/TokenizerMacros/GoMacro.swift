@@ -56,7 +56,7 @@ extension GoMacro: CodeItemMacro {
                     argList = .init(argList.dropFirst())
                 case "clearComment":
                     precondition(argList.count == 1)
-                    items += ["self.currentComment.removeAll(keepingCapacity: true)", "self.go(to: \(arg.expression))", "return .continue"]
+                    items += ["self.clearComment()", "self.go(to: \(arg.expression))", "return .continue"]
                     break loop
                 case "emitComment":
                     precondition(argList.count == 1)
@@ -131,7 +131,7 @@ extension GoMacro: CodeItemMacro {
                     items += ["self.appendTempBuffer(\(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "clearTemp":
-                    items += ["self.tempBuffer.removeAll(keepingCapacity: true)", "self.go(to: \(arg.expression))", "return .continue"]
+                    items += ["self.clearTempBuffer()", "self.go(to: \(arg.expression))", "return .continue"]
                     break loop
                 case "emitTempAndReconsume":
                     precondition(argList.count == 2)

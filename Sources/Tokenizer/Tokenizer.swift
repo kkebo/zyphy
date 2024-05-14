@@ -1367,6 +1367,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
+    private mutating func clearTempBuffer() {
+        self.tempBuffer.removeAll(keepingCapacity: true)
+    }
+
+    @inline(__always)
     private mutating func emitTempBuffer() {
         self.emit(ArraySlice(self.tempBuffer))
         self.tempBuffer.removeAll(keepingCapacity: true)
@@ -1393,6 +1398,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func appendComment(_ s: consuming String) {
         self.currentComment += s.unicodeScalars
+    }
+
+    @inline(__always)
+    private mutating func clearComment() {
+        self.currentComment.removeAll(keepingCapacity: true)
     }
 
     @inline(__always)
