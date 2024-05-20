@@ -1486,18 +1486,20 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.currentDOCTYPE = .init(name: [c])
     }
 
+    // swift-format-ignore: NeverForceUnwrap
     @inline(__always)
     private mutating func appendDOCTYPEName(_ c: consuming Char) {
         switch self.currentDOCTYPE.name {
-        case .some: self.currentDOCTYPE.name?.append(c)
+        case .some: self.currentDOCTYPE.name!.append(c)
         case .none: self.currentDOCTYPE.name = [c]
         }
     }
 
+    // swift-format-ignore: NeverForceUnwrap
     @inline(__always)
     private mutating func appendPublicID(_ c: consuming Char) {
         switch self.currentDOCTYPE.publicID {
-        case .some: self.currentDOCTYPE.publicID?.append(c)
+        case .some: self.currentDOCTYPE.publicID!.append(c)
         case .none: self.currentDOCTYPE.publicID = [c]
         }
     }
@@ -1507,10 +1509,11 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.currentDOCTYPE.publicID = []
     }
 
+    // swift-format-ignore: NeverForceUnwrap
     @inline(__always)
     private mutating func appendSystemID(_ c: consuming Char) {
         switch self.currentDOCTYPE.systemID {
-        case .some: self.currentDOCTYPE.systemID?.append(c)
+        case .some: self.currentDOCTYPE.systemID!.append(c)
         case .none: self.currentDOCTYPE.systemID = [c]
         }
     }
