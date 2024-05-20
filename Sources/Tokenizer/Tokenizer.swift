@@ -1502,9 +1502,13 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
+    // swift-format-ignore: NeverForceUnwrap
     @inline(__always)
     private mutating func clearPublicID() {
-        self.currentDOCTYPE.publicID = []
+        switch self.currentDOCTYPE.publicID {
+        case .some: self.currentDOCTYPE.publicID!.removeAll(keepingCapacity: true)
+        case .none: self.currentDOCTYPE.publicID = []
+        }
     }
 
     @inline(__always)
@@ -1515,9 +1519,13 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
+    // swift-format-ignore: NeverForceUnwrap
     @inline(__always)
     private mutating func clearSystemID() {
-        self.currentDOCTYPE.systemID = []
+        switch self.currentDOCTYPE.systemID {
+        case .some: self.currentDOCTYPE.systemID!.removeAll(keepingCapacity: true)
+        case .none: self.currentDOCTYPE.systemID = []
+        }
     }
 
     @inline(__always)
