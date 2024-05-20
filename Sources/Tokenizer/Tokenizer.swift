@@ -1381,8 +1381,8 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func createComment(with s: consuming String) {
-        self.currentComment = .init(s.unicodeScalars)
+    private mutating func createComment(with s: consuming Str) {
+        self.currentComment = s
     }
 
     @inline(__always)
@@ -1392,8 +1392,8 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
 
     @_disfavoredOverload
     @inline(__always)
-    private mutating func appendComment(_ s: consuming String) {
-        self.currentComment += s.unicodeScalars
+    private mutating func appendComment(_ s: consuming Str) {
+        self.currentComment += s
     }
 
     @inline(__always)
