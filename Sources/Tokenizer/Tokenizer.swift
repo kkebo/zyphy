@@ -1204,6 +1204,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
+    @_disfavoredOverload
     @inline(__always)
     private mutating func processCharRef(_ s: consuming StrSlice) {
         switch self.state {
@@ -1329,6 +1330,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.sink.process(.char(c))
     }
 
+    @_disfavoredOverload
     @inline(__always)
     private mutating func emit(_ s: consuming StrSlice) {
         self.sink.process(.chars(s))
@@ -1441,6 +1443,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.currentAttrValue.append(c)
     }
 
+    @_disfavoredOverload
     @inline(__always)
     private mutating func appendAttrValue(_ s: consuming StrSlice) {
         self.currentAttrValue += s
