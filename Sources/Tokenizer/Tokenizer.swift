@@ -1268,10 +1268,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func startsExact(
-        _ input: inout BufferQueue,
-        with pattern: consuming Str
-    ) -> Bool? {
+    private mutating func startsExact(_ input: inout BufferQueue, with pattern: consuming Str) -> Bool? {
         guard !input.buffers.isEmpty else { return nil }
         var bufIndex = 0
         var i = 0
@@ -1294,10 +1291,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func starts(
-        _ input: inout BufferQueue,
-        with pattern: consuming Str
-    ) -> Bool? {
+    private mutating func starts(_ input: inout BufferQueue, with pattern: consuming Str) -> Bool? {
         guard !input.buffers.isEmpty else { return nil }
         var bufIndex = 0
         var i = 0
