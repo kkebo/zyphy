@@ -241,11 +241,9 @@ struct CharRefTokenizer {
         } while true
     }
 
+    // swift-format-ignore: NeverForceUnwrap
     @inline(__always)
     private mutating func numericEnd(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
-        // swift-format-ignore: NeverForceUnwrap
-        @inline(__always)
-        func conv(_ n: Int) -> Char { .init(n)! }
         switch self.num {
         case 0x00:
             tokenizer.emitError(.nullCharRef)
@@ -262,17 +260,17 @@ struct CharRefTokenizer {
             0xBFFFE, 0xBFFFF, 0xCFFFE, 0xCFFFF, 0xDFFFE, 0xDFFFF, 0xEFFFE, 0xEFFFF,
             0xFFFFE, 0xFFFFF, 0x10FFFE, 0x10FFFF:
             tokenizer.emitError(.noncharacterCharRef)
-            return .doneChar(conv(self.num))
+            return .doneChar(Char(self.num)!)
         case 0x0D, 0x01...0x08, 0x0B, 0x0D...0x1F, 0x7F:
             tokenizer.emitError(.controlCharRef)
-            return .doneChar(conv(self.num))
+            return .doneChar(Char(self.num)!)
         case 0x80...0x9F:
             tokenizer.emitError(.controlCharRef)
             return switch replacements[self.num &- 0x80] {
-            case "\0": .doneChar(conv(self.num))
+            case "\0": .doneChar(Char(self.num)!)
             case let c: .doneChar(c)
             }
-        case let n: return .doneChar(conv(n))
+        case let n: return .doneChar(Char(n)!)
         }
     }
 }
