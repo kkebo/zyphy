@@ -89,12 +89,11 @@ struct CharRefTokenizer {
 
     @inline(__always)
     private mutating func namedEnd(endIndex: String.Index, replaceChars: (Char, Char), tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
-        // swift-format-ignore: NeverForceUnwrap
-        let lastChar = self.nameBuffer[..<endIndex].last!
+        let lastChar = self.nameBuffer[..<endIndex].last
         let nextChar: Char? =
             if self.nameBuffer.endIndex != endIndex {
                 // swift-format-ignore: NeverForceUnwrap
-                self.nameBuffer[endIndex].unicodeScalars.first!
+                self.nameBuffer[endIndex].unicodeScalars.first
             } else {
                 nil
             }
