@@ -1,4 +1,4 @@
-public enum ParseError: Error {
+public enum ParseError: Error, BitwiseCopyable {
     case abruptClosingComment
     case abruptDOCTYPEPublicID
     case abruptDOCTYPESystemID

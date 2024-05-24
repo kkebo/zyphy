@@ -1,5 +1,5 @@
 // Reference: https://html.spec.whatwg.org/multipage/parsing.html#tokenization
-package enum State: Equatable {
+package enum State: Equatable, BitwiseCopyable {
     case data
     case rcdata
     case rawtext
