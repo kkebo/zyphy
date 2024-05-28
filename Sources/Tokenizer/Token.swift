@@ -1,3 +1,5 @@
+public import Str
+
 public enum Token: Equatable, Sendable {
     case char(Char)
     case chars(StrSlice)

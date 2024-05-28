@@ -1,3 +1,5 @@
+public import Str
+
 public struct DOCTYPE: Equatable, Sendable {
     public var name: Optional<Str>
     public var publicID: Optional<Str>

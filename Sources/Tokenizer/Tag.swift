@@ -1,3 +1,5 @@
+public import Str
+
 public struct Tag: Equatable, Sendable {
     public var name: Str
     public var kind: TagKind

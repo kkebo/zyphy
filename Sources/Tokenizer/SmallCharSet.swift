@@ -1,3 +1,5 @@
+import Str
+
 struct SmallCharSet {
     var bits: UInt64
 
