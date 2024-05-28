@@ -1,9 +1,10 @@
 private import HTMLEntities
+import Str
 
 private enum CharRefState {
     case initial
     case named
-    case namedEnd(endIndex: String.Index, replaceChars: (Char, Char))
+    case namedEnd(endIndex: Str.Index, replaceChars: (Char, Char))
     case ambiguousAmpersand
     case numeric
     case hexadecimalStart(uppercase: Bool)
@@ -23,8 +24,8 @@ struct CharRefTokenizer {
     private var state: CharRefState = .initial
     private var num: Int = 0
     private var numTooBig: Bool = false
-    private var nameBuffer: String = ""
-    private var lastMatch: (endIndex: String.Index, replaceChars: (Char, Char))?
+    private var nameBuffer: Str = []
+    private var lastMatch: (endIndex: Str.Index, replaceChars: (Char, Char))?
     private let isInAttr: Bool
 
     init(inAttr isInAttr: Bool) {
@@ -65,14 +66,14 @@ struct CharRefTokenizer {
         repeat {
             guard let c = input.peek() else {
                 guard let (endIndex, chars) = lastMatch else {
-                    input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
+                    input.prepend(StrSlice(self.nameBuffer))
                     return .doneChar("&")
                 }
                 self.state = .namedEnd(endIndex: endIndex, replaceChars: chars)
                 return .continue
             }
             input.removeFirst()
-            self.nameBuffer.append(Character(c))
+            self.nameBuffer.append(c)
             switch processedNamedChars[self.nameBuffer] {
             case ("\0", _)?: break
             case let chars?: lastMatch = (self.nameBuffer.endIndex, chars)
@@ -88,23 +89,22 @@ struct CharRefTokenizer {
     }
 
     @inline(__always)
-    private mutating func namedEnd(endIndex: String.Index, replaceChars: (Char, Char), tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
+    private mutating func namedEnd(endIndex: Str.Index, replaceChars: (Char, Char), tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
         let lastChar = self.nameBuffer[..<endIndex].last
         let nextChar: Char? =
             if self.nameBuffer.endIndex != endIndex {
-                // swift-format-ignore: NeverForceUnwrap
-                self.nameBuffer[endIndex].unicodeScalars.first
+                self.nameBuffer[endIndex]
             } else {
                 nil
             }
         switch (isInAttr, lastChar, nextChar) {
         case (_, ";", _): break
         case (true, _, "="?), (true, _, ("0"..."9")?), (true, _, ("A"..."Z")?), (true, _, ("a"..."z")?):
-            input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
+            input.prepend(StrSlice(self.nameBuffer))
             return .doneChar("&")
         case _: tokenizer.emitError(.missingSemicolon)
         }
-        input.prepend(StrSlice(self.nameBuffer[endIndex...].unicodeScalars))
+        input.prepend(self.nameBuffer[endIndex...])
         return switch replaceChars {
         case (let c1, "\0"): .doneChar(c1)
         case (let c1, let c2): .doneChars([c1, c2])
@@ -115,18 +115,18 @@ struct CharRefTokenizer {
     private mutating func ambiguousAmpersand(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
         repeat {
             guard let c = input.peek() else {
-                input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
+                input.prepend(StrSlice(self.nameBuffer))
                 return .doneChar("&")
             }
             switch c {
             case "0"..."9", "A"..."Z", "a"..."z":
                 input.removeFirst()
-                self.nameBuffer.append(Character(c))
+                self.nameBuffer.append(c)
                 continue
             case ";": tokenizer.emitError(.unknownNamedCharRef)
             case _: break
             }
-            input.prepend(StrSlice(self.nameBuffer.unicodeScalars))
+            input.prepend(StrSlice(self.nameBuffer))
             return .doneChar("&")
         } while true
     }

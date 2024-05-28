@@ -1,3 +1,5 @@
+public import Str
+
 public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     public var sink: Sink
     public var emitsAllErrors: Bool
