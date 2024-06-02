@@ -1,5 +1,6 @@
 private import Foundation
 private import HTMLEntities
+private import Str
 import Testing
 
 private struct Entry: Decodable {
@@ -14,7 +15,7 @@ private struct Entry: Decodable {
         )
 
     for (key, value) in dict {
-        switch try #require(namedChars[String(key.dropFirst())]) {
+        switch try #require(namedChars[Str(key.dropFirst().unicodeScalars)]) {
         case (let c1, "\0"): #expect(value.codepoints == [c1.value])
         case (let c1, let c2): #expect(value.codepoints == [c1.value, c2.value])
         }
