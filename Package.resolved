@@ -24,8 +24,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-testing",
       "state" : {
-        "revision" : "c392dadce39a5055579432bba432486a003d75c6",
-        "version" : "0.9.0"
+        "revision" : "69d59cfc76e5daf498ca61f5af409f594768eef9",
+        "version" : "0.10.0"
       }
     }
   ],
