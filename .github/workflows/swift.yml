@@ -21,8 +21,7 @@ jobs:
       - run: swift --version
       - run: swift build --build-tests --disable-xctest --enable-code-coverage
       - run: swift test --skip-build --disable-xctest --enable-code-coverage
-      # FIXME: `grep -v 184467440737095` is a workaround for octocov parse error
-      - run: llvm-cov export --format=lcov .build/debug/zyphyPackageTests.xctest --instr-profile .build/debug/codecov/default.profdata --ignore-filename-regex=".build|Tests|TokenizerMacros" | grep -v 184467440737095 > coverage_report.lcov
+      - run: llvm-cov export --format=lcov .build/debug/zyphyPackageTests.xctest --instr-profile .build/debug/codecov/default.profdata --ignore-filename-regex=".build|Tests|TokenizerMacros" > coverage_report.lcov
       - uses: k1LoW/octocov-action@v1
   lint:
     runs-on: ubuntu-latest
