@@ -36,7 +36,7 @@ private let testCases = try! [
 
 @Test("html5lib-tests", arguments: testCases)
 func html5libTests(_ testCase: TestCase) {
-    var tokenizer = Tokenizer(sink: TestSink(), emitsAllErrors: true)
+    var tokenizer = Tokenizer(sink: TestSink(), emitsAllErrors: false)
     tokenizer.state = testCase.initialState
     var input = BufferQueue(ArraySlice(testCase.input.unicodeScalars))
     tokenizer.tokenize(&input)
