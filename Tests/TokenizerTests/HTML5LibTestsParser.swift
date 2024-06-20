@@ -172,7 +172,6 @@ enum TestParseError: Error {
     case invalidTokenFormat([ExpectedTokenField?])
 }
 
-// swift-format-ignore: NeverForceUnwrap
 func parseTestCases(from data: consuming Data) throws -> [TestCase] {
     try JSONDecoder().decode(TestFile.self, from: data).tests.flatMap { try $0.into() }
 }
