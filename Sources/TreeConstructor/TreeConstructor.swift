@@ -1,4 +1,4 @@
-import Tokenizer
+public import Tokenizer
 
 public struct TreeConstructor: ~Copyable {
     private var mode: InsertionMode
@@ -9,7 +9,7 @@ public struct TreeConstructor: ~Copyable {
 }
 
 extension TreeConstructor: TokenSink {
-    mutating func process(_ token: consuming Token) {
+    public mutating func process(_ token: consuming Token) {
         switch self.mode {
         case .initial:
             switch token {
