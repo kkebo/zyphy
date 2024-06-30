@@ -4,6 +4,10 @@ public typealias Char = Unicode.Scalar
 
 extension Str: @retroactive ExpressibleByStringLiteral {
     @inlinable public init(stringLiteral value: consuming String) {
+        guard !value.isEmpty else {
+            self = []
+            return
+        }
         self.init(value.unicodeScalars)
     }
 }
