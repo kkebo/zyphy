@@ -19,12 +19,12 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.emitsAllErrors = emitsAllErrors
         self.state = .data
         self.reconsumeChar = nil
-        self.tempBuffer = []
-        self.currentComment = []
-        self.currentTagName = []
+        self.tempBuffer = ""
+        self.currentComment = ""
+        self.currentTagName = ""
         self.currentTagKind = .start
-        self.currentAttrName = []
-        self.currentAttrValue = []
+        self.currentAttrName = ""
+        self.currentAttrValue = ""
         self.currentAttrs = [:]
         self.lastStartTagName = nil
         self.currentDOCTYPE = .init()
@@ -1506,7 +1506,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     private mutating func clearPublicID() {
         switch self.currentDOCTYPE.publicID {
         case .some: self.currentDOCTYPE.publicID?.removeAll(keepingCapacity: true)
-        case .none: self.currentDOCTYPE.publicID = []
+        case .none: self.currentDOCTYPE.publicID = ""
         }
     }
 
@@ -1522,7 +1522,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     private mutating func clearSystemID() {
         switch self.currentDOCTYPE.systemID {
         case .some: self.currentDOCTYPE.systemID?.removeAll(keepingCapacity: true)
-        case .none: self.currentDOCTYPE.systemID = []
+        case .none: self.currentDOCTYPE.systemID = ""
         }
     }
 
