@@ -1,9 +1,11 @@
 public import Tokenizer
 
 public struct TreeConstructor: ~Copyable {
+    public var document: Document
     private var mode: InsertionMode
 
     public init() {
+        self.document = .init(title: "", body: nil, head: nil)
         self.mode = .initial
     }
 }
