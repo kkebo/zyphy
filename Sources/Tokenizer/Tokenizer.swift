@@ -32,10 +32,10 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     public mutating func tokenize(_ input: inout BufferQueue) {
-        loop: repeat {
+        repeat {
             switch self.step(&input) {
             case .continue: break
-            case .suspend: break loop
+            case .suspend: return
             }
         } while true
     }
