@@ -25,3 +25,27 @@ extension Str: @retroactive ExpressibleByExtendedGraphemeClusterLiteral {
 }
 
 extension Str: @retroactive ExpressibleByStringInterpolation {}
+
+extension StrSlice: @retroactive ExpressibleByStringLiteral {
+    @inlinable public init(stringLiteral value: consuming String) {
+        guard !value.isEmpty else {
+            self = []
+            return
+        }
+        self.init(value.unicodeScalars)
+    }
+}
+
+extension StrSlice: @retroactive ExpressibleByUnicodeScalarLiteral {
+    @inlinable public init(unicodeScalarLiteral value: consuming Unicode.Scalar) {
+        self = [value]
+    }
+}
+
+extension StrSlice: @retroactive ExpressibleByExtendedGraphemeClusterLiteral {
+    @inlinable public init(extendedGraphemeClusterLiteral value: consuming Character) {
+        self.init(value.unicodeScalars)
+    }
+}
+
+extension StrSlice: @retroactive ExpressibleByStringInterpolation {}

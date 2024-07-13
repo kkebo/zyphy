@@ -154,7 +154,7 @@ struct CharRefTokenizer {
             return .continue
         case _:
             tokenizer.emitError(.absenceDigits)
-            input.prepend(uppercase ? ["#", "X"] : ["#", "x"])
+            input.prepend(uppercase ? "#X" : "#x")
             return .doneChar("&")
         }
     }
@@ -167,7 +167,7 @@ struct CharRefTokenizer {
             return .continue
         case _:
             tokenizer.emitError(.absenceDigits)
-            input.prepend(["#"])
+            input.prepend("#")
             return .doneChar("&")
         }
     }
