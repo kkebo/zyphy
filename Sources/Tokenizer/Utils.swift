@@ -1,3 +1,5 @@
+public import Str
+
 @inline(__always)
 @inlinable
 func lowerASCIIOrNil(_ c: consuming Char) -> Char? {

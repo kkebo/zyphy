@@ -1,4 +1,6 @@
-public let namedChars: [String: (Unicode.Scalar, Unicode.Scalar)] = [
+public import Str
+
+public let namedChars: [Str: (Unicode.Scalar, Unicode.Scalar)] = [
     "Aacute;": ("\u{C1}", "\0"),
     "aacute;": ("\u{E1}", "\0"),
     "Abreve;": ("\u{102}", "\0"),
@@ -2233,11 +2235,11 @@ public let namedChars: [String: (Unicode.Scalar, Unicode.Scalar)] = [
 ]
 
 // FIXME: This process should be done at compile-time, not runtime.
-public let processedNamedChars: [String: (Unicode.Scalar, Unicode.Scalar)] = {
+public let processedNamedChars: [Str: (Unicode.Scalar, Unicode.Scalar)] = {
     var namedChars = namedChars
     for key in namedChars.keys {
         for i in 1..<key.count {
-            let k = String(key.prefix(i))
+            let k = Str(key.prefix(i))
             if !namedChars.keys.contains(k) {
                 namedChars[k] = ("\0", "\0")
             }

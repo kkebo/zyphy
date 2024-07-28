@@ -68,6 +68,16 @@ let package = Package(
         ),
         .target(
             name: "HTMLEntities",
+            dependencies: [
+                "Str"
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("InternalImportsByDefault"),
+            ]
+        ),
+        .target(
+            name: "Str",
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
