@@ -71,7 +71,31 @@ public struct TreeConstructor: ~Copyable {
             self.mode = .afterHead
             return .reprocess(token)
         case .inHeadNoscript:
-            fatalError("not implemented")
+            switch token {
+            case .doctype:
+                // TODO: parse error
+                break
+            case .tag(let tag) where tag.kind == .start && tag.name == "html":
+                fatalError("not implemented")
+            case .tag(let tag) where tag.kind == .end && tag.name == "noscript":
+                // TODO: Pop the current node (which will be a noscript element) from the stack of open elements; the new current node will be a head element.
+                self.mode = .inHead
+            case .char("\t"), .char("\n"), .char("\u{0C}"), .char("\r"), .char(" "), .comment:
+                fatalError("not implemented")
+            case .tag(let tag) where tag.kind == .start && ["basefont", "bgsound", "link", "meta", "noframes", "style"].contains(tag.name):
+                fatalError("not implemented")
+            case .tag(let tag) where tag.kind == .start && ["head", "noscript"].contains(tag.name):
+                // TODO: parse error
+                break
+            case .tag(let tag) where tag.kind == .end && tag.name != "br":
+                // TODO: parse error
+                break
+            case let token:
+                // TODO: parse error
+                // TODO: Pop the current node (which will be a noscript element) from the stack of open elements; the new current node will be a head element.
+                self.mode = .inHead
+                return .reprocess(token)
+            }
         case .afterHead:
             // TODO: implement here
             self.mode = .inBody
