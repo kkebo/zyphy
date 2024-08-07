@@ -105,7 +105,17 @@ public struct TreeConstructor: ~Copyable {
         case .text:
             fatalError("not implemented")
         case .inTable:
-            fatalError("not implemented")
+            switch token {
+            case .char("\0"):
+                // TODO: parse error
+                break
+            case .char(_):
+                fatalError("not implemented")
+            case let token:
+                // TODO: implement here
+                // TODO: self.mode = originalInsertionMode
+                return .reprocess(token)
+            }
         case .inTableText:
             fatalError("not implemented")
         case .inCaption:
