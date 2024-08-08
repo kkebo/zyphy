@@ -1277,7 +1277,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             guard bufIndex < input.buffers.count else { return nil }
             let buf = input.buffers[bufIndex]
             let c = buf[buf.startIndex + i]
-            guard consume c == consume pc else { return false }
+            guard c == pc else { return false }
             i += 1
             if buf.startIndex + i >= buf.endIndex {
                 bufIndex += 1
@@ -1300,7 +1300,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             guard bufIndex < input.buffers.count else { return nil }
             let buf = input.buffers[bufIndex]
             let c = buf[buf.startIndex + i]
-            guard lowerASCII(consume c) == lowerASCII(consume pc) else { return false }
+            guard lowerASCII(c) == lowerASCII(pc) else { return false }
             i += 1
             if buf.startIndex + i >= buf.endIndex {
                 bufIndex += 1
