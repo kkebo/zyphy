@@ -152,6 +152,27 @@ public struct ExpectedError: Equatable, Sendable, Decodable {
     var col: Int
 }
 
+struct TestTag: Equatable, Sendable {
+    var name: Str
+    var kind: TagKind
+    var attrs: [Str: Str]
+    var selfClosing: Bool
+
+    init(name: Str, kind: TagKind, attrs: [Str: Str] = [:], selfClosing: Bool = false) {
+        self.name = name
+        self.kind = kind
+        self.attrs = attrs
+        self.selfClosing = selfClosing
+    }
+
+    init(_ tag: consuming Tag) {
+        self.name = tag.name
+        self.kind = tag.kind
+        self.attrs = tag.attrs
+        self.selfClosing = tag.selfClosing
+    }
+}
+
 struct TestDOCTYPE: Equatable, Sendable {
     var name: Optional<Str>
     var publicID: Optional<Str>
@@ -181,7 +202,7 @@ struct TestDOCTYPE: Equatable, Sendable {
 enum TestToken: Equatable, Sendable {
     case char(Char)
     case chars(StrSlice)
-    case tag(Tag)
+    case tag(TestTag)
     case comment(Str)
     case doctype(TestDOCTYPE)
     case eof
@@ -192,7 +213,7 @@ enum TestToken: Equatable, Sendable {
             switch consume token {
             case .char(let c): .char(c)
             case .chars(let s): .chars(s)
-            case .tag(let tag): .tag(tag)
+            case .tag(let tag): .tag(.init(tag))
             case .comment(let s): .comment(s)
             case .doctype(let doctype): .doctype(.init(doctype))
             case .eof: .eof
