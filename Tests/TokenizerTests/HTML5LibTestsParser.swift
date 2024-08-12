@@ -98,9 +98,6 @@ extension ExpectedToken: Decodable {
     }
 }
 
-extension Token {
-}
-
 enum ExpectedTokenField {
     case str(Str)
     case bool(Bool)
