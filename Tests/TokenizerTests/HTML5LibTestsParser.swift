@@ -1,4 +1,5 @@
 import Foundation
+import Str
 import Tokenizer
 
 struct TestFile: Decodable {
@@ -81,10 +82,10 @@ struct ExpectedToken {
             return [.tag(.init(name: name, kind: .end))]
         case .str("Comment"):
             guard case .str(let data) = fields[1] else { throw TestParseError.invalidTokenFormat(fields) }
-            return [.comment(Str(data.unicodeScalars))]
+            return [.comment(data)]
         case .str("Character"):
             guard case .str(let data) = fields[1] else { throw TestParseError.invalidTokenFormat(fields) }
-            return data.unicodeScalars.map(Token.char)
+            return data.map(Token.char)
         case let type: throw TestParseError.invalidTokenType(type)
         }
     }
@@ -101,20 +102,24 @@ extension Token {
 }
 
 enum ExpectedTokenField {
-    case str(String)
+    case str(Str)
     case bool(Bool)
-    case dict([String: String])
+    case dict([Str: Str])
 }
 
 extension ExpectedTokenField: Decodable {
     init(from decoder: any Decoder) throws {
         let container = try decoder.singleValueContainer()
         if let s = try? container.decode(String.self) {
-            self = .str(s)
+            self = .str(Str(s.unicodeScalars))
         } else if let b = try? container.decode(Bool.self) {
             self = .bool(b)
         } else if let d = try? container.decode([String: String].self) {
-            self = .dict(d)
+            var newDict: [Str: Str] = [:]
+            for (k, v) in d {
+                newDict[Str(k.unicodeScalars)] = Str(v.unicodeScalars)
+            }
+            self = .dict(newDict)
         } else {
             preconditionFailure()
         }

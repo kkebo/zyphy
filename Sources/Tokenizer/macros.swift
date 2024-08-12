@@ -1,3 +1,5 @@
+import Str
+
 @freestanding(codeItem) macro go(to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(reconsume: Char, in: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(emit: Char) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")

@@ -1,4 +1,5 @@
 public import DequeModule
+public import Str
 
 public struct BufferQueue: ~Copyable, Sendable {
     @usableFromInline
