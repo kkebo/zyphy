@@ -24,7 +24,7 @@ struct CharRefTokenizer {
     private var state: CharRefState = .initial
     private var num: Int = 0
     private var numTooBig: Bool = false
-    private var nameBuffer: Str = []
+    private var nameBuffer: Str = ""
     private var lastMatch: (endIndex: Str.Index, replaceChars: (Char, Char))?
     private let isInAttr: Bool
 
