@@ -2,6 +2,9 @@ private import Benchmark
 private import Foundation
 private import Tokenizer
 
+@_optimize(none)
+func blackHole<T: ~Copyable>(_: consuming T) {}
+
 private struct TestSink: ~Copyable {}
 
 extension TestSink: TokenSink {

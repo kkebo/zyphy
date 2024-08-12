@@ -2,12 +2,12 @@ import Testing
 private import Tokenizer
 
 private struct TestSink: ~Copyable {
-    var tokens = [Token]()
+    var tokens = [TestToken]()
 }
 
 extension TestSink: TokenSink {
     mutating func process(_ token: consuming Token) {
-        self.tokens.append(token)
+        self.tokens.append(.init(token))
     }
 }
 
@@ -29,7 +29,7 @@ extension TestSink: TokenSink {
     var input = BufferQueue(ArraySlice(html.unicodeScalars))
     tokenizer.tokenize(&input)
 
-    let tokens: [Token] = [
+    let tokens: [TestToken] = [
         .doctype(.init(name: "html")),
         .char("\n"),
         .tag(Tag(name: "html", kind: .start, attrs: ["lang": "en"])),
