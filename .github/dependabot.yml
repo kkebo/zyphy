@@ -5,8 +5,10 @@
 
 version: 2
 updates:
-  - package-ecosystem: "swift" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "swift"
+    directories:
+      - "/"
+      - "/Benchmarks"
     schedule:
       interval: "weekly"
     assignees:
