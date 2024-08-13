@@ -20,7 +20,7 @@ enum CharRefProcessResult: ~Copyable {
     case doneChar(Char)
 }
 
-struct CharRefTokenizer {
+struct CharRefTokenizer: ~Copyable {
     private var state: CharRefState = .initial
     private var num: Int = 0
     private var numTooBig: Bool = false

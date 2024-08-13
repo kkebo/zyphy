@@ -43,7 +43,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 
     private mutating func step(_ input: inout BufferQueue) -> ProcessResult {
-        if var charRefTokenizer {
+        if var charRefTokenizer = self.charRefTokenizer.take() {
             repeat {
                 switch charRefTokenizer.step(tokenizer: &self, input: &input) {
                 case .continue: continue
@@ -52,7 +52,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
                 }
                 break
             } while true
-            self.charRefTokenizer = nil
         }
 
         return switch self.state {
