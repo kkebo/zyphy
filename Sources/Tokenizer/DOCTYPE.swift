@@ -1,6 +1,6 @@
 public import Str
 
-public struct DOCTYPE: Equatable, Sendable {
+public struct DOCTYPE: ~Copyable, Sendable {
     public var name: Optional<Str>
     public var publicID: Optional<Str>
     public var systemID: Optional<Str>
@@ -16,5 +16,14 @@ public struct DOCTYPE: Equatable, Sendable {
         self.publicID = publicID
         self.systemID = systemID
         self.forceQuirks = forceQuirks
+    }
+
+    @inlinable borrowing func clone() -> Self {
+        .init(
+            name: self.name,
+            publicID: self.publicID,
+            systemID: self.systemID,
+            forceQuirks: self.forceQuirks
+        )
     }
 }

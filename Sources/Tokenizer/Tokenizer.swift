@@ -1537,7 +1537,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func emitDOCTYPE() {
-        self.sink.process(.doctype(self.currentDOCTYPE))
+        self.sink.process(.doctype(self.currentDOCTYPE.clone()))
     }
 
     @inline(__always)
