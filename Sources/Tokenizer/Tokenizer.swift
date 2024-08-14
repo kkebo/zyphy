@@ -1463,7 +1463,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.currentAttrValue.removeAll(keepingCapacity: true)
     }
 
-    @inline(__always)
     private mutating func emitTag(selfClosing: Bool = false) {
         self.pushAttr()
 
