@@ -1,4 +1,4 @@
-public import Str
+private import Str
 
 public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     public var sink: Sink
