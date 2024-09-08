@@ -152,23 +152,49 @@ public struct ExpectedError: Equatable, Sendable, Decodable {
     var col: Int
 }
 
+struct TestDOCTYPE: Equatable, Sendable {
+    var name: Optional<Str>
+    var publicID: Optional<Str>
+    var systemID: Optional<Str>
+    var forceQuirks: Bool
+
+    init(
+        name: consuming Str? = nil,
+        publicID: consuming Str? = nil,
+        systemID: consuming Str? = nil,
+        forceQuirks: Bool = false
+    ) {
+        self.name = name
+        self.publicID = publicID
+        self.systemID = systemID
+        self.forceQuirks = forceQuirks
+    }
+
+    init(_ doctype: consuming DOCTYPE) {
+        self.name = doctype.name
+        self.publicID = doctype.publicID
+        self.systemID = doctype.systemID
+        self.forceQuirks = doctype.forceQuirks
+    }
+}
+
 enum TestToken: Equatable, Sendable {
     case char(Char)
     case chars(StrSlice)
     case tag(Tag)
     case comment(Str)
-    case doctype(DOCTYPE)
+    case doctype(TestDOCTYPE)
     case eof
     case error(ParseError)
 
     init(_ token: consuming Token) {
         self =
-            switch token {
+            switch consume token {
             case .char(let c): .char(c)
             case .chars(let s): .chars(s)
             case .tag(let tag): .tag(tag)
             case .comment(let s): .comment(s)
-            case .doctype(let doctype): .doctype(doctype)
+            case .doctype(let doctype): .doctype(.init(doctype))
             case .eof: .eof
             case .error(let e): .error(e)
             }
