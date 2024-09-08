@@ -1,6 +1,6 @@
 public import Str
 
-public struct Tag: Equatable, Sendable {
+public struct Tag: ~Copyable, Sendable {
     public var name: Str
     public var kind: TagKind
     public var attrs: [Str: Str]
