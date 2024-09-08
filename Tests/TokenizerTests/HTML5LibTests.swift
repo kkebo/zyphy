@@ -3,16 +3,16 @@ import Testing
 private import Tokenizer
 
 private struct TestSink: ~Copyable {
-    var tokens = [Token]()
+    var tokens = [TestToken]()
     var errors = [ParseError]()
 }
 
 extension TestSink: TokenSink {
     mutating func process(_ token: consuming Token) {
-        switch token {
+        switch consume token {
         case .error(let error): self.errors.append(error)
         case .chars(let s): for c in s { self.tokens.append(.char(c)) }
-        case let token: self.tokens.append(token)
+        case let token: self.tokens.append(.init(token))
         }
     }
 }

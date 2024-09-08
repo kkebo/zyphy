@@ -12,8 +12,12 @@ public struct TreeConstructor: ~Copyable {
     private mutating func step(_ token: consuming Token) -> ProcessResult {
         switch self.mode {
         case .initial:
-            switch token {
-            case .char("\t"), .char("\n"), .char("\u{0C}"), .char("\r"), .char(" "): break
+            switch consume token {
+            case .char("\t"): break
+            case .char("\n"): break
+            case .char("\u{0C}"): break
+            case .char("\r"): break
+            case .char(" "): break
             case .comment(_):
                 // TODO: Insert a comment as the last child of the Document object.
                 break
@@ -26,14 +30,18 @@ public struct TreeConstructor: ~Copyable {
                 return .reprocess(token)
             }
         case .beforeHTML:
-            switch token {
+            switch consume token {
             case .doctype(_):
                 // TODO: parse error
                 break
             case .comment(_):
                 // TODO: Insert a comment as the last child of the Document object.
                 break
-            case .char("\t"), .char("\n"), .char("\u{0C}"), .char("\r"), .char(" "): break
+            case .char("\t"): break
+            case .char("\n"): break
+            case .char("\u{0C}"): break
+            case .char("\r"): break
+            case .char(" "): break
             case .tag(let tag) where tag.kind == .start && tag.name == "html":
                 // TODO: Create an element for the token in the HTML namespace, with the Document as the intended parent. Append it to the Document object. Put this element in the stack of open elements.
                 self.mode = .beforeHead
@@ -46,8 +54,12 @@ public struct TreeConstructor: ~Copyable {
                 return .reprocess(token)
             }
         case .beforeHead:
-            switch token {
-            case .char("\t"), .char("\n"), .char("\u{0C}"), .char("\r"), .char(" "): break
+            switch consume token {
+            case .char("\t"): break
+            case .char("\n"): break
+            case .char("\u{0C}"): break
+            case .char("\r"): break
+            case .char(" "): break
             case .comment(_):
                 // TODO: Insert a comment.
                 break
@@ -71,7 +83,7 @@ public struct TreeConstructor: ~Copyable {
             self.mode = .afterHead
             return .reprocess(token)
         case .inHeadNoscript:
-            switch token {
+            switch consume token {
             case .doctype:
                 // TODO: parse error
                 break
@@ -80,7 +92,17 @@ public struct TreeConstructor: ~Copyable {
             case .tag(let tag) where tag.kind == .end && tag.name == "noscript":
                 // TODO: Pop the current node (which will be a noscript element) from the stack of open elements; the new current node will be a head element.
                 self.mode = .inHead
-            case .char("\t"), .char("\n"), .char("\u{0C}"), .char("\r"), .char(" "), .comment:
+            case .char("\t"):
+                fatalError("not implemented")
+            case .char("\n"):
+                fatalError("not implemented")
+            case .char("\u{0C}"):
+                fatalError("not implemented")
+            case .char("\r"):
+                fatalError("not implemented")
+            case .char(" "):
+                fatalError("not implemented")
+            case .comment:
                 fatalError("not implemented")
             case .tag(let tag) where tag.kind == .start && ["basefont", "bgsound", "link", "meta", "noframes", "style"].contains(tag.name):
                 fatalError("not implemented")
@@ -105,7 +127,7 @@ public struct TreeConstructor: ~Copyable {
         case .text:
             fatalError("not implemented")
         case .inTable:
-            switch token {
+            switch consume token {
             case .char("\0"):
                 // TODO: parse error
                 break

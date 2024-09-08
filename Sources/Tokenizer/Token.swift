@@ -1,6 +1,6 @@
 public import Str
 
-public enum Token: Equatable, Sendable {
+public enum Token: ~Copyable, Sendable {
     case char(Char)
     case chars(StrSlice)
     case tag(Tag)

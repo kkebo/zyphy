@@ -46,7 +46,7 @@ extension TestFileEntry: Decodable {
 struct ExpectedToken {
     var fields: [ExpectedTokenField?]
 
-    consuming func into() throws -> [Token] {
+    consuming func into() throws -> [TestToken] {
         let fields = self.fields
         switch fields[0] {
         case .str("DOCTYPE"):
@@ -85,7 +85,7 @@ struct ExpectedToken {
             return [.comment(data)]
         case .str("Character"):
             guard case .str(let data) = fields[1] else { throw TestParseError.invalidTokenFormat(fields) }
-            return data.map(Token.char)
+            return data.map(TestToken.char)
         case let type: throw TestParseError.invalidTokenType(type)
         }
     }
@@ -152,10 +152,33 @@ public struct ExpectedError: Equatable, Sendable, Decodable {
     var col: Int
 }
 
+enum TestToken: Equatable, Sendable {
+    case char(Char)
+    case chars(StrSlice)
+    case tag(Tag)
+    case comment(Str)
+    case doctype(DOCTYPE)
+    case eof
+    case error(ParseError)
+
+    init(_ token: consuming Token) {
+        self =
+            switch token {
+            case .char(let c): .char(c)
+            case .chars(let s): .chars(s)
+            case .tag(let tag): .tag(tag)
+            case .comment(let s): .comment(s)
+            case .doctype(let doctype): .doctype(doctype)
+            case .eof: .eof
+            case .error(let e): .error(e)
+            }
+    }
+}
+
 public struct TestCase: Equatable, Sendable {
     var title: String
     var input: String
-    var tokens: [Token]
+    var tokens: [TestToken]
     var initialState: State
     var errors: [ExpectedError]
 }
