@@ -5,7 +5,7 @@ on:
   pull_request:
     branches: ["main"]
 jobs:
-  build-linux:
+  test:
     runs-on: ubuntu-latest
     container: swiftlang/swift:nightly-6.0-jammy
     steps:
