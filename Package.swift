@@ -19,7 +19,6 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"601.0.0"),
-        .package(url: "https://github.com/swiftlang/swift-testing", from: "0.9.0"),
         .package(url: "https://github.com/apple/swift-collections", from: "1.1.0"),
     ],
     targets: [
@@ -85,7 +84,6 @@ let package = Package(
             dependencies: [
                 "TokenizerMacros",
                 "Tokenizer",
-                .product(name: "Testing", package: "swift-testing"),
             ],
             exclude: [
                 "Resources/html5lib-tests/encoding",
@@ -122,8 +120,7 @@ let package = Package(
         .testTarget(
             name: "HTMLEntitiesTests",
             dependencies: [
-                "HTMLEntities",
-                .product(name: "Testing", package: "swift-testing"),
+                "HTMLEntities"
             ],
             resources: [
                 .process("Resources")
