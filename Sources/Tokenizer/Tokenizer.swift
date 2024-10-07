@@ -1486,14 +1486,14 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
 
     @inline(__always)
     private mutating func createDOCTYPE(with c: consuming Char) {
-        self.currentDOCTYPE = .init(name: [c])
+        self.currentDOCTYPE = .init(name: .init(c))
     }
 
     @inline(__always)
     private mutating func appendDOCTYPEName(_ c: consuming Char) {
         switch self.currentDOCTYPE.name {
         case .some: self.currentDOCTYPE.name?.append(c)
-        case .none: self.currentDOCTYPE.name = [c]
+        case .none: self.currentDOCTYPE.name = .init(c)
         }
     }
 
@@ -1501,7 +1501,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     private mutating func appendPublicID(_ c: consuming Char) {
         switch self.currentDOCTYPE.publicID {
         case .some: self.currentDOCTYPE.publicID?.append(c)
-        case .none: self.currentDOCTYPE.publicID = [c]
+        case .none: self.currentDOCTYPE.publicID = .init(c)
         }
     }
 
@@ -1517,7 +1517,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     private mutating func appendSystemID(_ c: consuming Char) {
         switch self.currentDOCTYPE.systemID {
         case .some: self.currentDOCTYPE.systemID?.append(c)
-        case .none: self.currentDOCTYPE.systemID = [c]
+        case .none: self.currentDOCTYPE.systemID = .init(c)
         }
     }
 
