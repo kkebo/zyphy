@@ -30,3 +30,58 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: swift format lint -rs .
+  benchmark:
+    if: ${{ github.ref != 'refs/heads/main' }}
+    needs: test
+    runs-on: ubuntu-latest
+    container: swiftlang/swift:nightly-6.0-jammy
+    steps:
+      - uses: actions/checkout@v4
+      - run: apt-get update && apt-get install --no-install-recommends -y libjemalloc-dev
+      - run: swift package --package-path Benchmarks benchmark baseline update pull_request --no-progress --quiet
+      - name: Switch to branch 'main'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          clean: false
+      - run: swift package --package-path Benchmarks benchmark baseline update main --no-progress --quiet
+      - name: swift package benchmark baseline check
+        id: check
+        run: |
+          set +e
+          echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
+          swift package --package-path Benchmarks benchmark baseline check main pull_request --format markdown >> "$GITHUB_OUTPUT"
+          echo 'EOF' >> "$GITHUB_OUTPUT"
+      - name: swift package benchmark baseline compare
+        id: compare
+        run: |
+          set +e
+          echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
+          swift package --package-path Benchmarks benchmark baseline compare main pull_request --no-progress --quiet --format markdown >> "$GITHUB_OUTPUT"
+          echo 'EOF' >> "$GITHUB_OUTPUT"
+      - name: Create summary text
+        id: summary
+        env:
+          CHECK_OUTPUT: ${{ steps.check.outputs.OUTPUT }}
+          COMPARE_OUTPUT: ${{ steps.compare.outputs.OUTPUT }}
+        run: |
+          echo 'SUMMARY<<EOF' >> "$GITHUB_OUTPUT"
+          echo '## Benchmark Summary' >> "$GITHUB_OUTPUT"
+          echo >> "$GITHUB_OUTPUT"
+          echo "$(date)" >> "$GITHUB_OUTPUT"
+          echo >> "$GITHUB_OUTPUT"
+          echo "$CHECK_OUTPUT" >> "$GITHUB_OUTPUT"
+          echo >> "$GITHUB_OUTPUT"
+          echo '---' >> "$GITHUB_OUTPUT"
+          echo >> "$GITHUB_OUTPUT"
+          echo "$COMPARE_OUTPUT" >> "$GITHUB_OUTPUT"
+          echo 'EOF' >> "$GITHUB_OUTPUT"
+      - name: Create a job summary
+        env:
+          SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
+        run: echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: ${{ steps.summary.outputs.SUMMARY }}
+          comment-tag: benchmark
