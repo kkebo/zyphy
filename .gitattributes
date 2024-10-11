@@ -1,0 +1,4 @@
+* text=auto eol=lf
+Package.resolved text linguist-language=json linguist-generated=false
+.swift-format text linguist-language=json
+Benchmarks/Benchmarks/MyBenchmark/Resources/*.html linguist-vendored
