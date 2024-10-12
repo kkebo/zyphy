@@ -81,7 +81,6 @@ jobs:
       - name: swift package benchmark baseline compare
         id: compare
         run: |
-          set +e
           echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
           swift package --package-path Benchmarks benchmark baseline compare main pull_request --no-progress --quiet --format markdown >> "$GITHUB_OUTPUT"
           echo 'EOF' >> "$GITHUB_OUTPUT"
