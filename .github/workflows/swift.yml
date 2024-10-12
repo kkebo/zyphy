@@ -46,6 +46,7 @@ jobs:
           SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
         run: echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
       - name: Comment PR
+        if: ${{ github.ref != 'refs/heads/main' }}
         uses: thollander/actions-comment-pull-request@v3
         with:
           message: ${{ steps.summary.outputs.SUMMARY }}
