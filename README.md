@@ -1,7 +1,5 @@
 # Zyphy
 
-![coverage](coverage.svg)
-
 Zyphy is (or will be) a fast web browser engine written in Swift.
 
 > [!IMPORTANT]

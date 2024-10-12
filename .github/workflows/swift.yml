@@ -21,9 +21,35 @@ jobs:
       - run: swift --version
       - run: swift build --build-tests --disable-xctest --enable-code-coverage
       - run: swift test --skip-build --disable-xctest --enable-code-coverage
-      # FIXME: `grep -v 184467440737095` is a workaround for octocov parse error
-      - run: llvm-cov export --format=lcov .build/debug/zyphyPackageTests.xctest --instr-profile .build/debug/codecov/default.profdata --ignore-filename-regex=".build|Tests|TokenizerMacros" | grep -v 184467440737095 > coverage_report.lcov
-      - uses: k1LoW/octocov-action@v1
+      - name: llvm-cov report
+        id: report
+        run: |
+          echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
+          llvm-cov report .build/debug/zyphyPackageTests.xctest --instr-profile=.build/debug/codecov/default.profdata --ignore-filename-regex=".build|Tests|TokenizerMacros" --show-region-summary=false --show-branch-summary=false >> "$GITHUB_OUTPUT"
+          echo 'EOF' >> "$GITHUB_OUTPUT"
+      - name: Create summary text
+        id: summary
+        env:
+          REPORT_OUTPUT: ${{ steps.report.outputs.OUTPUT }}
+        run: |
+          echo 'SUMMARY<<EOF' >> "$GITHUB_OUTPUT"
+          echo '## Coverage Summary' >> "$GITHUB_OUTPUT"
+          echo >> "$GITHUB_OUTPUT"
+          echo "$(date)" >> "$GITHUB_OUTPUT"
+          echo >> "$GITHUB_OUTPUT"
+          echo '```' >> "$GITHUB_OUTPUT"
+          echo "$REPORT_OUTPUT" >> "$GITHUB_OUTPUT"
+          echo '```' >> "$GITHUB_OUTPUT"
+          echo 'EOF' >> "$GITHUB_OUTPUT"
+      - name: Create a job summary
+        env:
+          SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
+        run: echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: ${{ steps.summary.outputs.SUMMARY }}
+          comment-tag: coverage
   lint:
     runs-on: ubuntu-latest
     container: swiftlang/swift:nightly-6.0-jammy
