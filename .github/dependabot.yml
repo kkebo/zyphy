@@ -11,6 +11,8 @@ updates:
       - "/Benchmarks"
     schedule:
       interval: "weekly"
+    reviewers:
+      - "kkebo"
     assignees:
       - "kkebo"
     commit-message:
