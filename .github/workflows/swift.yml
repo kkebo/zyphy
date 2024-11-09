@@ -20,7 +20,7 @@ jobs:
             ${{ runner.os }}-spm-
       - run: swift --version
       - run: swift build --build-tests --disable-xctest --enable-code-coverage
-      - run: swift test --skip-build --disable-xctest --enable-code-coverage
+      - run: swift test --skip-build --disable-xctest --enable-code-coverage --parallel
       - name: llvm-cov report
         id: report
         run: |
