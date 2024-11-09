@@ -8,6 +8,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     container: swiftlang/swift:nightly-6.0-jammy
+    outputs:
+      SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,11 +47,17 @@ jobs:
         env:
           SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
         run: echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
+  comment-test:
+    needs: test
+    runs-on: ubuntu-latest
+    container: swiftlang/swift:nightly-6.0-jammy
+    continue-on-error: true
+    steps:
       - name: Comment PR
         if: ${{ github.ref != 'refs/heads/main' }}
         uses: thollander/actions-comment-pull-request@v3
         with:
-          message: ${{ steps.summary.outputs.SUMMARY }}
+          message: ${{ needs.test.outputs.SUMMARY }}
           comment-tag: coverage
   lint:
     runs-on: ubuntu-latest
@@ -62,6 +70,8 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     container: swiftlang/swift:nightly-6.0-jammy
+    outputs:
+      SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
       - uses: actions/checkout@v4
       - run: apt-get update && apt-get install --no-install-recommends -y libjemalloc-dev
@@ -106,8 +116,14 @@ jobs:
         env:
           SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
         run: echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
+  comment-benchmark:
+    needs: benchmark
+    runs-on: ubuntu-latest
+    container: swiftlang/swift:nightly-6.0-jammy
+    continue-on-error: true
+    steps:
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@v3
         with:
-          message: ${{ steps.summary.outputs.SUMMARY }}
+          message: ${{ needs.benchmark.outputs.SUMMARY }}
           comment-tag: benchmark
