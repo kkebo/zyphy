@@ -56,7 +56,7 @@ jobs:
     container: swiftlang/swift:nightly-6.0-jammy
     steps:
       - uses: actions/checkout@v4
-      - run: swift format lint -rs .
+      - run: swift format lint -rsp .
   benchmark:
     if: ${{ github.ref != 'refs/heads/main' }}
     needs: test
