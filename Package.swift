@@ -36,6 +36,7 @@ let package = Package(
                 .enableExperimentalFeature("CodeItemMacros"),
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
+                .enableUpcomingFeature("MemberImportVisibility"),
             ]
         ),
         .target(
@@ -49,6 +50,7 @@ let package = Package(
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
+                .enableUpcomingFeature("MemberImportVisibility"),
             ]
         ),
         .macro(
@@ -60,6 +62,7 @@ let package = Package(
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
+                .enableUpcomingFeature("MemberImportVisibility"),
             ]
         ),
         .target(
@@ -70,6 +73,7 @@ let package = Package(
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
+                .enableUpcomingFeature("MemberImportVisibility"),
             ]
         ),
         .target(
@@ -77,6 +81,7 @@ let package = Package(
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
+                .enableUpcomingFeature("MemberImportVisibility"),
             ]
         ),
         .testTarget(
@@ -115,6 +120,7 @@ let package = Package(
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
+                .enableUpcomingFeature("MemberImportVisibility"),
             ]
         ),
         .testTarget(
@@ -128,6 +134,7 @@ let package = Package(
             swiftSettings: [
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
+                .enableUpcomingFeature("MemberImportVisibility"),
             ]
         ),
     ],
