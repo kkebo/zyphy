@@ -1,3 +1,4 @@
+private import Str
 import Testing
 private import Tokenizer
 
