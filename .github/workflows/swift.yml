@@ -75,6 +75,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: apt-get update && apt-get install --no-install-recommends -y libjemalloc-dev
+      - uses: actions/cache@v4
+        with:
+          path: Benchmarks/.build
+          key: ${{ runner.os }}-bench-spm-${{ hashFiles('Benchmarks/Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-bench-spm-
       - run: swift package --package-path Benchmarks benchmark baseline update pull_request --no-progress --quiet
       - name: Switch to branch 'main'
         uses: actions/checkout@v4
