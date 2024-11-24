@@ -23,6 +23,7 @@ let package = Package(
             swiftSettings: [
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
                 .enableUpcomingFeature("InternalImportsByDefault"),
+                .enableUpcomingFeature("MemberImportVisibility"),
             ],
             plugins: [
                 .plugin(name: "BenchmarkPlugin", package: "package-benchmark")
