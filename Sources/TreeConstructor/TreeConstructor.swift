@@ -1,3 +1,4 @@
+private import Str
 public import Tokenizer
 
 public struct TreeConstructor: ~Copyable {

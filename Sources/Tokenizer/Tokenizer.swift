@@ -1,3 +1,4 @@
+private import DequeModule
 private import Str
 
 public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
