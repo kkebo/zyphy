@@ -1,12 +1,12 @@
 private import Str
 public import Tokenizer
 
-public struct TreeConstructor: ~Copyable {
-    public var document: Document
+public struct TreeConstructor<Handle, Sink: TreeSink<Handle>>: ~Copyable {
+    public var sink: Sink
     private var mode: InsertionMode
 
-    public init() {
-        self.document = .init(title: "", body: nil, head: nil)
+    public init(sink: consuming Sink) {
+        self.sink = sink
         self.mode = .initial
     }
 
