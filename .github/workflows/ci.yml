@@ -1,4 +1,4 @@
-name: Swift
+name: ci
 on:
   push:
     branches: ["main"]
@@ -131,3 +131,11 @@ jobs:
         with:
           message: ${{ needs.benchmark.outputs.SUMMARY }}
           comment-tag: benchmark
+  yamllint:
+    runs-on: ubuntu-latest
+    container: alpine:3.21
+    steps:
+      - uses: actions/checkout@v4
+      - run: apk update && apk add yamllint
+      - run: yamllint --version
+      - run: yamllint --strict --config-file .yamllint.yml .
