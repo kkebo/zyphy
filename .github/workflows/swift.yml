@@ -50,7 +50,6 @@ jobs:
   comment-test:
     needs: test
     runs-on: ubuntu-latest
-    container: swiftlang/swift:nightly-6.1-jammy
     continue-on-error: true
     steps:
       - name: Comment PR
@@ -125,7 +124,6 @@ jobs:
   comment-benchmark:
     needs: benchmark
     runs-on: ubuntu-latest
-    container: swiftlang/swift:nightly-6.1-jammy
     continue-on-error: true
     steps:
       - name: Comment PR
