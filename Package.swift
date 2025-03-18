@@ -137,6 +137,5 @@ let package = Package(
                 .enableUpcomingFeature("MemberImportVisibility"),
             ]
         ),
-    ],
-    swiftLanguageModes: [.v6]
+    ]
 )
