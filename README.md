@@ -19,11 +19,11 @@ Zyphy is (or will be) a fast web browser engine written in Swift.
 
 - Swift 6.1 development snapshot (because Zyphy is using experimental [code item macros](https://github.com/swiftlang/swift-evolution/blob/main/visions/macros.md#macro-roles))
 
-On Linux, you can easily install the toolchain using [swiftly](https://swiftlang.github.io/swiftly/).
+You can easily install the toolchain using [Swiftly](https://www.swift.org/install/).
 
 ```shell
-curl -L https://swiftlang.github.io/swiftly/swiftly-install.sh | bash
 swiftly install 6.1-snapshot
+swiftly use 6.1-snapshot
 ```
 
 ## Building
