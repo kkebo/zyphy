@@ -7,7 +7,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    container: swiftlang/swift:nightly-6.1-jammy
+    container: swiftlang/swift:nightly-6.1-noble
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
@@ -60,7 +60,7 @@ jobs:
           comment-tag: coverage
   lint:
     runs-on: ubuntu-latest
-    container: swiftlang/swift:nightly-6.1-jammy
+    container: swiftlang/swift:nightly-6.1-noble
     steps:
       - uses: actions/checkout@v4
       - run: swift format lint -rsp .
@@ -68,7 +68,7 @@ jobs:
     if: ${{ github.ref != 'refs/heads/main' }}
     needs: test
     runs-on: ubuntu-latest
-    container: swiftlang/swift:nightly-6.1-jammy
+    container: swiftlang/swift:nightly-6.1-noble
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
