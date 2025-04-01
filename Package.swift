@@ -33,6 +33,7 @@ let package = Package(
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
+                .unsafeFlags(["-Werror", "ExistentialAny"]),
                 .enableExperimentalFeature("CodeItemMacros"),
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
@@ -48,6 +49,7 @@ let package = Package(
                 .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
+                .unsafeFlags(["-Werror", "ExistentialAny"]),
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
@@ -60,6 +62,7 @@ let package = Package(
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
             ],
             swiftSettings: [
+                .unsafeFlags(["-Werror", "ExistentialAny"]),
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
@@ -79,6 +82,7 @@ let package = Package(
         .target(
             name: "Str",
             swiftSettings: [
+                .unsafeFlags(["-Werror", "ExistentialAny"]),
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
@@ -118,6 +122,7 @@ let package = Package(
                 .process("Resources/html5lib-tests/tokenizer/domjs.test"),
             ],
             swiftSettings: [
+                .unsafeFlags(["-Werror", "ExistentialAny"]),
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
@@ -132,6 +137,7 @@ let package = Package(
                 .process("Resources")
             ],
             swiftSettings: [
+                .unsafeFlags(["-Werror", "ExistentialAny"]),
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
