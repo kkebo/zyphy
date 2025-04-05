@@ -11,7 +11,7 @@ extension GoMacro: CodeItemMacro {
     ) -> [CodeBlockItemSyntax] {
         switch node.macroName.text {
         case "go":
-            var items = [CodeBlockItemSyntax]()
+            var items: [CodeBlockItemSyntax] = []
             var argList = node.arguments
             loop: while let arg = argList.first, let label = arg.label {
                 switch label.text {

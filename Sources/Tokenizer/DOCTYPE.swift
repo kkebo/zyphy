@@ -18,7 +18,8 @@ public struct DOCTYPE: ~Copyable, Sendable {
         self.forceQuirks = forceQuirks
     }
 
-    @inlinable borrowing func clone() -> Self {
+    @inlinable
+    borrowing func clone() -> Self {
         .init(
             name: self.name,
             publicID: self.publicID,

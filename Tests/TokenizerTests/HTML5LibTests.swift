@@ -3,8 +3,8 @@ import Testing
 private import Tokenizer
 
 private struct TestSink: ~Copyable {
-    var tokens = [TestToken]()
-    var errors = [ParseError]()
+    var tokens: [TestToken] = []
+    var errors: [ParseError] = []
 }
 
 extension TestSink: TokenSink {

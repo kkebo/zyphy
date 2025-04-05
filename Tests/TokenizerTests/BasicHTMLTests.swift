@@ -3,7 +3,7 @@ import Testing
 private import Tokenizer
 
 private struct TestSink: ~Copyable {
-    var tokens = [TestToken]()
+    var tokens: [TestToken] = []
 }
 
 extension TestSink: TokenSink {
@@ -12,7 +12,8 @@ extension TestSink: TokenSink {
     }
 }
 
-@Test func basicHTML() {
+@Test
+func basicHTML() {
     let html = #"""
         <!DOCTYPE html>
         <html lang="en">

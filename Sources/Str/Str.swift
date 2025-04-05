@@ -86,7 +86,8 @@ extension Str: BidirectionalCollection {
 }
 
 extension Str: ExpressibleByStringLiteral {
-    @inlinable public init(stringLiteral value: consuming String) {
+    @inlinable
+    public init(stringLiteral value: consuming String) {
         guard !value.isEmpty else {
             self.init()
             return
@@ -96,13 +97,15 @@ extension Str: ExpressibleByStringLiteral {
 }
 
 extension Str: ExpressibleByUnicodeScalarLiteral {
-    @inlinable public init(unicodeScalarLiteral value: consuming Unicode.Scalar) {
+    @inlinable
+    public init(unicodeScalarLiteral value: consuming Unicode.Scalar) {
         self.storage = [value]
     }
 }
 
 extension Str: ExpressibleByExtendedGraphemeClusterLiteral {
-    @inlinable public init(extendedGraphemeClusterLiteral value: consuming Character) {
+    @inlinable
+    public init(extendedGraphemeClusterLiteral value: consuming Character) {
         self.init(value.unicodeScalars)
     }
 }
@@ -110,7 +113,8 @@ extension Str: ExpressibleByExtendedGraphemeClusterLiteral {
 extension Str: ExpressibleByStringInterpolation {}
 
 extension StrSlice: @retroactive ExpressibleByStringLiteral {
-    @inlinable public init(stringLiteral value: consuming String) {
+    @inlinable
+    public init(stringLiteral value: consuming String) {
         guard !value.isEmpty else {
             self = []
             return
@@ -120,13 +124,15 @@ extension StrSlice: @retroactive ExpressibleByStringLiteral {
 }
 
 extension StrSlice: @retroactive ExpressibleByUnicodeScalarLiteral {
-    @inlinable public init(unicodeScalarLiteral value: consuming Unicode.Scalar) {
+    @inlinable
+    public init(unicodeScalarLiteral value: consuming Unicode.Scalar) {
         self = [value]
     }
 }
 
 extension StrSlice: @retroactive ExpressibleByExtendedGraphemeClusterLiteral {
-    @inlinable public init(extendedGraphemeClusterLiteral value: consuming Character) {
+    @inlinable
+    public init(extendedGraphemeClusterLiteral value: consuming Character) {
         self.init(value.unicodeScalars)
     }
 }

@@ -7,7 +7,8 @@ private struct Entry: Decodable {
     var codepoints: [UInt32]
 }
 
-@Test func namedCharRef() throws {
+@Test
+func namedCharRef() throws {
     let dict = try JSONDecoder()
         .decode(
             [String: Entry].self,
