@@ -18,7 +18,7 @@ let package = Package(
         .library(name: "TreeConstructor", targets: ["TreeConstructor"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"602.0.0"),
+        .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"603.0.0"),
         .package(url: "https://github.com/apple/swift-collections", from: "1.1.0"),
     ],
     targets: [
