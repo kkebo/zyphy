@@ -32,14 +32,19 @@ struct CharRefTokenizer: ~Copyable {
         self.isInAttr = isInAttr
     }
 
-    mutating func step(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
+    mutating func step(
+        tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
+        input: inout BufferQueue,
+    ) -> CharRefProcessResult {
         switch self.state {
         case .initial: self.initial(input: &input)
         case .named: self.named(input: &input)
-        case .namedEnd(let endIndex, let replaceChars): self.namedEnd(endIndex: endIndex, replaceChars: replaceChars, tokenizer: &tokenizer, input: &input)
+        case .namedEnd(let endIndex, let replaceChars):
+            self.namedEnd(endIndex: endIndex, replaceChars: replaceChars, tokenizer: &tokenizer, input: &input)
         case .ambiguousAmpersand: self.ambiguousAmpersand(tokenizer: &tokenizer, input: &input)
         case .numeric: self.numeric(input: &input)
-        case .hexadecimalStart(let uppercase): self.hexadecimalStart(uppercase: uppercase, tokenizer: &tokenizer, input: &input)
+        case .hexadecimalStart(let uppercase):
+            self.hexadecimalStart(uppercase: uppercase, tokenizer: &tokenizer, input: &input)
         case .decimalStart: self.decimalStart(tokenizer: &tokenizer, input: &input)
         case .hexadecimal: self.hexadecimal(tokenizer: &tokenizer, input: &input)
         case .decimal: self.decimal(tokenizer: &tokenizer, input: &input)
@@ -89,7 +94,12 @@ struct CharRefTokenizer: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func namedEnd(endIndex: Str.Index, replaceChars: (Char, Char), tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
+    private mutating func namedEnd(
+        endIndex: Str.Index,
+        replaceChars: (Char, Char),
+        tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
+        input: inout BufferQueue,
+    ) -> CharRefProcessResult {
         let lastChar = self.nameBuffer[..<endIndex].last
         let nextChar: Char? =
             if self.nameBuffer.endIndex != endIndex {
@@ -112,7 +122,10 @@ struct CharRefTokenizer: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func ambiguousAmpersand(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
+    private mutating func ambiguousAmpersand(
+        tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
+        input: inout BufferQueue,
+    ) -> CharRefProcessResult {
         repeat {
             guard let c = input.peek() else {
                 input.prepend(StrSlice(self.nameBuffer))
@@ -147,7 +160,11 @@ struct CharRefTokenizer: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func hexadecimalStart(uppercase: Bool, tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
+    private mutating func hexadecimalStart(
+        uppercase: Bool,
+        tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
+        input: inout BufferQueue,
+    ) -> CharRefProcessResult {
         switch input.peek() {
         case ("0"..."9")?, ("A"..."F")?, ("a"..."f")?:
             self.state = .hexadecimal
@@ -160,7 +177,10 @@ struct CharRefTokenizer: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func decimalStart(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
+    private mutating func decimalStart(
+        tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
+        input: inout BufferQueue,
+    ) -> CharRefProcessResult {
         switch input.peek() {
         case ("0"..."9")?:
             self.state = .decimal
@@ -173,7 +193,10 @@ struct CharRefTokenizer: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func hexadecimal(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
+    private mutating func hexadecimal(
+        tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
+        input: inout BufferQueue,
+    ) -> CharRefProcessResult {
         repeat {
             if let c = input.peek() {
                 switch c {
@@ -215,7 +238,10 @@ struct CharRefTokenizer: ~Copyable {
     }
 
     @inline(__always)
-    private mutating func decimal(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
+    private mutating func decimal(
+        tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
+        input: inout BufferQueue,
+    ) -> CharRefProcessResult {
         repeat {
             if let c = input.peek() {
                 switch c {
@@ -242,7 +268,10 @@ struct CharRefTokenizer: ~Copyable {
 
     // swift-format-ignore: NeverForceUnwrap
     @inline(__always)
-    private mutating func numericEnd(tokenizer: inout Tokenizer<some ~Copyable & TokenSink>, input: inout BufferQueue) -> CharRefProcessResult {
+    private mutating func numericEnd(
+        tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
+        input: inout BufferQueue,
+    ) -> CharRefProcessResult {
         switch self.num {
         case 0x00:
             tokenizer.emitError(.nullCharRef)

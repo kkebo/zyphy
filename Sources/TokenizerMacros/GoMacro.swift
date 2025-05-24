@@ -119,11 +119,22 @@ extension GoMacro: CodeItemMacro {
                     break loop
                 case "emitForceQuirksDOCTYPE":
                     precondition(argList.count == 1)
-                    items += ["self.forceQuirks()", "self.emitDOCTYPE()", "self.go(to: \(arg.expression))", "return .continue"]
+                    items += [
+                        "self.forceQuirks()",
+                        "self.emitDOCTYPE()",
+                        "self.go(to: \(arg.expression))",
+                        "return .continue",
+                    ]
                     break loop
                 case "emitNewForceQuirksDOCTYPE":
                     precondition(argList.count == 1)
-                    items += ["self.createDOCTYPE()", "self.forceQuirks()", "self.emitDOCTYPE()", "self.go(to: \(arg.expression))", "return .continue"]
+                    items += [
+                        "self.createDOCTYPE()",
+                        "self.forceQuirks()",
+                        "self.emitDOCTYPE()",
+                        "self.go(to: \(arg.expression))",
+                        "return .continue",
+                    ]
                     break loop
                 case "createTemp":
                     items += ["self.createTempBuffer(with: \(arg.expression))"]
@@ -161,7 +172,13 @@ extension GoMacro: CodeItemMacro {
         case "goEmitForceQuirksDOCTYPEAndEOF":
             return ["self.forceQuirks()", "self.emitDOCTYPE()", "self.emitEOF()", "return .suspend"]
         case "goEmitNewForceQuirksDOCTYPEAndEOF":
-            return ["self.createDOCTYPE()", "self.forceQuirks()", "self.emitDOCTYPE()", "self.emitEOF()", "return .suspend"]
+            return [
+                "self.createDOCTYPE()",
+                "self.forceQuirks()",
+                "self.emitDOCTYPE()",
+                "self.emitEOF()",
+                "return .suspend",
+            ]
         case "goConsumeCharRef":
             return ["self.consumeCharRef(\(node.arguments))", "return .continue"]
         case let name:

@@ -105,7 +105,8 @@ public struct TreeConstructor<Handle, Sink: TreeSink<Handle> & ~Copyable>: ~Copy
                 fatalError("not implemented")
             case .comment:
                 fatalError("not implemented")
-            case .tag(let tag) where tag.kind == .start && ["basefont", "bgsound", "link", "meta", "noframes", "style"].contains(tag.name):
+            case .tag(let tag)
+            where tag.kind == .start && ["basefont", "bgsound", "link", "meta", "noframes", "style"].contains(tag.name):
                 fatalError("not implemented")
             case .tag(let tag) where tag.kind == .start && ["head", "noscript"].contains(tag.name):
                 // TODO: parse error

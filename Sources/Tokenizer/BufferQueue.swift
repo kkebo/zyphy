@@ -29,7 +29,9 @@ public struct BufferQueue: ~Copyable, Sendable {
     mutating func pop(except s: consuming SmallCharSet) -> PopResult? {
         guard !self.buffers.isEmpty else { return nil }
         defer { if self.buffers[0].isEmpty { self.buffers.removeFirst() } }
-        let count = (self.buffers[0].firstIndex { $0.value < 64 && s.contains($0) } ?? self.buffers[0].endIndex) - self.buffers[0].startIndex
+        let count =
+            (self.buffers[0].firstIndex { $0.value < 64 && s.contains($0) } ?? self.buffers[0].endIndex)
+            - self.buffers[0].startIndex
         guard count > 0 else { return self.buffers[0].popFirst().map(PopResult.known) }
         defer { self.buffers[0].removeFirst(count) }
         return .others(self.buffers[0].prefix(count))
