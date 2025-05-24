@@ -13,7 +13,7 @@ func testDOM() {
     // constructor.process(.tag(.init(name: "a", kind: .end)))
     let expected = Node(
         value: .document,
-        childNodes: []
+        childNodes: [],
     )
     #expect(constructor.sink.document == expected)
 }

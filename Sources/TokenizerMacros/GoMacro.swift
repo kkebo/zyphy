@@ -7,7 +7,7 @@ struct GoMacro {}
 extension GoMacro: CodeItemMacro {
     static func expansion(
         of node: some FreestandingMacroExpansionSyntax,
-        in context: some MacroExpansionContext
+        in context: some MacroExpansionContext,
     ) -> [CodeBlockItemSyntax] {
         switch node.macroName.text {
         case "go":

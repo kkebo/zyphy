@@ -10,7 +10,7 @@ public struct DOCTYPE: ~Copyable, Sendable {
         name: consuming Str? = nil,
         publicID: consuming Str? = nil,
         systemID: consuming Str? = nil,
-        forceQuirks: Bool = false
+        forceQuirks: Bool = false,
     ) {
         self.name = name
         self.publicID = publicID
@@ -24,7 +24,7 @@ public struct DOCTYPE: ~Copyable, Sendable {
             name: self.name,
             publicID: self.publicID,
             systemID: self.systemID,
-            forceQuirks: self.forceQuirks
+            forceQuirks: self.forceQuirks,
         )
     }
 }

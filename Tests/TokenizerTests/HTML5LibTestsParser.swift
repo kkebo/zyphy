@@ -21,7 +21,7 @@ struct TestFileEntry {
                 input: self.input,
                 tokens: try self.output.flatMap { try $0.into() } + [.eof],
                 initialState: .init(state),
-                errors: self.errors
+                errors: self.errors,
             )
         }
     }
@@ -183,7 +183,7 @@ struct TestDOCTYPE: Equatable, Sendable {
         name: consuming Str? = nil,
         publicID: consuming Str? = nil,
         systemID: consuming Str? = nil,
-        forceQuirks: Bool = false
+        forceQuirks: Bool = false,
     ) {
         self.name = name
         self.publicID = publicID
