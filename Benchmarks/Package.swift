@@ -27,7 +27,7 @@ let package = Package(
             ],
             plugins: [
                 .plugin(name: "BenchmarkPlugin", package: "package-benchmark")
-            ]
+            ],
         )
-    ]
+    ],
 )

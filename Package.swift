@@ -38,7 +38,7 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
-            ]
+            ],
         ),
         .target(
             name: "TreeConstructor",
@@ -53,7 +53,7 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
-            ]
+            ],
         ),
         .macro(
             name: "TokenizerMacros",
@@ -66,7 +66,7 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
-            ]
+            ],
         ),
         .target(
             name: "HTMLEntities",
@@ -77,7 +77,7 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
-            ]
+            ],
         ),
         .target(
             name: "Str",
@@ -86,7 +86,7 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
-            ]
+            ],
         ),
         .testTarget(
             name: "TokenizerTests",
@@ -126,7 +126,7 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
-            ]
+            ],
         ),
         .testTarget(
             name: "HTMLEntitiesTests",
@@ -141,7 +141,7 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
-            ]
+            ],
         ),
         .testTarget(
             name: "TreeConstructorTests",
@@ -153,7 +153,7 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
-            ]
+            ],
         ),
-    ]
+    ],
 )
