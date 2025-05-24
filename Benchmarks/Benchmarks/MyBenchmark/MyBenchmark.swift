@@ -33,7 +33,7 @@ let benchmarks = {
         warmupIterations: 10,
         scalingFactor: .kilo,
         maxDuration: .seconds(60),
-        maxIterations: 100
+        maxIterations: 100,
     )
 
     runBench("lipsum", configuration: conf)
