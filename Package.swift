@@ -143,5 +143,17 @@ let package = Package(
                 .enableUpcomingFeature("MemberImportVisibility"),
             ]
         ),
+        .testTarget(
+            name: "TreeConstructorTests",
+            dependencies: [
+                "TreeConstructor"
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-Werror", "ExistentialAny"]),
+                .enableUpcomingFeature("ExistentialAny"),
+                .enableUpcomingFeature("InternalImportsByDefault"),
+                .enableUpcomingFeature("MemberImportVisibility"),
+            ]
+        ),
     ]
 )

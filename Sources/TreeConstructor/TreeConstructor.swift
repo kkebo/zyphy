@@ -1,7 +1,7 @@
 private import Str
 public import Tokenizer
 
-public struct TreeConstructor<Handle, Sink: TreeSink<Handle>>: ~Copyable {
+public struct TreeConstructor<Handle, Sink: TreeSink<Handle> & ~Copyable>: ~Copyable {
     public var sink: Sink
     private var mode: InsertionMode
 
