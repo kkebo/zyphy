@@ -182,3 +182,5 @@ extension TreeConstructor: TokenSink {
         } while true
     }
 }
+
+extension TreeConstructor: Sendable where Sink: Sendable {}
