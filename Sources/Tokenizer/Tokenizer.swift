@@ -721,7 +721,10 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     @inline(__always)
     private mutating func attributeValueUnquoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
-            switch self.pop(from: &input, except: ["\r", "\n", "\t", "\u{0C}", " ", "&", ">", "\0", "\"", "'", "<", "=", "`"]) {
+            switch self.pop(
+                from: &input,
+                except: ["\r", "\n", "\t", "\u{0C}", " ", "&", ">", "\0", "\"", "'", "<", "=", "`"],
+            ) {
             case .known("\t"): #go(to: .beforeAttributeName)
             case .known("\n"): #go(to: .beforeAttributeName)
             case .known("\u{0C}"): #go(to: .beforeAttributeName)
@@ -749,10 +752,14 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case "/": #go(to: .selfClosingStartTag)
             case ">": #go(emitTag: .data)
             case "=": #go(error: .missingSpaceBetweenAttrs, .unexpectedEqualsSign, createAttr: "=", to: .attributeName)
-            case "\0": #go(error: .missingSpaceBetweenAttrs, .unexpectedNull, createAttr: "\u{FFFD}", to: .attributeName)
-            case "\"": #go(error: .missingSpaceBetweenAttrs, .unexpectedCharInAttrName, createAttr: "\"", to: .attributeName)
-            case "'": #go(error: .missingSpaceBetweenAttrs, .unexpectedCharInAttrName, createAttr: "'", to: .attributeName)
-            case "<": #go(error: .missingSpaceBetweenAttrs, .unexpectedCharInAttrName, createAttr: "<", to: .attributeName)
+            case "\0":
+                #go(error: .missingSpaceBetweenAttrs, .unexpectedNull, createAttr: "\u{FFFD}", to: .attributeName)
+            case "\"":
+                #go(error: .missingSpaceBetweenAttrs, .unexpectedCharInAttrName, createAttr: "\"", to: .attributeName)
+            case "'":
+                #go(error: .missingSpaceBetweenAttrs, .unexpectedCharInAttrName, createAttr: "'", to: .attributeName)
+            case "<":
+                #go(error: .missingSpaceBetweenAttrs, .unexpectedCharInAttrName, createAttr: "<", to: .attributeName)
             case nil: #go(error: .eofInTag, emit: .eof)
             case let c?: #go(error: .missingSpaceBetweenAttrs, createAttr: lowerASCII(c), to: .attributeName)
             }
@@ -953,7 +960,8 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             switch self.getChar(from: &input) {
             case "\t", "\n", "\u{0C}", " ": #go(to: .beforeDOCTYPEName)
             case ">": #go(error: .missingDOCTYPEName, emitNewForceQuirksDOCTYPE: .data)
-            case "\0": #go(error: .missingSpaceBeforeDOCTYPEName, .unexpectedNull, createDOCTYPE: "\u{FFFD}", to: .doctypeName)
+            case "\0":
+                #go(error: .missingSpaceBeforeDOCTYPEName, .unexpectedNull, createDOCTYPE: "\u{FFFD}", to: .doctypeName)
             case nil: self.emitError(.eofInDOCTYPE); #goEmitNewForceQuirksDOCTYPEAndEOF
             case let c?: #go(error: .missingSpaceBeforeDOCTYPEName, createDOCTYPE: lowerASCII(c), to: .doctypeName)
             }
