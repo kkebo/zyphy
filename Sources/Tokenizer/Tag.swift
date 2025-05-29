@@ -10,7 +10,7 @@ public struct Tag: ~Copyable, Sendable {
         name: consuming Str,
         kind: consuming TagKind,
         attrs: consuming [Str: Str] = [:],
-        selfClosing: Bool = false
+        selfClosing: Bool = false,
     ) {
         self.name = name
         self.kind = kind

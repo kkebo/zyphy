@@ -12,7 +12,7 @@ func namedCharRef() throws {
     let dict = try JSONDecoder()
         .decode(
             [String: Entry].self,
-            from: Data(contentsOf: #require(Bundle.module.url(forResource: "entities", withExtension: "json")))
+            from: Data(contentsOf: #require(Bundle.module.url(forResource: "entities", withExtension: "json"))),
         )
 
     for (key, value) in dict {
