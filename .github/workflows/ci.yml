@@ -7,7 +7,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-24.04-arm
-    container: swiftlang/swift:nightly-6.2-noble
+    container: swift:6.1
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
@@ -21,7 +21,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-spm-
       - run: swift --version
-      - run: swift build --build-tests --disable-xctest --enable-code-coverage
+      - run: swift build --build-tests --disable-xctest --enable-code-coverage --enable-experimental-prebuilts
       - run: swift test --skip-build --disable-xctest --enable-code-coverage --parallel
       - name: llvm-cov report
         id: report
@@ -60,7 +60,7 @@ jobs:
           comment-tag: coverage
   lint:
     runs-on: ubuntu-24.04-arm
-    container: swiftlang/swift:nightly-6.2-noble
+    container: swift:6.1
     steps:
       - uses: actions/checkout@v4
       - run: swift format lint -rsp .
@@ -68,7 +68,7 @@ jobs:
     if: ${{ github.ref != 'refs/heads/main' }}
     needs: test
     runs-on: ubuntu-24.04-arm
-    container: swiftlang/swift:nightly-6.2-noble
+    container: swift:6.1
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
