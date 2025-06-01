@@ -8,7 +8,7 @@ public struct DOM: ~Copyable, Sendable {
     }
 }
 
-public struct Node: Equatable, Sendable {
+public struct Node: Equatable, Hashable, Sendable {
     public var value: NodeValue
     public var childNodes: [Self]
 
@@ -18,18 +18,18 @@ public struct Node: Equatable, Sendable {
     }
 }
 
-public enum NodeValue: Equatable, Sendable {
+public enum NodeValue: Equatable, Hashable, Sendable {
     case document
     case element(HTMLElement)
     case text(Text)
 }
 
-public struct HTMLElement: Equatable, Sendable {
+public struct HTMLElement: Equatable, Hashable, Sendable {
     public var tagName: Str
     public var attributes: [Str: Str]
 }
 
-public struct Text: Equatable, Sendable {
+public struct Text: Equatable, Hashable, Sendable {
     public var data: Str
 }
 
