@@ -15,3 +15,11 @@ updates:
       - "kkebo"
     commit-message:
       prefix: "build"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "kkebo"
+    commit-message:
+      prefix: "ci"
