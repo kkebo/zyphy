@@ -7,7 +7,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-24.04-arm
-    container: swiftlang/swift:nightly-6.2-noble
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
@@ -20,6 +19,7 @@ jobs:
           key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
           restore-keys: |
             ${{ runner.os }}-spm-
+      - run: ./scripts/ci-install-swift.sh
       - run: swift --version
       - run: swift build --build-tests --disable-xctest --enable-code-coverage
       - run: swift test --skip-build --disable-xctest --enable-code-coverage --parallel
@@ -60,20 +60,20 @@ jobs:
           comment-tag: coverage
   lint:
     runs-on: ubuntu-24.04-arm
-    container: swiftlang/swift:nightly-6.2-noble
     steps:
       - uses: actions/checkout@v4
+      - run: ./scripts/ci-install-swift.sh
       - run: swift format lint -rsp .
   benchmark:
     if: ${{ github.ref != 'refs/heads/main' }}
     needs: test
     runs-on: ubuntu-24.04-arm
-    container: swiftlang/swift:nightly-6.2-noble
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
       - uses: actions/checkout@v4
-      - run: apt-get update && apt-get install --no-install-recommends -y libjemalloc-dev
+      - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libjemalloc-dev
+      - run: ./scripts/ci-install-swift.sh
       - uses: actions/cache@v4
         with:
           path: Benchmarks/.build
@@ -137,3 +137,9 @@ jobs:
       - uses: actions/checkout@v4
       - run: yamllint --version
       - run: yamllint --strict --config-file .yamllint.yml .
+  shellcheck:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v4
+      - run: shellcheck -V
+      - run: git ls-files -z '*.sh' | xargs -0 --no-run-if-empty shellcheck
