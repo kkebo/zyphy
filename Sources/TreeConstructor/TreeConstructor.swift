@@ -125,7 +125,37 @@ public struct TreeConstructor<Handle, Sink: TreeSink<Handle> & ~Copyable>: ~Copy
             self.mode = .inBody
             return .reprocess(token)
         case .inBody:
-            fatalError("not implemented")
+            switch consume token {
+            case .char("\0"):
+                // TODO: parse error
+                break
+            case .char("\t"):
+                // TODO: Reconstruct the active formatting elements, if any.
+                // TODO: Insert the token's character.
+                fatalError("not implemented")
+            case .char("\n"):
+                // TODO: Reconstruct the active formatting elements, if any.
+                // TODO: Insert the token's character.
+                fatalError("not implemented")
+            case .char("\u{0C}"):
+                // TODO: Reconstruct the active formatting elements, if any.
+                // TODO: Insert the token's character.
+                fatalError("not implemented")
+            case .char("\r"):
+                // TODO: Reconstruct the active formatting elements, if any.
+                // TODO: Insert the token's character.
+                fatalError("not implemented")
+            case .char(" "):
+                // TODO: Reconstruct the active formatting elements, if any.
+                // TODO: Insert the token's character.
+                fatalError("not implemented")
+            case .char(_):
+                // TODO: Reconstruct the active formatting elements, if any.
+                // TODO: Insert the token's character.
+                // TODO: Set the frameset-ok flag to "not ok".
+                fatalError("not implemented")
+            case _: fatalError("not implemented")
+            }
         case .text:
             fatalError("not implemented")
         case .inTable:
