@@ -1,7 +1,7 @@
 private import Str
 public import Tokenizer
 
-public struct TreeConstructor<Handle, Sink: TreeSink<Handle> & ~Copyable>: ~Copyable {
+public struct TreeBuilder<Handle, Sink: TreeSink<Handle> & ~Copyable>: ~Copyable {
     public var sink: Sink
     private var mode: InsertionMode
 
@@ -203,7 +203,7 @@ public struct TreeConstructor<Handle, Sink: TreeSink<Handle> & ~Copyable>: ~Copy
     }
 }
 
-extension TreeConstructor: TokenSink {
+extension TreeBuilder: TokenSink {
     public mutating func process(_ token: consuming Token) {
         repeat {
             switch self.step(token) {
@@ -214,4 +214,4 @@ extension TreeConstructor: TokenSink {
     }
 }
 
-extension TreeConstructor: Sendable where Sink: Sendable {}
+extension TreeBuilder: Sendable where Sink: Sendable {}

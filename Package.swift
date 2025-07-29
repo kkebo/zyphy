@@ -15,7 +15,7 @@ let package = Package(
     ],
     products: [
         .library(name: "Tokenizer", targets: ["Tokenizer"]),
-        .library(name: "TreeConstructor", targets: ["TreeConstructor"]),
+        .library(name: "TreeBuilder", targets: ["TreeBuilder"]),
     ],
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"603.0.0"),
@@ -41,7 +41,7 @@ let package = Package(
             ],
         ),
         .target(
-            name: "TreeConstructor",
+            name: "TreeBuilder",
             dependencies: [
                 "Tokenizer"
             ],
@@ -144,9 +144,9 @@ let package = Package(
             ],
         ),
         .testTarget(
-            name: "TreeConstructorTests",
+            name: "TreeBuilderTests",
             dependencies: [
-                "TreeConstructor"
+                "TreeBuilder"
             ],
             swiftSettings: [
                 .unsafeFlags(["-Werror", "ExistentialAny"]),
