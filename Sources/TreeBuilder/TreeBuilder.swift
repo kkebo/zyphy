@@ -154,6 +154,11 @@ public struct TreeBuilder<Handle, Sink: TreeSink<Handle> & ~Copyable>: ~Copyable
                 // TODO: Insert the token's character.
                 // TODO: Set the frameset-ok flag to "not ok".
                 fatalError("not implemented")
+            case .chars(_):
+                // TODO: Reconstruct the active formatting elements, if any.
+                // TODO: Insert the token's character.
+                // TODO: Set the frameset-ok flag to "not ok".
+                fatalError("not implemented")
             case _: fatalError("not implemented")
             }
         case .text:
@@ -164,6 +169,8 @@ public struct TreeBuilder<Handle, Sink: TreeSink<Handle> & ~Copyable>: ~Copyable
                 // TODO: parse error
                 break
             case .char(_):
+                fatalError("not implemented")
+            case .chars(_):
                 fatalError("not implemented")
             case let token:
                 // TODO: implement here
