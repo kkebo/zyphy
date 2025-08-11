@@ -10,7 +10,7 @@ jobs:
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - uses: actions/cache@v4
@@ -61,7 +61,7 @@ jobs:
   lint:
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: ./scripts/ci-install-swift.sh
       - run: swift format lint -rsp .
   benchmark:
@@ -71,7 +71,7 @@ jobs:
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libjemalloc-dev
       - run: ./scripts/ci-install-swift.sh
       - uses: actions/cache@v4
@@ -82,7 +82,7 @@ jobs:
             ${{ runner.os }}-bench-spm-
       - run: swift package --package-path Benchmarks benchmark baseline update pull_request --no-progress --quiet
       - name: Switch to branch 'main'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           ref: main
           clean: false
@@ -134,12 +134,12 @@ jobs:
   yamllint:
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: yamllint --version
       - run: yamllint --strict --config-file .yamllint.yml .
   shellcheck:
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - run: shellcheck -V
       - run: git ls-files -z '*.sh' | xargs -0 --no-run-if-empty shellcheck
