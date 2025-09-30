@@ -10,10 +10,10 @@ jobs:
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           submodules: recursive
-      - uses: actions/cache@v4
+      - uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.3.0
         with:
           path: .build
           key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
@@ -54,14 +54,14 @@ jobs:
     steps:
       - name: Comment PR
         if: ${{ github.ref != 'refs/heads/main' }}
-        uses: thollander/actions-comment-pull-request@v3
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           message: ${{ needs.test.outputs.SUMMARY }}
           comment-tag: coverage
   lint:
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - run: ./scripts/ci-install-swift.sh
       - run: swift format lint -rsp .
   benchmark:
@@ -71,10 +71,10 @@ jobs:
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libjemalloc-dev
       - run: ./scripts/ci-install-swift.sh
-      - uses: actions/cache@v4
+      - uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.3.0
         with:
           path: Benchmarks/.build
           key: ${{ runner.os }}-bench-spm-${{ hashFiles('Benchmarks/Package.resolved') }}
@@ -82,7 +82,7 @@ jobs:
             ${{ runner.os }}-bench-spm-
       - run: swift package --package-path Benchmarks benchmark baseline update pull_request --no-progress --quiet
       - name: Switch to branch 'main'
-        uses: actions/checkout@v5
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
           ref: main
           clean: false
@@ -127,19 +127,19 @@ jobs:
     continue-on-error: true
     steps:
       - name: Comment PR
-        uses: thollander/actions-comment-pull-request@v3
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           message: ${{ needs.benchmark.outputs.SUMMARY }}
           comment-tag: benchmark
   yamllint:
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - run: yamllint --version
       - run: yamllint --strict --config-file .yamllint.yml .
   shellcheck:
     runs-on: ubuntu-24.04-arm
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
       - run: shellcheck -V
       - run: git ls-files -z '*.sh' | xargs -0 --no-run-if-empty shellcheck
