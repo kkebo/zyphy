@@ -18,7 +18,7 @@ public struct DOCTYPE: ~Copyable, Sendable {
         self.forceQuirks = forceQuirks
     }
 
-    @inlinable
+    @inline(always)
     borrowing func clone() -> Self {
         .init(
             name: self.name,

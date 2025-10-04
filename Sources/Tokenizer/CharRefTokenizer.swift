@@ -52,7 +52,7 @@ struct CharRefTokenizer: ~Copyable {
         }
     }
 
-    @inline(__always)
+    @inline(always)
     private mutating func initial(input: inout BufferQueue) -> CharRefProcessResult {
         switch input.peek() {
         case ("0"..."9")?, ("A"..."Z")?, ("a"..."z")?:
@@ -66,7 +66,7 @@ struct CharRefTokenizer: ~Copyable {
         }
     }
 
-    @inline(__always)
+    @inline(always)
     private mutating func named(input: inout BufferQueue) -> CharRefProcessResult {
         repeat {
             guard let c = input.peek() else {
@@ -93,7 +93,7 @@ struct CharRefTokenizer: ~Copyable {
         } while true
     }
 
-    @inline(__always)
+    @inline(always)
     private mutating func namedEnd(
         endIndex: Str.Index,
         replaceChars: (Char, Char),
@@ -121,7 +121,7 @@ struct CharRefTokenizer: ~Copyable {
         }
     }
 
-    @inline(__always)
+    @inline(always)
     private mutating func ambiguousAmpersand(
         tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
         input: inout BufferQueue,
@@ -144,7 +144,7 @@ struct CharRefTokenizer: ~Copyable {
         } while true
     }
 
-    @inline(__always)
+    @inline(always)
     private mutating func numeric(input: inout BufferQueue) -> CharRefProcessResult {
         switch input.peek() {
         case "X":
@@ -159,7 +159,7 @@ struct CharRefTokenizer: ~Copyable {
         return .continue
     }
 
-    @inline(__always)
+    @inline(always)
     private mutating func hexadecimalStart(
         uppercase: Bool,
         tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
@@ -176,7 +176,7 @@ struct CharRefTokenizer: ~Copyable {
         }
     }
 
-    @inline(__always)
+    @inline(always)
     private mutating func decimalStart(
         tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
         input: inout BufferQueue,
@@ -192,7 +192,7 @@ struct CharRefTokenizer: ~Copyable {
         }
     }
 
-    @inline(__always)
+    @inline(always)
     private mutating func hexadecimal(
         tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
         input: inout BufferQueue,
@@ -237,7 +237,7 @@ struct CharRefTokenizer: ~Copyable {
         } while true
     }
 
-    @inline(__always)
+    @inline(always)
     private mutating func decimal(
         tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
         input: inout BufferQueue,
@@ -267,7 +267,7 @@ struct CharRefTokenizer: ~Copyable {
     }
 
     // swift-format-ignore: NeverForceUnwrap
-    @inline(__always)
+    @inline(always)
     private mutating func numericEnd(
         tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
         input: inout BufferQueue,

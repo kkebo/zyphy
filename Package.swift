@@ -8,6 +8,7 @@ let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("InternalImportsByDefault"),
     .enableUpcomingFeature("MemberImportVisibility"),
+    .enableExperimentalFeature("InlineAlways"),
 ]
 
 let package = Package(

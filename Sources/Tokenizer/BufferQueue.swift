@@ -5,7 +5,7 @@ public struct BufferQueue: ~Copyable, Sendable {
     @usableFromInline
     var buffers: Deque<StrSlice>
 
-    @inlinable
+    @inline(always)
     public init(_ buf: StrSlice) {
         self.buffers = [buf]
     }
@@ -25,7 +25,7 @@ public struct BufferQueue: ~Copyable, Sendable {
         return self.buffers[0].popFirst()
     }
 
-    @inline(__always)
+    @inline(always)
     mutating func pop(except s: consuming SmallCharSet) -> PopResult? {
         guard !self.buffers.isEmpty else { return nil }
         defer { if self.buffers[0].isEmpty { self.buffers.removeFirst() } }

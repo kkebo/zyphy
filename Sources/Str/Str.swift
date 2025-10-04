@@ -5,42 +5,42 @@ public struct Str: Hashable, Sendable {
     @usableFromInline
     var storage: ContiguousArray<Char>
 
-    @inlinable
+    @inline(always)
     public init() {
         self.storage = []
     }
 
-    @inlinable
+    @inline(always)
     public init(_ char: Char) {
         self.storage = [char]
     }
 
-    @inlinable
+    @inline(always)
     public init(_ chars: ContiguousArray<Char>) {
         self.storage = chars
     }
 
-    @inlinable
+    @inline(always)
     public init(_ sequence: some Sequence<Self.Element>) {
         self.storage = .init(sequence)
     }
 
-    @inlinable
+    @inline(always)
     public mutating func removeAll(keepingCapacity keepCapacity: Bool = false) {
         self.storage.removeAll(keepingCapacity: keepCapacity)
     }
 
-    @inlinable
+    @inline(always)
     public mutating func append(_ newElement: Self.Element) {
         self.storage.append(newElement)
     }
 
-    @inlinable
+    @inline(always)
     public static func += (lhs: inout Self, rhs: Self) {
         lhs.storage += rhs.storage
     }
 
-    @inlinable
+    @inline(always)
     public static func += (lhs: inout Self, rhs: some Sequence<Self.Element>) {
         lhs.storage += rhs
     }
@@ -50,7 +50,7 @@ extension Str: Sequence {
     public typealias Iterator = ContiguousArray<Char>.Iterator
     public typealias Element = Char
 
-    @inlinable
+    @inline(always)
     public func makeIterator() -> Self.Iterator { self.storage.makeIterator() }
 }
 
@@ -59,34 +59,34 @@ extension Str: BidirectionalCollection {
     public typealias Indices = ContiguousArray<Char>.Indices
     public typealias SubSequence = ContiguousArray<Char>.SubSequence
 
-    @inlinable
+    @inline(always)
     public var startIndex: Self.Index { self.storage.startIndex }
-    @inlinable
+    @inline(always)
     public var endIndex: Self.Index { self.storage.endIndex }
-    @inlinable
+    @inline(always)
     public var indices: Self.Indices { self.storage.indices }
-    @inlinable
+    @inline(always)
     public func index(before i: Self.Index) -> Self.Index { self.storage.index(before: i) }
-    @inlinable
+    @inline(always)
     public func index(after i: Self.Index) -> Self.Index { self.storage.index(after: i) }
 
-    @inlinable
+    @inline(always)
     public var count: Int { self.storage.count }
-    @inlinable
+    @inline(always)
     public var isEmpty: Bool { self.storage.isEmpty }
 
-    @inlinable
+    @inline(always)
     public subscript(position: Self.Index) -> Self.Element {
         self.storage[position]
     }
-    @inlinable
+    @inline(always)
     public subscript(bounds: Range<Self.Index>) -> Self.SubSequence {
         self.storage[bounds]
     }
 }
 
 extension Str: ExpressibleByStringLiteral {
-    @inlinable
+    @inline(always)
     public init(stringLiteral value: consuming String) {
         guard !value.isEmpty else {
             self.init()
@@ -97,14 +97,14 @@ extension Str: ExpressibleByStringLiteral {
 }
 
 extension Str: ExpressibleByUnicodeScalarLiteral {
-    @inlinable
+    @inline(always)
     public init(unicodeScalarLiteral value: consuming Unicode.Scalar) {
         self.storage = [value]
     }
 }
 
 extension Str: ExpressibleByExtendedGraphemeClusterLiteral {
-    @inlinable
+    @inline(always)
     public init(extendedGraphemeClusterLiteral value: consuming Character) {
         self.init(value.unicodeScalars)
     }
@@ -113,7 +113,7 @@ extension Str: ExpressibleByExtendedGraphemeClusterLiteral {
 extension Str: ExpressibleByStringInterpolation {}
 
 extension StrSlice: @retroactive ExpressibleByStringLiteral {
-    @inlinable
+    @inline(always)
     public init(stringLiteral value: consuming String) {
         guard !value.isEmpty else {
             self = []
@@ -124,14 +124,14 @@ extension StrSlice: @retroactive ExpressibleByStringLiteral {
 }
 
 extension StrSlice: @retroactive ExpressibleByUnicodeScalarLiteral {
-    @inlinable
+    @inline(always)
     public init(unicodeScalarLiteral value: consuming Unicode.Scalar) {
         self = [value]
     }
 }
 
 extension StrSlice: @retroactive ExpressibleByExtendedGraphemeClusterLiteral {
-    @inlinable
+    @inline(always)
     public init(extendedGraphemeClusterLiteral value: consuming Character) {
         self.init(value.unicodeScalars)
     }

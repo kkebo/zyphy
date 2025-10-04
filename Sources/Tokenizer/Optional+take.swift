@@ -1,5 +1,5 @@
 extension Optional where Wrapped: ~Copyable {
-    @inlinable
+    @inline(always)
     mutating func take() -> Self {
         let value = consume self
         self = nil
