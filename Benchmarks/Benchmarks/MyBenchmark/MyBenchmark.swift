@@ -15,7 +15,11 @@ extension TestSink: TokenSink {
 
 private func runBench(_ name: String, configuration conf: Benchmark.Configuration) {
     // swift-format-ignore: NeverUseForceTry, NeverForceUnwrap
-    let html = try! String(contentsOf: Bundle.module.url(forResource: name, withExtension: "html")!).unicodeScalars
+    let html = try! String(
+        contentsOf: Bundle.module.url(forResource: name, withExtension: "html")!,
+        encoding: .utf8,
+    )
+    .unicodeScalars
     let input = ArraySlice(consume html)
     Benchmark(name, configuration: conf) { benchmark in
         for _ in benchmark.scaledIterations {
