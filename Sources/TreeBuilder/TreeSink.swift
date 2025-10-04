@@ -9,5 +9,6 @@ public protocol TreeSink<Handle>: ~Copyable {
 
     var document: Handle { get }
     func parseError(_ error: consuming ParseError)
+    mutating func insert(_ node: consuming Node)
     func setQuirksMode(_ mode: consuming QuirksMode)
 }

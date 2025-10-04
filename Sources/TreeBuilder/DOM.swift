@@ -35,5 +35,10 @@ public struct Text: Equatable, Hashable, Sendable {
 
 extension DOM: TreeSink {
     public func parseError(_ error: consuming ParseError) {}
+
+    public mutating func insert(_ node: consuming Node) {
+        self.document.childNodes.append(node)
+    }
+
     public func setQuirksMode(_ mode: consuming QuirksMode) {}
 }
