@@ -3,6 +3,13 @@
 import CompilerPluginSupport
 import PackageDescription
 
+let swiftSettings: [SwiftSetting] = [
+    .treatAllWarnings(as: .error),
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("InternalImportsByDefault"),
+    .enableUpcomingFeature("MemberImportVisibility"),
+]
+
 let package = Package(
     name: "zyphy",
     platforms: [
@@ -29,15 +36,9 @@ let package = Package(
                 "HTMLEntities",
                 .product(name: "DequeModule", package: "swift-collections"),
             ],
-            swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
-                .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
+            swiftSettings: swiftSettings + [
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
-                .unsafeFlags(["-Werror", "ExistentialAny"]),
                 .enableExperimentalFeature("CodeItemMacros"),
-                .enableUpcomingFeature("ExistentialAny"),
-                .enableUpcomingFeature("InternalImportsByDefault"),
-                .enableUpcomingFeature("MemberImportVisibility"),
             ],
         ),
         .target(
@@ -45,14 +46,8 @@ let package = Package(
             dependencies: [
                 "Tokenizer"
             ],
-            swiftSettings: [
-                .unsafeFlags(["-Xfrontend", "-warn-long-function-bodies=100"], .when(configuration: .debug)),
-                .unsafeFlags(["-Xfrontend", "-warn-long-expression-type-checking=100"], .when(configuration: .debug)),
-                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
-                .unsafeFlags(["-Werror", "ExistentialAny"]),
-                .enableUpcomingFeature("ExistentialAny"),
-                .enableUpcomingFeature("InternalImportsByDefault"),
-                .enableUpcomingFeature("MemberImportVisibility"),
+            swiftSettings: swiftSettings + [
+                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
             ],
         ),
         .macro(
@@ -61,32 +56,18 @@ let package = Package(
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
             ],
-            swiftSettings: [
-                .unsafeFlags(["-Werror", "ExistentialAny"]),
-                .enableUpcomingFeature("ExistentialAny"),
-                .enableUpcomingFeature("InternalImportsByDefault"),
-                .enableUpcomingFeature("MemberImportVisibility"),
-            ],
+            swiftSettings: swiftSettings,
         ),
         .target(
             name: "HTMLEntities",
             dependencies: [
                 "Str"
             ],
-            swiftSettings: [
-                .enableUpcomingFeature("ExistentialAny"),
-                .enableUpcomingFeature("InternalImportsByDefault"),
-                .enableUpcomingFeature("MemberImportVisibility"),
-            ],
+            swiftSettings: swiftSettings,
         ),
         .target(
             name: "Str",
-            swiftSettings: [
-                .unsafeFlags(["-Werror", "ExistentialAny"]),
-                .enableUpcomingFeature("ExistentialAny"),
-                .enableUpcomingFeature("InternalImportsByDefault"),
-                .enableUpcomingFeature("MemberImportVisibility"),
-            ],
+            swiftSettings: swiftSettings,
         ),
         .testTarget(
             name: "TokenizerTests",
@@ -121,12 +102,7 @@ let package = Package(
                 .process("Resources/html5lib-tests/tokenizer/escapeFlag.test"),
                 .process("Resources/html5lib-tests/tokenizer/domjs.test"),
             ],
-            swiftSettings: [
-                .unsafeFlags(["-Werror", "ExistentialAny"]),
-                .enableUpcomingFeature("ExistentialAny"),
-                .enableUpcomingFeature("InternalImportsByDefault"),
-                .enableUpcomingFeature("MemberImportVisibility"),
-            ],
+            swiftSettings: swiftSettings,
         ),
         .testTarget(
             name: "HTMLEntitiesTests",
@@ -136,24 +112,14 @@ let package = Package(
             resources: [
                 .process("Resources")
             ],
-            swiftSettings: [
-                .unsafeFlags(["-Werror", "ExistentialAny"]),
-                .enableUpcomingFeature("ExistentialAny"),
-                .enableUpcomingFeature("InternalImportsByDefault"),
-                .enableUpcomingFeature("MemberImportVisibility"),
-            ],
+            swiftSettings: swiftSettings,
         ),
         .testTarget(
             name: "TreeBuilderTests",
             dependencies: [
                 "TreeBuilder"
             ],
-            swiftSettings: [
-                .unsafeFlags(["-Werror", "ExistentialAny"]),
-                .enableUpcomingFeature("ExistentialAny"),
-                .enableUpcomingFeature("InternalImportsByDefault"),
-                .enableUpcomingFeature("MemberImportVisibility"),
-            ],
+            swiftSettings: swiftSettings,
         ),
     ],
 )

@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.2
 
 import PackageDescription
 
@@ -21,7 +21,9 @@ let package = Package(
                 .process("Resources")
             ],
             swiftSettings: [
+                .treatAllWarnings(as: .error),
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
+                .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
             ],
