@@ -48,12 +48,12 @@ jobs:
           SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
         run: echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
   comment-test:
+    if: ${{ github.event_name == 'pull_request' }}
     needs: test
     runs-on: ubuntu-24.04-arm
     continue-on-error: true
     steps:
       - name: Comment PR
-        if: ${{ github.ref != 'refs/heads/main' }}
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b  # v3.0.1
         with:
           message: ${{ needs.test.outputs.SUMMARY }}
@@ -65,7 +65,7 @@ jobs:
       - run: ./scripts/ci-install-swift.sh
       - run: swift format lint -rsp .
   benchmark:
-    if: ${{ github.ref != 'refs/heads/main' }}
+    if: ${{ github.event_name == 'pull_request' }}
     needs: test
     runs-on: ubuntu-24.04-arm
     outputs:
@@ -122,6 +122,7 @@ jobs:
           SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
         run: echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
   comment-benchmark:
+    if: ${{ github.event_name == 'pull_request' }}
     needs: benchmark
     runs-on: ubuntu-24.04-arm
     continue-on-error: true
