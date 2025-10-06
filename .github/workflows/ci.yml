@@ -83,24 +83,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bench-spm-
       - run: swift package --package-path Benchmarks benchmark baseline update pull_request --no-progress --quiet
-      - name: Switch to branch 'main'
+      - name: Switch to branch '${{ github.event.pull_request.base.ref }}'
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
         with:
-          ref: main
+          ref: ${{ github.event.pull_request.base.ref }}
           clean: false
-      - run: swift package --package-path Benchmarks benchmark baseline update main --no-progress --quiet
+      - run: swift package --package-path Benchmarks benchmark baseline update base --no-progress --quiet
       - name: swift package benchmark baseline check
         id: check
         run: |
           set +e
           echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
-          swift package --package-path Benchmarks benchmark baseline check main pull_request --format markdown >> "$GITHUB_OUTPUT"
+          swift package --package-path Benchmarks benchmark baseline check base pull_request --format markdown >> "$GITHUB_OUTPUT"
           echo 'EOF' >> "$GITHUB_OUTPUT"
       - name: swift package benchmark baseline compare
         id: compare
         run: |
           echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
-          swift package --package-path Benchmarks benchmark baseline compare main pull_request --no-progress --quiet --format markdown >> "$GITHUB_OUTPUT"
+          swift package --package-path Benchmarks benchmark baseline compare base pull_request --no-progress --quiet --format markdown >> "$GITHUB_OUTPUT"
           echo 'EOF' >> "$GITHUB_OUTPUT"
       - name: Create summary text
         id: summary
