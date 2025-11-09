@@ -6,6 +6,7 @@ public struct BufferQueue: ~Copyable, Sendable {
     var buffers: Deque<StrSlice>
 
     @inline(always)
+    @export(implementation)
     public init(_ buf: StrSlice) {
         self.buffers = [buf]
     }
