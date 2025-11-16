@@ -5,6 +5,15 @@ import PackageDescription
 
 let swiftSettings: [SwiftSetting] = [
     .treatAllWarnings(as: .error),
+    .treatWarning("EmbeddedRestrictions", as: .error),
+    .enableUpcomingFeature("ExistentialAny"),
+    .enableUpcomingFeature("InternalImportsByDefault"),
+    .enableUpcomingFeature("MemberImportVisibility"),
+    .enableExperimentalFeature("InlineAlways"),
+]
+
+let swiftTestSettings: [SwiftSetting] = [
+    .treatAllWarnings(as: .error),
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("InternalImportsByDefault"),
     .enableUpcomingFeature("MemberImportVisibility"),
@@ -103,7 +112,7 @@ let package = Package(
                 .process("Resources/html5lib-tests/tokenizer/escapeFlag.test"),
                 .process("Resources/html5lib-tests/tokenizer/domjs.test"),
             ],
-            swiftSettings: swiftSettings,
+            swiftSettings: swiftTestSettings,
         ),
         .testTarget(
             name: "HTMLEntitiesTests",
@@ -113,14 +122,14 @@ let package = Package(
             resources: [
                 .process("Resources")
             ],
-            swiftSettings: swiftSettings,
+            swiftSettings: swiftTestSettings,
         ),
         .testTarget(
             name: "TreeBuilderTests",
             dependencies: [
                 "TreeBuilder"
             ],
-            swiftSettings: swiftSettings,
+            swiftSettings: swiftTestSettings,
         ),
     ],
 )
