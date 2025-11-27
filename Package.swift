@@ -41,8 +41,8 @@ let package = Package(
         .target(
             name: "Tokenizer",
             dependencies: [
-                "TokenizerMacros",
-                "HTMLEntities",
+                .target(name: "TokenizerMacros"),
+                .target(name: "HTMLEntities"),
                 .product(name: "DequeModule", package: "swift-collections"),
             ],
             swiftSettings: swiftSettings + [
@@ -53,7 +53,7 @@ let package = Package(
         .target(
             name: "TreeBuilder",
             dependencies: [
-                "Tokenizer"
+                .target(name: "Tokenizer")
             ],
             swiftSettings: swiftSettings + [
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
@@ -70,7 +70,7 @@ let package = Package(
         .target(
             name: "HTMLEntities",
             dependencies: [
-                "Str"
+                .target(name: "Str")
             ],
             swiftSettings: swiftSettings,
         ),
@@ -81,8 +81,8 @@ let package = Package(
         .testTarget(
             name: "TokenizerTests",
             dependencies: [
-                "TokenizerMacros",
-                "Tokenizer",
+                .target(name: "TokenizerMacros"),
+                .target(name: "Tokenizer"),
             ],
             exclude: [
                 "Resources/html5lib-tests/encoding",
@@ -116,7 +116,7 @@ let package = Package(
         .testTarget(
             name: "HTMLEntitiesTests",
             dependencies: [
-                "HTMLEntities"
+                .target(name: "HTMLEntities")
             ],
             resources: [
                 .process("Resources")
@@ -126,7 +126,7 @@ let package = Package(
         .testTarget(
             name: "TreeBuilderTests",
             dependencies: [
-                "TreeBuilder"
+                .target(name: "TreeBuilder")
             ],
             swiftSettings: swiftTestSettings,
         ),
