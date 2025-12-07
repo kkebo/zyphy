@@ -1,4 +1,4 @@
-public let replacements: [Unicode.Scalar] = [
+public let replacements: ContiguousArray<Unicode.Scalar> = [
     "\u{20AC}",
     "\0",
     "\u{201A}",

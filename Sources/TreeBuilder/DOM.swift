@@ -10,9 +10,9 @@ public struct DOM: ~Copyable, Sendable {
 
 public struct Node: Equatable, Hashable, Sendable {
     public var value: NodeValue
-    public var childNodes: [Self]
+    public var childNodes: ContiguousArray<Self>
 
-    public init(value: NodeValue, childNodes: [Self] = []) {
+    public init(value: NodeValue, childNodes: ContiguousArray<Self> = []) {
         self.value = value
         self.childNodes = childNodes
     }
