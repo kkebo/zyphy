@@ -22,12 +22,12 @@ let swiftTestSettings: [SwiftSetting] = [
 let package = Package(
     name: "zyphy",
     platforms: [
-        .macOS(.v10_15),
-        .iOS(.v13),
-        .watchOS(.v6),
-        .tvOS(.v13),
-        .macCatalyst(.v13),
-        .visionOS(.v1),
+        .macOS(.v26),
+        .iOS(.v26),
+        .watchOS(.v26),
+        .tvOS(.v26),
+        .macCatalyst(.v26),
+        .visionOS(.v26),
     ],
     products: [
         .library(name: "Tokenizer", targets: ["Tokenizer"]),

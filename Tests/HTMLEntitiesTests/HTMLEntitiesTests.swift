@@ -16,7 +16,7 @@ func namedCharRef() throws {
         )
 
     for (key, value) in dict {
-        switch try #require(namedChars[Str(key.dropFirst().unicodeScalars)]) {
+        switch try #require(processedNamedChars[Str(key.dropFirst().unicodeScalars)]) {
         case (let c1, "\0"): #expect(value.codepoints == [c1.value])
         case (let c1, let c2): #expect(value.codepoints == [c1.value, c2.value])
         }
