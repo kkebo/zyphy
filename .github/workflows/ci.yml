@@ -16,7 +16,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
         with:
           submodules: recursive
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
@@ -73,7 +73,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
       - run: ./scripts/ci-install-swift.sh
       - run: swift format lint -rsp .
   benchmark:
@@ -85,7 +85,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
       - run: sudo apt-get update && sudo apt-get install --no-install-recommends -y libjemalloc-dev
       - run: ./scripts/ci-install-swift.sh
       - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830  # v4.3.0
@@ -98,7 +98,7 @@ jobs:
           restore-keys: ${{ runner.os }}-bench-swiftpm-
       - run: swift package --package-path Benchmarks benchmark baseline update pull_request --no-progress --quiet
       - name: Switch to branch '${{ github.event.pull_request.base.ref }}'
-        uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           clean: false
@@ -155,7 +155,7 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
       - run: yamllint --version
       - run: yamllint --strict --config-file .yamllint.yml .
   shellcheck:
@@ -163,6 +163,6 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3  # v6.0.0
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
       - run: shellcheck -V
       - run: git ls-files -z '*.sh' | xargs -0 --no-run-if-empty shellcheck
