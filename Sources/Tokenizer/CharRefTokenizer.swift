@@ -70,7 +70,7 @@ struct CharRefTokenizer: ~Copyable {
     private mutating func named(input: inout BufferQueue) -> CharRefProcessResult {
         repeat {
             guard let c = input.peek() else {
-                guard let (endIndex, chars) = lastMatch else {
+                guard let (endIndex, chars) = self.lastMatch else {
                     input.prepend(StrSlice(self.nameBuffer))
                     return .doneChar("&")
                 }
@@ -81,9 +81,9 @@ struct CharRefTokenizer: ~Copyable {
             self.nameBuffer.append(c)
             switch processedNamedChars[self.nameBuffer] {
             case ("\0", _)?: break
-            case let chars?: lastMatch = (self.nameBuffer.endIndex, chars)
+            case let chars?: self.lastMatch = (self.nameBuffer.endIndex, chars)
             case nil:
-                if let (endIndex, chars) = lastMatch {
+                if let (endIndex, chars) = self.lastMatch {
                     self.state = .namedEnd(endIndex: endIndex, replaceChars: chars)
                 } else {
                     self.state = .ambiguousAmpersand
