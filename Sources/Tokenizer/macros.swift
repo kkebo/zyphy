@@ -53,7 +53,6 @@ import Str
 @freestanding(codeItem) macro goEmitDOCTYPEAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro goEmitForceQuirksDOCTYPEAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro goEmitNewForceQuirksDOCTYPEAndEOF() = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
-@freestanding(codeItem) macro goConsumeCharRef(inAttr: Bool) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError, _: ParseError, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError, _: ParseError, createComment: Str, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")
 @freestanding(codeItem) macro go(error: ParseError, _: ParseError, appendComment: Str, to: State) = #externalMacro(module: "TokenizerMacros", type: "GoMacro")

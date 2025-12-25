@@ -179,8 +179,6 @@ extension GoMacro: CodeItemMacro {
                 "self.emitEOF()",
                 "return .suspend",
             ]
-        case "goConsumeCharRef":
-            return ["self.consumeCharRef(\(node.arguments))", "return .continue"]
         case let name:
             preconditionFailure("not supported: \(name)")
         }
