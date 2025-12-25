@@ -1201,12 +1201,12 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @_disfavoredOverload
     @inline(always)
-    private mutating func processCharRef(_ s: consuming StrSlice) {
+    private mutating func processCharRef(_ c1: consuming Char, _ c2: consuming Char) {
         switch self.state {
-        case .data, .rcdata: #go(emit: s)
-        case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted: #go(appendAttrValue: s)
+        case .data, .rcdata: #go(emit: c1, c2)
+        case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted:
+            #go(appendAttrValue: c1, c2)
         case _: preconditionFailure("unreachable")
         }
     }
@@ -1541,7 +1541,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         repeat {
             switch charRefTokenizer.step(tokenizer: &self, input: &input) {
             case .continue: continue
-            case .doneChars(let s): self.processCharRef(s)
+            case .doneChars(let c1, let c2): self.processCharRef(c1, c2)
             case .doneChar(let c): self.processCharRef(c)
             }
             break
