@@ -4,7 +4,7 @@ import Str
 private enum CharRefState {
     case initial
     case named
-    case namedEnd(endIndex: Str.Index, replaceChars: (Char, Char))
+    case namedEnd(endIndex: StrSlice.Index, replaceChars: (Char, Char))
     case ambiguousAmpersand
     case numeric
     case hexadecimalStart(uppercase: Bool)
@@ -24,8 +24,8 @@ struct CharRefTokenizer: ~Copyable {
     private var state: CharRefState = .initial
     private var num: Int = 0
     private var numTooBig: Bool = false
-    private var nameBuffer: Str = ""
-    private var lastMatch: (endIndex: Str.Index, replaceChars: (Char, Char))?
+    private var nameBuffer: StrSlice = ""
+    private var lastMatch: (endIndex: StrSlice.Index, replaceChars: (Char, Char))?
     private let isInAttr: Bool
 
     init(inAttr isInAttr: Bool) {
@@ -71,7 +71,7 @@ struct CharRefTokenizer: ~Copyable {
         repeat {
             guard let c = input.peek() else {
                 guard let (endIndex, chars) = self.lastMatch else {
-                    input.prepend(StrSlice(self.nameBuffer))
+                    input.prepend(self.nameBuffer)
                     return .doneChar("&")
                 }
                 self.state = .namedEnd(endIndex: endIndex, replaceChars: chars)
@@ -95,7 +95,7 @@ struct CharRefTokenizer: ~Copyable {
 
     @inline(always)
     private mutating func namedEnd(
-        endIndex: Str.Index,
+        endIndex: StrSlice.Index,
         replaceChars: (Char, Char),
         tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
         input: inout BufferQueue,
@@ -110,7 +110,7 @@ struct CharRefTokenizer: ~Copyable {
         switch (isInAttr, lastChar, nextChar) {
         case (_, ";", _): break
         case (true, _, "="?), (true, _, ("0"..."9")?), (true, _, ("A"..."Z")?), (true, _, ("a"..."z")?):
-            input.prepend(StrSlice(self.nameBuffer))
+            input.prepend(self.nameBuffer)
             return .doneChar("&")
         case _: tokenizer.emitError(.missingSemicolon)
         }
@@ -128,7 +128,7 @@ struct CharRefTokenizer: ~Copyable {
     ) -> CharRefProcessResult {
         repeat {
             guard let c = input.peek() else {
-                input.prepend(StrSlice(self.nameBuffer))
+                input.prepend(self.nameBuffer)
                 return .doneChar("&")
             }
             switch c {
@@ -139,7 +139,7 @@ struct CharRefTokenizer: ~Copyable {
             case ";": tokenizer.emitError(.unknownNamedCharRef)
             case _: break
             }
-            input.prepend(StrSlice(self.nameBuffer))
+            input.prepend(self.nameBuffer)
             return .doneChar("&")
         } while true
     }
