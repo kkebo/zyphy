@@ -30,7 +30,7 @@ jobs:
       - run: ./scripts/ci-install-swift.sh
       - run: swift --version
       - run: swift build --build-tests --disable-xctest --enable-code-coverage
-      - run: swift test --skip-build --disable-xctest --enable-code-coverage --parallel
+      - run: swift test --skip-build --disable-xctest --enable-code-coverage
       - name: llvm-cov report
         id: report
         run: |
