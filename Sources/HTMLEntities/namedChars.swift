@@ -1,5 +1,24 @@
 public import Str
 
+// FIXME: This process should be done at compile-time, not runtime.
+public let processedNamedChars: [Str: (Unicode.Scalar, Unicode.Scalar)] = {
+    var result: [Str: (Unicode.Scalar, Unicode.Scalar)] = .init(
+        uniqueKeysWithValues: namedChars.indices.lazy.map {
+            let (key, v0, v1) = namedChars[$0]
+            return (key, (v0, v1))
+        }
+    )
+    for key in result.keys {
+        for i in 1..<key.count {
+            let k = Str(key.prefix(i))
+            if !result.keys.contains(k) {
+                result[k] = ("\0", "\0")
+            }
+        }
+    }
+    return result
+}()
+
 public let namedChars: [2231 of (Str, Unicode.Scalar, Unicode.Scalar)] = [
     ("Aacute;", "\u{C1}", "\0"),
     ("aacute;", "\u{E1}", "\0"),
@@ -2233,22 +2252,3 @@ public let namedChars: [2231 of (Str, Unicode.Scalar, Unicode.Scalar)] = [
     ("yen", "\u{A5}", "\0"),
     ("yuml", "\u{FF}", "\0"),
 ]
-
-// FIXME: This process should be done at compile-time, not runtime.
-public let processedNamedChars: [Str: (Unicode.Scalar, Unicode.Scalar)] = {
-    var result: [Str: (Unicode.Scalar, Unicode.Scalar)] = .init(
-        uniqueKeysWithValues: namedChars.indices.lazy.map {
-            let (key, v0, v1) = namedChars[$0]
-            return (key, (v0, v1))
-        }
-    )
-    for key in result.keys {
-        for i in 1..<key.count {
-            let k = Str(key.prefix(i))
-            if !result.keys.contains(k) {
-                result[k] = ("\0", "\0")
-            }
-        }
-    }
-    return result
-}()
