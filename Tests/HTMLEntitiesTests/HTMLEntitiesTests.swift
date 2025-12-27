@@ -8,17 +8,21 @@ private struct Entry: Decodable {
 }
 
 @Test
-func namedCharRef() throws {
+func namedCharRef() async throws {
     let dict = try JSONDecoder()
         .decode(
             [String: Entry].self,
             from: Data(contentsOf: #require(Bundle.module.url(forResource: "entities", withExtension: "json"))),
         )
 
-    for (key, value) in dict {
-        switch try #require(processedNamedChars[Str(key.dropFirst().unicodeScalars)]) {
-        case (let c1, "\0"): #expect(value.codepoints == [c1.value])
-        case (let c1, let c2): #expect(value.codepoints == [c1.value, c2.value])
+    try await withThrowingDiscardingTaskGroup { group in
+        for (key, value) in dict {
+            group.addTask {
+                switch try #require(processedNamedChars[Str(key.dropFirst().unicodeScalars)]) {
+                case (let c1, "\0"): #expect(value.codepoints == [c1.value])
+                case (let c1, let c2): #expect(value.codepoints == [c1.value, c2.value])
+                }
+            }
         }
     }
 }
