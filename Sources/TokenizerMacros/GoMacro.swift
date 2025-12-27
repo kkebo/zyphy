@@ -81,6 +81,10 @@ extension GoMacro: CodeItemMacro {
                 case "appendAttrValue":
                     items += ["self.appendAttrValue(\(arg.expression))"]
                     argList = .init(argList.dropFirst())
+                    while let arg = argList.first, arg.label == nil {
+                        items += ["self.appendAttrValue(\(arg.expression))"]
+                        argList = .init(argList.dropFirst())
+                    }
                 case "emitTag":
                     precondition(argList.count == 1)
                     items += ["self.go(to: \(arg.expression))", "self.emitTag()", "return .continue"]

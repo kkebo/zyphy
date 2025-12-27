@@ -16,7 +16,7 @@ private enum CharRefState {
 
 enum CharRefProcessResult: ~Copyable {
     case `continue`
-    case doneChars(StrSlice)
+    case doneChars(Char, Char)
     case doneChar(Char)
 }
 
@@ -117,7 +117,7 @@ struct CharRefTokenizer: ~Copyable {
         input.prepend(self.nameBuffer[endIndex...])
         return switch replaceChars {
         case (let c1, "\0"): .doneChar(c1)
-        case (let c1, let c2): .doneChars([c1, c2])
+        case (let c1, let c2): .doneChars(c1, c2)
         }
     }
 
