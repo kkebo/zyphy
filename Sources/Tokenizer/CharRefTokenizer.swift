@@ -107,7 +107,7 @@ struct CharRefTokenizer: ~Copyable {
             } else {
                 nil
             }
-        switch (isInAttr, lastChar, nextChar) {
+        switch (self.isInAttr, lastChar, nextChar) {
         case (_, ";", _): break
         case (true, _, "="?), (true, _, ("0"..."9")?), (true, _, ("A"..."Z")?), (true, _, ("a"..."z")?):
             input.prepend(self.nameBuffer)
