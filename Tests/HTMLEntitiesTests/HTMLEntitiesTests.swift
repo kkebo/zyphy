@@ -15,17 +15,17 @@ func namedCharRef() async throws {
             from: Data(contentsOf: #require(Bundle.module.url(forResource: "entities", withExtension: "json"))),
         )
 
-    let namedCharsDict: [StrSlice: (Unicode.Scalar, Unicode.Scalar)] = .init(
+    let namedCharsDict: [UInt64: (Unicode.Scalar, Unicode.Scalar)] = .init(
         uniqueKeysWithValues: namedChars.indices.lazy.map {
             let (key, v0, v1) = namedChars[$0]
-            return (key, (v0, v1))
+            return (fnv1a(key), (Char(v0)!, Char(v1)!))
         }
     )
 
     try await withThrowingDiscardingTaskGroup { group in
         for (key, value) in dict {
             group.addTask {
-                let key = StrSlice(key.dropFirst().unicodeScalars)
+                let key = fnv1a(StrSlice(key.dropFirst().unicodeScalars))
                 let result1 = try #require(namedCharsDict[key])
                 let result2 = try #require(processedNamedChars[key])
                 #expect(result1 == result2)
