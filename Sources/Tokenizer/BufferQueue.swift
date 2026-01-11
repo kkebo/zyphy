@@ -11,11 +11,15 @@ public struct BufferQueue: ~Copyable, Sendable {
         self.buffers = [buf]
     }
 
+    @inline(always)
+    @export(implementation)
     mutating func prepend(_ buf: StrSlice) {
         guard !buf.isEmpty else { return }
         self.buffers.prepend(buf)
     }
 
+    @inline(always)
+    @export(implementation)
     func peek() -> Char? {
         self.buffers.first.flatMap { $0.first }
     }
@@ -26,8 +30,6 @@ public struct BufferQueue: ~Copyable, Sendable {
         return self.buffers[0].popFirst()
     }
 
-    @inline(always)
-    @export(implementation)
     mutating func pop(except s: consuming SmallCharSet) -> PopResult? {
         guard !self.buffers.isEmpty else { return nil }
         defer { if self.buffers[0].isEmpty { self.buffers.removeFirst() } }

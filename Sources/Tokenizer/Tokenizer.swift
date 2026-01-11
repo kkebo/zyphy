@@ -117,7 +117,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
-    @inline(always)
     private mutating func data(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "&", "<", "\0"]) {
@@ -131,7 +130,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func rcdata(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "&", "<", "\0"]) {
@@ -145,7 +143,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func rawtext(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "<", "\0"]) {
@@ -158,7 +155,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptData(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "<", "\0"]) {
@@ -171,7 +167,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func plaintext(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "\0"]) {
@@ -183,7 +178,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func tagOpen(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -200,7 +194,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func endTagOpen(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -216,7 +209,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func tagName(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -230,7 +222,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func rcdataLessThanSign(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -241,7 +232,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func rcdataEndTagOpen(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -255,7 +245,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func rcdataEndTagName(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             let c = self.getChar(from: &input)
@@ -278,7 +267,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func rawtextLessThanSign(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -291,7 +279,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func rawtextEndTagOpen(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -307,7 +294,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func rawtextEndTagName(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             let c = self.getChar(from: &input)
@@ -330,7 +316,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataLessThanSign(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -344,7 +329,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataEndTagOpen(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -360,7 +344,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataEndTagName(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             let c = self.getChar(from: &input)
@@ -383,7 +366,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataEscapeStart(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -396,7 +378,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataEscapeStartDash(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -409,7 +390,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataEscaped(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "-", "<", "\0"]) {
@@ -423,7 +403,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataEscapedDash(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -436,7 +415,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataEscapedDashDash(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -450,7 +428,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataEscapedLessThanSign(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -468,7 +445,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataEscapedEndTagOpen(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -485,7 +461,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataEscapedEndTagName(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             let c = self.getChar(from: &input)
@@ -508,7 +483,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataDoubleEscapeStart(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             guard let c = self.getChar(from: &input) else { #go(error: .eofInScriptComment, emit: .eof) }
@@ -531,7 +505,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataDoubleEscaped(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "-", "<", "\0"]) {
@@ -545,7 +518,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataDoubleEscapedDash(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -558,7 +530,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataDoubleEscapedDashDash(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -572,7 +543,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataDoubleEscapedLessThanSign(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -586,7 +556,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func scriptDataDoubleEscapeEnd(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             guard let c = self.getChar(from: &input) else { #go(error: .eofInScriptComment, emit: .eof) }
@@ -609,7 +578,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func beforeAttributeName(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -627,7 +595,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func attributeName(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -645,7 +612,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func afterAttributeName(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -663,7 +629,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func beforeAttributeValue(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -677,7 +642,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func attributeValueDoubleQuoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "\"", "&", "\0"]) {
@@ -691,7 +655,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func attributeValueSingleQuoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "'", "&", "\0"]) {
@@ -705,7 +668,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func attributeValueUnquoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(
@@ -731,7 +693,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func afterAttributeValueQuoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -753,7 +714,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func selfClosingStartTag(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -771,7 +731,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func bogusComment(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -783,7 +742,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func markupDeclarationOpen(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             if self.startsExact(&input, with: "--") == true {
@@ -803,7 +761,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func commentStart(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -817,7 +774,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func commentStartDash(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -831,7 +787,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func comment(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -844,7 +799,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func commentLessThanSign(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -858,7 +812,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func commentLessThanSignBang(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -871,7 +824,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func commentLessThanSignBangDash(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -884,7 +836,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func commentLessThanSignBangDashDash(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -899,7 +850,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func commentEndDash(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -912,7 +862,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func commentEnd(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -927,7 +876,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func commentEndBang(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -941,7 +889,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func doctype(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -955,7 +902,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func beforeDOCTYPEName(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -968,7 +914,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func doctypeName(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -981,7 +926,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func afterDOCTYPEName(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             if self.starts(&input, with: "public") == true {
@@ -1000,7 +944,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func afterDOCTYPEPublicKeyword(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1015,7 +958,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func beforeDOCTYPEPublicID(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1030,7 +972,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func doctypePublicIDDoubleQuoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1043,7 +984,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func doctypePublicIDSingleQuoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1056,7 +996,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func afterDOCTYPEPublicID(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1071,7 +1010,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func betweenDOCTYPEPublicAndSystemIDs(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1086,7 +1024,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func afterDOCTYPESystemKeyword(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1101,7 +1038,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func beforeDOCTYPESystemID(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1116,7 +1052,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func doctypeSystemIDDoubleQuoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1129,7 +1064,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func doctypeSystemIDSingleQuoted(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1142,7 +1076,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func afterDOCTYPESystemID(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1155,7 +1088,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func bogusDOCTYPE(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1167,7 +1099,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func cdataSection(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1178,7 +1109,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func cdataSectionBracket(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1189,7 +1119,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func cdataSectionEnd(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.getChar(from: &input) {
@@ -1201,7 +1130,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    @inline(always)
     private mutating func processCharRef(_ c1: consuming Char, _ c2: consuming Char) {
         switch self.state {
         case .data, .rcdata: #go(emit: c1, c2)
@@ -1211,7 +1139,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
-    @inline(always)
     private mutating func processCharRef(_ c: consuming Char) {
         switch self.state {
         case .data, .rcdata: #go(emit: c)
@@ -1220,7 +1147,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
-    @inline(always)
     private mutating func pop(from input: inout BufferQueue, except s: consuming SmallCharSet) -> PopResult? {
         guard !self.emitsAllErrors, self.reconsumeChar == nil else {
             return self.getChar(from: &input).map(PopResult.known)
@@ -1231,7 +1157,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
-    @inline(always)
     private mutating func preprocess(_ c: consuming Char, input: inout BufferQueue) -> Char {
         guard c != "\r" else {
             if input.peek() == "\n" { input.removeFirst() }
@@ -1256,7 +1181,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         return c
     }
 
-    @inline(always)
     private mutating func getChar(from input: inout BufferQueue) -> Char? {
         guard let reconsumeChar else {
             return input.popFirst().map { self.preprocess($0, input: &input) }
@@ -1265,7 +1189,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         return reconsumeChar
     }
 
-    @inline(always)
     private mutating func startsExact(_ input: inout BufferQueue, with pattern: consuming Str) -> Bool? {
         guard !input.buffers.isEmpty else { return nil }
         var bufIndex = 0
@@ -1288,7 +1211,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         return true
     }
 
-    @inline(always)
     private mutating func starts(_ input: inout BufferQueue, with pattern: consuming Str) -> Bool? {
         guard !input.buffers.isEmpty else { return nil }
         var bufIndex = 0
@@ -1403,7 +1325,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.sink.process(.comment(self.currentComment))
     }
 
-    @inline(always)
     private mutating func createStartTag(with c: consuming Char) {
         self.currentTagName.removeAll(keepingCapacity: true)
         self.currentTagName.append(c)
@@ -1411,7 +1332,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.currentAttrs.removeAll(keepingCapacity: true)
     }
 
-    @inline(always)
     private mutating func createEndTag(with c: consuming Char) {
         self.currentTagName.removeAll(keepingCapacity: true)
         self.currentTagName.append(c)
@@ -1446,7 +1366,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.currentAttrValue += s
     }
 
-    @inline(always)
     private mutating func pushAttr() {
         guard !self.currentAttrName.isEmpty else { return }
         if self.currentAttrs.keys.contains(self.currentAttrName) {
@@ -1535,7 +1454,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.sink.process(.doctype(self.currentDOCTYPE.clone()))
     }
 
-    @inline(always)
     private mutating func consumeCharRef(inAttr isInAttr: Bool, input: inout BufferQueue) {
         var charRefTokenizer = CharRefTokenizer(inAttr: isInAttr)
         repeat {

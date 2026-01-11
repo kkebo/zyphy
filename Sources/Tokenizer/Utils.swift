@@ -1,7 +1,5 @@
-public import Str
+import Str
 
-@inline(always)
-@export(implementation)
 func lowerASCIIOrNil(_ c: consuming Char) -> Char? {
     switch c {
     case "A"..."Z": .init(.init(UInt8(c.value) &+ 0x20))
@@ -10,8 +8,6 @@ func lowerASCIIOrNil(_ c: consuming Char) -> Char? {
     }
 }
 
-@inline(always)
-@export(implementation)
 func lowerASCII(_ c: consuming Char) -> Char {
     switch c {
     case "A"..."Z": .init(.init(UInt8(c.value) &+ 0x20))
