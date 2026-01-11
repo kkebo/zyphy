@@ -17,16 +17,16 @@ extension GoMacro: CodeItemMacro {
                 switch label.text {
                 case "to":
                     precondition(argList.count == 1)
-                    items += ["self.go(to: \(arg.expression))", "return .continue"]
+                    items += ["self.go(to: \(arg.expression))", "continue loop"]
                     break loop
                 case "reconsume":
                     precondition(argList.count == 2)
-                    items += ["self.go(\(argList))", "return .continue"]
+                    items += ["self.go(\(argList))", "continue loop"]
                     break loop
                 case "emit":
                     if arg.expression.as(MemberAccessExprSyntax.self)?.declName.baseName.text == "eof" {
                         precondition(argList.count == 1)
-                        items += ["self.emitEOF()", "return .suspend"]
+                        items += ["self.emitEOF()", "break loop"]
                         break loop
                     } else {
                         items += ["self.emit(\(arg.expression))"]
@@ -34,7 +34,7 @@ extension GoMacro: CodeItemMacro {
                         while let arg = argList.first, arg.label == nil {
                             if arg.expression.as(MemberAccessExprSyntax.self)?.declName.baseName.text == "eof" {
                                 precondition(argList.count == 1)
-                                items += ["self.emitEOF()", "return .suspend"]
+                                items += ["self.emitEOF()", "break loop"]
                                 break loop
                             } else {
                                 items += ["self.emit(\(arg.expression))"]
@@ -57,11 +57,11 @@ extension GoMacro: CodeItemMacro {
                     argList = .init(argList.dropFirst())
                 case "clearComment":
                     precondition(argList.count == 1)
-                    items += ["self.clearComment()", "self.go(to: \(arg.expression))", "return .continue"]
+                    items += ["self.clearComment()", "self.go(to: \(arg.expression))", "continue loop"]
                     break loop
                 case "emitComment":
                     precondition(argList.count == 1)
-                    items += ["self.emitComment()", "self.go(to: \(arg.expression))", "return .continue"]
+                    items += ["self.emitComment()", "self.go(to: \(arg.expression))", "continue loop"]
                     break loop
                 case "createStartTag":
                     items += ["self.createStartTag(with: \(arg.expression))"]
@@ -87,11 +87,11 @@ extension GoMacro: CodeItemMacro {
                     }
                 case "emitTag":
                     precondition(argList.count == 1)
-                    items += ["self.go(to: \(arg.expression))", "self.emitTag()", "return .continue"]
+                    items += ["self.go(to: \(arg.expression))", "self.emitTag()", "continue loop"]
                     break loop
                 case "emitSelfClosingTag":
                     precondition(argList.count == 1)
-                    items += ["self.go(to: \(arg.expression))", "self.emitTag(selfClosing: true)", "return .continue"]
+                    items += ["self.go(to: \(arg.expression))", "self.emitTag(selfClosing: true)", "continue loop"]
                     break loop
                 case "createDOCTYPE":
                     items += ["self.createDOCTYPE(with: \(arg.expression))"]
@@ -104,22 +104,22 @@ extension GoMacro: CodeItemMacro {
                     argList = .init(argList.dropFirst())
                 case "clearPublicID":
                     precondition(argList.count == 1)
-                    items += ["self.clearPublicID()", "self.go(to: \(arg.expression))", "return .continue"]
+                    items += ["self.clearPublicID()", "self.go(to: \(arg.expression))", "continue loop"]
                     break loop
                 case "appendSystemID":
                     items += ["self.appendSystemID(\(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "clearSystemID":
                     precondition(argList.count == 1)
-                    items += ["self.clearSystemID()", "self.go(to: \(arg.expression))", "return .continue"]
+                    items += ["self.clearSystemID()", "self.go(to: \(arg.expression))", "continue loop"]
                     break loop
                 case "forceQuirks":
                     precondition(argList.count == 1)
-                    items += ["self.forceQuirks()", "self.go(to: \(arg.expression))", "return .continue"]
+                    items += ["self.forceQuirks()", "self.go(to: \(arg.expression))", "continue loop"]
                     break loop
                 case "emitDOCTYPE":
                     precondition(argList.count == 1)
-                    items += ["self.emitDOCTYPE()", "self.go(to: \(arg.expression))", "return .continue"]
+                    items += ["self.emitDOCTYPE()", "self.go(to: \(arg.expression))", "continue loop"]
                     break loop
                 case "emitForceQuirksDOCTYPE":
                     precondition(argList.count == 1)
@@ -127,7 +127,7 @@ extension GoMacro: CodeItemMacro {
                         "self.forceQuirks()",
                         "self.emitDOCTYPE()",
                         "self.go(to: \(arg.expression))",
-                        "return .continue",
+                        "continue loop",
                     ]
                     break loop
                 case "emitNewForceQuirksDOCTYPE":
@@ -137,7 +137,7 @@ extension GoMacro: CodeItemMacro {
                         "self.forceQuirks()",
                         "self.emitDOCTYPE()",
                         "self.go(to: \(arg.expression))",
-                        "return .continue",
+                        "continue loop",
                     ]
                     break loop
                 case "createTemp":
@@ -147,19 +147,19 @@ extension GoMacro: CodeItemMacro {
                     items += ["self.appendTempBuffer(\(arg.expression))"]
                     argList = .init(argList.dropFirst())
                 case "clearTemp":
-                    items += ["self.clearTempBuffer()", "self.go(to: \(arg.expression))", "return .continue"]
+                    items += ["self.clearTempBuffer()", "self.go(to: \(arg.expression))", "continue loop"]
                     break loop
                 case "emitTempAndReconsume":
                     precondition(argList.count == 2)
                     var arg1 = arg
                     arg1.label = "reconsume"
                     guard let arg2 = argList.dropFirst().first else { preconditionFailure() }
-                    items += ["self.emitTempBuffer()", "self.go(\(arg1)\(arg2))", "return .continue"]
+                    items += ["self.emitTempBuffer()", "self.go(\(arg1)\(arg2))", "continue loop"]
                     break loop
                 case "emitTempAndEmit":
                     if arg.expression.as(MemberAccessExprSyntax.self)?.declName.baseName.text == "eof" {
                         precondition(argList.count == 1)
-                        items += ["self.emitTempBuffer()", "self.emitEOF()", "return .suspend"]
+                        items += ["self.emitTempBuffer()", "self.emitEOF()", "break loop"]
                         break loop
                     } else {
                         preconditionFailure("not supported")
@@ -170,18 +170,18 @@ extension GoMacro: CodeItemMacro {
             }
             return items
         case "goEmitCommentAndEOF":
-            return ["self.emitComment()", "self.emitEOF()", "return .suspend"]
+            return ["self.emitComment()", "self.emitEOF()", "break loop"]
         case "goEmitDOCTYPEAndEOF":
-            return ["self.emitDOCTYPE()", "self.emitEOF()", "return .suspend"]
+            return ["self.emitDOCTYPE()", "self.emitEOF()", "break loop"]
         case "goEmitForceQuirksDOCTYPEAndEOF":
-            return ["self.forceQuirks()", "self.emitDOCTYPE()", "self.emitEOF()", "return .suspend"]
+            return ["self.forceQuirks()", "self.emitDOCTYPE()", "self.emitEOF()", "break loop"]
         case "goEmitNewForceQuirksDOCTYPEAndEOF":
             return [
                 "self.createDOCTYPE()",
                 "self.forceQuirks()",
                 "self.emitDOCTYPE()",
                 "self.emitEOF()",
-                "return .suspend",
+                "break loop",
             ]
         case let name:
             preconditionFailure("not supported: \(name)")
