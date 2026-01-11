@@ -1,16 +1,16 @@
 public import Str
 
 // FIXME: This process should be done at compile-time, not runtime.
-public let processedNamedChars: [StrSlice: (Unicode.Scalar, Unicode.Scalar)] = {
-    var result: [StrSlice: (Unicode.Scalar, Unicode.Scalar)] = .init(
+public let processedNamedChars: [UInt64: (Unicode.Scalar, Unicode.Scalar)] = {
+    var result: [UInt64: (Unicode.Scalar, Unicode.Scalar)] = .init(
         uniqueKeysWithValues: namedChars.indices.lazy.map {
             let (key, v0, v1) = namedChars[$0]
-            return (key, (v0, v1))
+            return (fnv1a(key), (v0, v1))
         }
     )
-    for key in result.keys {
-        for i in 1..<key.count {
-            let k = key.prefix(i)
+    for i in namedChars.indices {
+        for n in 1..<namedChars[i].0.utf8CodeUnitCount {
+            let k = fnv1a(namedChars[i].0, n: n)
             if !result.keys.contains(k) {
                 result[k] = ("\0", "\0")
             }
@@ -19,7 +19,43 @@ public let processedNamedChars: [StrSlice: (Unicode.Scalar, Unicode.Scalar)] = {
     return result
 }()
 
-public let namedChars: [2231 of (StrSlice, Unicode.Scalar, Unicode.Scalar)] = [
+@inline(always)
+@export(implementation)
+public func fnv1a(_ s: StrSlice) -> UInt64 {
+    var hash: UInt64 = 0xcbf2_9ce4_8422_2325
+    for b in s.map(\.value) {
+        hash ^= UInt64(b)
+        hash &*= 0x100_0000_01b3
+    }
+    return hash
+}
+
+@inline(always)
+@export(implementation)
+package func fnv1a(_ s: StaticString) -> UInt64 {
+    var hash: UInt64 = 0xcbf2_9ce4_8422_2325
+    var p = s.utf8Start
+    while p.pointee != 0 {
+        hash ^= UInt64(p.pointee)
+        hash &*= 0x100_0000_01b3
+        p += 1
+    }
+    return hash
+}
+
+@inline(always)
+@export(implementation)
+package func fnv1a(_ s: StaticString, n: Int) -> UInt64 {
+    var hash: UInt64 = 0xcbf2_9ce4_8422_2325
+    let p = s.utf8Start
+    for i in 0..<n {
+        hash ^= UInt64(p[i])
+        hash &*= 0x100_0000_01b3
+    }
+    return hash
+}
+
+public let namedChars: [2231 of (StaticString, Unicode.Scalar, Unicode.Scalar)] = [
     ("Aacute;", "\u{C1}", "\0"),
     ("aacute;", "\u{E1}", "\0"),
     ("Abreve;", "\u{102}", "\0"),

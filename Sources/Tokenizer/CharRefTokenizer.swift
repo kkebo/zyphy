@@ -77,7 +77,7 @@ struct CharRefTokenizer: ~Copyable {
             }
             input.removeFirst()
             self.nameBuffer.append(c)
-            switch processedNamedChars[self.nameBuffer] {
+            switch processedNamedChars[fnv1a(self.nameBuffer)] {
             case ("\0", _)?: break
             case let chars?: self.lastMatch = (self.nameBuffer.endIndex, chars)
             case nil:
