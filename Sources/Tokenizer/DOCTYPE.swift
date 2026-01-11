@@ -19,6 +19,7 @@ public struct DOCTYPE: ~Copyable, Sendable {
     }
 
     @inline(always)
+    @export(implementation)
     borrowing func clone() -> Self {
         .init(
             name: self.name,
