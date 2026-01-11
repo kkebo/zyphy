@@ -27,6 +27,7 @@ public struct BufferQueue: ~Copyable, Sendable {
     }
 
     @inline(always)
+    @export(implementation)
     mutating func pop(except s: consuming SmallCharSet) -> PopResult? {
         guard !self.buffers.isEmpty else { return nil }
         defer { if self.buffers[0].isEmpty { self.buffers.removeFirst() } }
