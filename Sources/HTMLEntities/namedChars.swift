@@ -1,6 +1,7 @@
 public import Str
 
 // FIXME: This process should be done at compile-time, not runtime.
+@available(macOS 26, *)
 public let processedNamedChars: [StrSlice: (Unicode.Scalar, Unicode.Scalar)] = {
     var result: [StrSlice: (Unicode.Scalar, Unicode.Scalar)] = .init(
         uniqueKeysWithValues: namedChars.indices.lazy.map {
@@ -19,6 +20,7 @@ public let processedNamedChars: [StrSlice: (Unicode.Scalar, Unicode.Scalar)] = {
     return result
 }()
 
+@available(macOS 26, *)
 public let namedChars: [2231 of (StrSlice, Unicode.Scalar, Unicode.Scalar)] = [
     ("Aacute;", "\u{C1}", "\0"),
     ("aacute;", "\u{E1}", "\0"),

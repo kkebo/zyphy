@@ -22,7 +22,7 @@ let swiftTestSettings: [SwiftSetting] = [
 let package = Package(
     name: "zyphy",
     platforms: [
-        .macOS(.v26),
+        .macOS(.v15),
         .iOS(.v26),
         .watchOS(.v26),
         .tvOS(.v26),

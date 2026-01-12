@@ -13,6 +13,7 @@ extension TestSink: TokenSink {
     }
 }
 
+@available(macOS 26, *)
 private func runBench(_ name: String, configuration conf: Benchmark.Configuration) {
     // swift-format-ignore: NeverUseForceTry, NeverForceUnwrap
     let html = try! String(
@@ -39,10 +40,12 @@ let benchmarks: @Sendable () -> Void = {
         maxIterations: 100,
     )
 
-    runBench("lipsum", configuration: conf)
-    runBench("lipsum-zh", configuration: conf)
-    runBench("medium-fragment", configuration: conf)
-    runBench("small-fragment", configuration: conf)
-    runBench("tiny-fragment", configuration: conf)
-    runBench("strong", configuration: conf)
+    if #available(macOS 26, *) {
+        runBench("lipsum", configuration: conf)
+        runBench("lipsum-zh", configuration: conf)
+        runBench("medium-fragment", configuration: conf)
+        runBench("small-fragment", configuration: conf)
+        runBench("tiny-fragment", configuration: conf)
+        runBench("strong", configuration: conf)
+    }
 }

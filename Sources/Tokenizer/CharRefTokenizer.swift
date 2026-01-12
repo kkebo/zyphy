@@ -20,6 +20,7 @@ enum CharRefProcessResult: ~Copyable {
     case doneChar(Char)
 }
 
+@available(macOS 26, *)
 struct CharRefTokenizer: ~Copyable {
     private var state: CharRefState = .initial
     private var num: Int = 0

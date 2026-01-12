@@ -1,6 +1,7 @@
 private import DequeModule
 private import Str
 
+@available(macOS 26, *)
 public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     public var sink: Sink
     public var emitsAllErrors: Bool
@@ -1467,4 +1468,5 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     }
 }
 
+@available(macOS 26, *)
 extension Tokenizer: Sendable where Sink: Sendable {}

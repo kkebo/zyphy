@@ -1,3 +1,4 @@
+@available(macOS 26, *)
 public let replacements: [32 of Unicode.Scalar] = [
     "\u{20AC}",
     "\0",
