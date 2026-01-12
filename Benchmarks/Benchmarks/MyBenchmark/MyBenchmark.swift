@@ -30,8 +30,7 @@ private func runBench(_ name: String, configuration conf: Benchmark.Configuratio
     }
 }
 
-@MainActor
-let benchmarks = {
+let benchmarks: @Sendable () -> Void = {
     let conf = Benchmark.Configuration(
         metrics: [.wallClock],
         warmupIterations: 10,
