@@ -5,7 +5,7 @@ public let processedNamedChars: [StrSlice: (Unicode.Scalar, Unicode.Scalar)] = {
     var result: [StrSlice: (Unicode.Scalar, Unicode.Scalar)] = .init(
         uniqueKeysWithValues: namedChars.indices.lazy.map {
             let (key, v0, v1) = namedChars[$0]
-            return (key, (v0, v1))
+            return (key[...], (v0, v1))
         }
     )
     for key in result.keys {
@@ -19,7 +19,7 @@ public let processedNamedChars: [StrSlice: (Unicode.Scalar, Unicode.Scalar)] = {
     return result
 }()
 
-public let namedChars: [2231 of (StrSlice, Unicode.Scalar, Unicode.Scalar)] = [
+public let namedChars: [2231 of (Str, Unicode.Scalar, Unicode.Scalar)] = [
     ("Aacute;", "\u{C1}", "\0"),
     ("aacute;", "\u{E1}", "\0"),
     ("Abreve;", "\u{102}", "\0"),
