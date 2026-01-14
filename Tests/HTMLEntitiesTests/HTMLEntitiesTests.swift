@@ -18,7 +18,7 @@ func namedCharRef() async throws {
     let namedCharsDict: [StrSlice: (Unicode.Scalar, Unicode.Scalar)] = .init(
         uniqueKeysWithValues: namedChars.indices.lazy.map {
             let (key, v0, v1) = namedChars[$0]
-            return (key, (v0, v1))
+            return (key[...], (v0, v1))
         }
     )
 
