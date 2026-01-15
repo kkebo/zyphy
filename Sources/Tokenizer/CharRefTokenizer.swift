@@ -258,7 +258,6 @@ struct CharRefTokenizer: ~Copyable {
     }
 
     // swift-format-ignore: NeverForceUnwrap
-
     private mutating func numericEnd(
         tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
         input: inout BufferQueue,
