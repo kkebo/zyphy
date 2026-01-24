@@ -3,8 +3,7 @@ import Str
 struct SmallCharSet {
     var bits: UInt64
 
-    @inline(always)
-    @inlinable
+    @_transparent
     func contains(_ c: Char) -> Bool {
         self.bits & 1 << c.value != 0
     }
