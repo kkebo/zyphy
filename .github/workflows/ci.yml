@@ -9,7 +9,7 @@ defaults:
   run:
     shell: bash -euo pipefail {0}
 jobs:
-  test:
+  test-linux:
     runs-on: ubuntu-24.04-arm
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
@@ -55,9 +55,29 @@ jobs:
         env:
           SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
         run: echo "$SUMMARY" >> "$GITHUB_STEP_SUMMARY"
+  test-macos:
+    runs-on: macos-26
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6.0.1
+        with:
+          submodules: recursive
+      - uses: actions/cache@8b402f58fbc84540c8b491a91e594a4576fec3d7  # v5.0.2
+        with:
+          path: |
+            ~/Library/Caches/org.swift.swiftpm
+            ~/Library/org.swift.swiftpm
+            ~/.swiftpm
+            .build
+          key: ${{ runner.os }}-swiftpm-${{ hashFiles('Package.resolved') }}
+          restore-keys: ${{ runner.os }}-swiftpm-
+      - run: ./scripts/ci-install-swift.sh
+      - run: swift --version
+      - run: swift test --disable-xctest
   comment-test:
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
-    needs: test
+    needs: test-linux
     runs-on: ubuntu-24.04-arm
     continue-on-error: true
     permissions:
@@ -66,7 +86,7 @@ jobs:
       - name: Comment PR
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b  # v3.0.1
         with:
-          message: ${{ needs.test.outputs.SUMMARY }}
+          message: ${{ needs.test-linux.outputs.SUMMARY }}
           comment-tag: coverage
   lint:
     runs-on: ubuntu-24.04-arm
@@ -78,7 +98,7 @@ jobs:
       - run: swift format lint -rsp .
   benchmark:
     if: ${{ github.event_name == 'pull_request' }}
-    needs: test
+    needs: test-linux
     runs-on: ubuntu-24.04-arm
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
