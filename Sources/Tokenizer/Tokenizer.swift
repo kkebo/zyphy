@@ -41,6 +41,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
+    @_transparent
     private mutating func step(_ input: inout BufferQueue) -> ProcessResult {
         switch self.state {
         case .data: self.data(&input)
@@ -120,7 +121,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     private mutating func data(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "&", "<", "\0"]) {
-            case .known("&"): self.consumeCharRef(inAttr: false, input: &input)
+            case .known("&"): self.consumeCharRef(input: &input)
             case .known("<"): #go(to: .tagOpen)
             case .known("\0"): #go(error: .unexpectedNull, emit: "\0")
             case nil: #go(emit: .eof)
@@ -133,7 +134,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     private mutating func rcdata(_ input: inout BufferQueue) -> ProcessResult {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "&", "<", "\0"]) {
-            case .known("&"): self.consumeCharRef(inAttr: false, input: &input)
+            case .known("&"): self.consumeCharRef(input: &input)
             case .known("<"): #go(to: .rcdataLessThanSign)
             case .known("\0"): #go(error: .unexpectedNull, emit: "\u{FFFD}")
             case nil: #go(emit: .eof)
@@ -646,7 +647,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "\"", "&", "\0"]) {
             case .known("\""): #go(to: .afterAttributeValueQuoted)
-            case .known("&"): self.consumeCharRef(inAttr: true, input: &input)
+            case .known("&"): self.consumeCharRefInAttr(input: &input)
             case .known("\0"): #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
             case nil: #go(error: .eofInTag, emit: .eof)
             case .known(let c): #go(appendAttrValue: c)
@@ -659,7 +660,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         repeat {
             switch self.pop(from: &input, except: ["\r", "\n", "'", "&", "\0"]) {
             case .known("'"): #go(to: .afterAttributeValueQuoted)
-            case .known("&"): self.consumeCharRef(inAttr: true, input: &input)
+            case .known("&"): self.consumeCharRefInAttr(input: &input)
             case .known("\0"): #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
             case nil: #go(error: .eofInTag, emit: .eof)
             case .known(let c): #go(appendAttrValue: c)
@@ -678,7 +679,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
             case .known("\n"): #go(to: .beforeAttributeName)
             case .known("\u{0C}"): #go(to: .beforeAttributeName)
             case .known(" "): #go(to: .beforeAttributeName)
-            case .known("&"): self.consumeCharRef(inAttr: true, input: &input)
+            case .known("&"): self.consumeCharRefInAttr(input: &input)
             case .known(">"): #go(emitTag: .data)
             case .known("\0"): #go(error: .unexpectedNull, appendAttrValue: "\u{FFFD}")
             case nil: #go(error: .eofInTag, emit: .eof)
@@ -1130,23 +1131,6 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         } while true
     }
 
-    private mutating func processCharRef(_ c1: consuming Char, _ c2: consuming Char) {
-        switch self.state {
-        case .data, .rcdata: #go(emit: c1, c2)
-        case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted:
-            #go(appendAttrValue: c1, c2)
-        case _: preconditionFailure("unreachable")
-        }
-    }
-
-    private mutating func processCharRef(_ c: consuming Char) {
-        switch self.state {
-        case .data, .rcdata: #go(emit: c)
-        case .attributeValueDoubleQuoted, .attributeValueSingleQuoted, .attributeValueUnquoted: #go(appendAttrValue: c)
-        case _: preconditionFailure("unreachable")
-        }
-    }
-
     private mutating func pop(from input: inout BufferQueue, except s: consuming SmallCharSet) -> PopResult? {
         guard !self.emitsAllErrors, self.reconsumeChar == nil else {
             return self.getChar(from: &input).map(PopResult.known)
@@ -1233,98 +1217,99 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         return true
     }
 
-    @inline(always)
+    @_transparent
     private mutating func go(to state: consuming State) {
         self.state = state
     }
 
-    @inline(always)
+    @_transparent
     private mutating func go(reconsume c: consuming Char, in state: consuming State) {
         self.reconsumeChar = c
         self.state = state
     }
 
-    @inline(always)
+    @_transparent
     private mutating func emit(_ c: consuming Char) {
         self.sink.process(.char(c))
     }
 
     @_disfavoredOverload
-    @inline(always)
+    @_transparent
     private mutating func emit(_ s: consuming StrSlice) {
         self.sink.process(.chars(s))
     }
 
-    @inline(always)
+    @_transparent
     private mutating func emit(_ token: consuming Token) {
         self.sink.process(token)
     }
 
-    @inline(always)
+    @_transparent
     private mutating func emitEOF() {
         self.sink.process(.eof)
     }
 
-    @inline(always)
+    @_transparent
     mutating func emitError(_ error: consuming ParseError) {
         self.sink.process(.error(error))
     }
 
-    @inline(always)
+    @_transparent
     private mutating func createTempBuffer(with c: consuming Char) {
         self.tempBuffer.removeAll(keepingCapacity: true)
         self.tempBuffer.append(c)
     }
 
-    @inline(always)
+    @_transparent
     private mutating func appendTempBuffer(_ c: consuming Char) {
         self.tempBuffer.append(c)
     }
 
-    @inline(always)
+    @_transparent
     private mutating func clearTempBuffer() {
         self.tempBuffer.removeAll(keepingCapacity: true)
     }
 
-    @inline(always)
+    @_transparent
     private mutating func emitTempBuffer() {
         self.emit(ArraySlice(self.tempBuffer))
         self.tempBuffer.removeAll(keepingCapacity: true)
     }
 
-    @inline(always)
+    @_transparent
     private mutating func createComment(with c: consuming Char) {
         self.currentComment.removeAll(keepingCapacity: true)
         self.currentComment.append(c)
     }
 
     @_disfavoredOverload
-    @inline(always)
+    @_transparent
     private mutating func createComment(with s: consuming Str) {
         self.currentComment = s
     }
 
-    @inline(always)
+    @_transparent
     private mutating func appendComment(_ c: consuming Char) {
         self.currentComment.append(c)
     }
 
     @_disfavoredOverload
-    @inline(always)
+    @_transparent
     private mutating func appendComment(_ s: consuming Str) {
         self.currentComment += s
     }
 
-    @inline(always)
+    @_transparent
     private mutating func clearComment() {
         self.currentComment.removeAll(keepingCapacity: true)
     }
 
-    @inline(always)
+    @_transparent
     private mutating func emitComment() {
         self.sink.process(.comment(self.currentComment))
     }
 
+    @_transparent
     private mutating func createStartTag(with c: consuming Char) {
         self.currentTagName.removeAll(keepingCapacity: true)
         self.currentTagName.append(c)
@@ -1332,6 +1317,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.currentAttrs.removeAll(keepingCapacity: true)
     }
 
+    @_transparent
     private mutating func createEndTag(with c: consuming Char) {
         self.currentTagName.removeAll(keepingCapacity: true)
         self.currentTagName.append(c)
@@ -1339,33 +1325,34 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.currentAttrs.removeAll(keepingCapacity: true)
     }
 
-    @inline(always)
+    @_transparent
     private mutating func appendTagName(_ c: consuming Char) {
         self.currentTagName.append(c)
     }
 
-    @inline(always)
+    @_transparent
     private mutating func createAttr(with c: consuming Char) {
         self.pushAttr()
         self.currentAttrName.append(c)
     }
 
-    @inline(always)
+    @_transparent
     private mutating func appendAttrName(_ c: consuming Char) {
         self.currentAttrName.append(c)
     }
 
-    @inline(always)
+    @_transparent
     private mutating func appendAttrValue(_ c: consuming Char) {
         self.currentAttrValue.append(c)
     }
 
     @_disfavoredOverload
-    @inline(always)
+    @_transparent
     private mutating func appendAttrValue(_ s: consuming StrSlice) {
         self.currentAttrValue += s
     }
 
+    @_transparent
     private mutating func pushAttr() {
         guard !self.currentAttrName.isEmpty else { return }
         if self.currentAttrs.keys.contains(self.currentAttrName) {
@@ -1377,6 +1364,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         self.currentAttrValue.removeAll(keepingCapacity: true)
     }
 
+    @_transparent
     private mutating func emitTag(selfClosing: Bool = false) {
         self.pushAttr()
 
@@ -1394,17 +1382,17 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
-    @inline(always)
+    @_transparent
     private mutating func createDOCTYPE() {
         self.currentDOCTYPE = .init()
     }
 
-    @inline(always)
+    @_transparent
     private mutating func createDOCTYPE(with c: consuming Char) {
         self.currentDOCTYPE = .init(name: .init(c))
     }
 
-    @inline(always)
+    @_transparent
     private mutating func appendDOCTYPEName(_ c: consuming Char) {
         switch self.currentDOCTYPE.name {
         case .some: self.currentDOCTYPE.name?.append(c)
@@ -1412,7 +1400,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
-    @inline(always)
+    @_transparent
     private mutating func appendPublicID(_ c: consuming Char) {
         switch self.currentDOCTYPE.publicID {
         case .some: self.currentDOCTYPE.publicID?.append(c)
@@ -1420,7 +1408,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
-    @inline(always)
+    @_transparent
     private mutating func clearPublicID() {
         switch self.currentDOCTYPE.publicID {
         case .some: self.currentDOCTYPE.publicID?.removeAll(keepingCapacity: true)
@@ -1428,7 +1416,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
-    @inline(always)
+    @_transparent
     private mutating func appendSystemID(_ c: consuming Char) {
         switch self.currentDOCTYPE.systemID {
         case .some: self.currentDOCTYPE.systemID?.append(c)
@@ -1436,7 +1424,7 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
-    @inline(always)
+    @_transparent
     private mutating func clearSystemID() {
         switch self.currentDOCTYPE.systemID {
         case .some: self.currentDOCTYPE.systemID?.removeAll(keepingCapacity: true)
@@ -1444,23 +1432,37 @@ public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
         }
     }
 
-    @inline(always)
+    @_transparent
     private mutating func forceQuirks() {
         self.currentDOCTYPE.forceQuirks = true
     }
 
-    @inline(always)
+    @_transparent
     private mutating func emitDOCTYPE() {
         self.sink.process(.doctype(self.currentDOCTYPE.clone()))
     }
 
-    private mutating func consumeCharRef(inAttr isInAttr: Bool, input: inout BufferQueue) {
-        var charRefTokenizer = CharRefTokenizer(inAttr: isInAttr)
+    @_transparent
+    private mutating func consumeCharRef(input: inout BufferQueue) {
+        var charRefTokenizer = CharRefTokenizer(inAttr: false)
         repeat {
             switch charRefTokenizer.step(tokenizer: &self, input: &input) {
             case .continue: continue
-            case .doneChars(let c1, let c2): self.processCharRef(c1, c2)
-            case .doneChar(let c): self.processCharRef(c)
+            case .doneChars(let c1, let c2): #go(emit: c1, c2)
+            case .doneChar(let c): #go(emit: c)
+            }
+            break
+        } while true
+    }
+
+    @_transparent
+    private mutating func consumeCharRefInAttr(input: inout BufferQueue) {
+        var charRefTokenizer = CharRefTokenizer(inAttr: true)
+        repeat {
+            switch charRefTokenizer.step(tokenizer: &self, input: &input) {
+            case .continue: continue
+            case .doneChars(let c1, let c2): #go(appendAttrValue: c1, c2)
+            case .doneChar(let c): #go(appendAttrValue: c)
             }
             break
         } while true

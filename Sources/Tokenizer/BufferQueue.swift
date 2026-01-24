@@ -11,15 +11,11 @@ public struct BufferQueue: ~Copyable, Sendable {
         self.buffers = [buf]
     }
 
-    @inline(always)
-    @export(implementation)
     mutating func prepend(_ buf: StrSlice) {
         guard !buf.isEmpty else { return }
         self.buffers.prepend(buf)
     }
 
-    @inline(always)
-    @export(implementation)
     func peek() -> Char? {
         self.buffers.first.flatMap { $0.first }
     }
