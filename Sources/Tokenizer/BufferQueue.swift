@@ -32,7 +32,7 @@ public struct BufferQueue: ~Copyable, Sendable {
         let count =
             (self.buffers[0].firstIndex { $0.value < 64 && s.contains($0) } ?? self.buffers[0].endIndex)
             - self.buffers[0].startIndex
-        guard count > 0 else { return self.buffers[0].popFirst().map(PopResult.known) }
+        guard count > 0 else { return .known(self.buffers[0].removeFirst()) }
         defer { self.buffers[0].removeFirst(count) }
         return .others(self.buffers[0].prefix(count))
     }
