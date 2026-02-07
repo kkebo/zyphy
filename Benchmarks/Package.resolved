@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/HdrHistogram/hdrhistogram-swift.git",
       "state" : {
-        "revision" : "93a1618c8aa20f6a521a9da656a3e0591889e9dc",
-        "version" : "0.1.3"
+        "revision" : "de0b9b8a27956b9bfc9b4dce7d1c38ad7c579f19",
+        "version" : "0.1.4"
       }
     },
     {
@@ -15,8 +15,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ordo-one/package-benchmark",
       "state" : {
-        "revision" : "6426129f64d248f6459460826db9a8a4054c657c",
-        "version" : "1.29.8"
+        "revision" : "a1075611342d4b164bf6e977edb02a3db4434afd",
+        "version" : "1.29.11"
       }
     },
     {
