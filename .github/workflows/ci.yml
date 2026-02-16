@@ -78,7 +78,7 @@ jobs:
   comment-test:
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
     needs: test-linux
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-slim
     continue-on-error: true
     permissions:
       pull-requests: write
@@ -160,7 +160,7 @@ jobs:
   comment-benchmark:
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
     needs: benchmark
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-slim
     continue-on-error: true
     permissions:
       pull-requests: write
@@ -171,18 +171,26 @@ jobs:
           message: ${{ needs.benchmark.outputs.SUMMARY }}
           comment-tag: benchmark
   yamllint:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-slim
     permissions:
       contents: read
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y yamllint
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - run: yamllint --version
       - run: yamllint --strict --config-file .yamllint.yml .
   shellcheck:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-slim
     permissions:
       contents: read
     steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y shellcheck
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - run: shellcheck -V
       - run: git ls-files -z '*.sh' | xargs -0 --no-run-if-empty shellcheck
