@@ -37,7 +37,7 @@ swift test --disable-xctest
 ## Benchmarking
 
 ```shell
-BENCHMARK_DISABLE_JEMALLOC=true swift package --package-path Benchmarks benchmark
+swift package --package-path Benchmarks benchmark
 ```
 
 For more details, please see https://github.com/ordo-one/package-benchmark.
