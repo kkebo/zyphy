@@ -7,7 +7,7 @@ let package = Package(
     platforms: [.macOS(.v26), .iOS(.v26)],
     dependencies: [
         .package(name: "zyphy", path: ".."),
-        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.23.5"),
+        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.30.0", traits: []),
     ],
     targets: [
         .executableTarget(
