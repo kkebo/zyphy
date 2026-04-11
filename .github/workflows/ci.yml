@@ -35,7 +35,7 @@ jobs:
         id: report
         run: |
           echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
-          llvm-cov report .build/debug/zyphyPackageTests.xctest --instr-profile=.build/debug/codecov/default.profdata --ignore-filename-regex=".build|Tests|TokenizerMacros" --show-region-summary=false --show-branch-summary=false >> "$GITHUB_OUTPUT"
+          llvm-cov report .build/out/Products/Debug-linux/TreeBuilderTests.so --instr-profile=.build/out/Products/Debug-linux/codecov/default.profdata --ignore-filename-regex=".build|Tests|TokenizerMacros" --show-region-summary=false --show-branch-summary=false >> "$GITHUB_OUTPUT"
           echo 'EOF' >> "$GITHUB_OUTPUT"
       - name: Create summary text
         id: summary
@@ -74,7 +74,7 @@ jobs:
           restore-keys: ${{ runner.os }}-swiftpm-
       - run: ./scripts/ci-install-swift.sh
       - run: swift --version
-      - run: swift test --disable-xctest
+      - run: swift test --disable-xctest --build-system native
   comment-test:
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
     needs: test-linux
