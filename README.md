@@ -7,13 +7,18 @@ Zyphy is (or will be) a fast web browser engine written in Swift.
 
 ## Package Contents
 
+- 🚧 `Tokenizer` - An HTML tokenizer that takes an HTML string and produces HTML tokens. ([specs](https://html.spec.whatwg.org/multipage/parsing.html#tokenization))
+- 🚧 `TreeBuilder` - An HTML tree constructor that constructs a DOM tree from HTML tokens. ([specs](https://html.spec.whatwg.org/multipage/parsing.html#tree-construction))
+- 🥚 `Layout` - A layout engine that translates a DOM tree into a layout tree.
+- 🥚 `Paint` - A rendering abstraction layer that translates a layout tree into a platform-independent display list of drawing commands.
+- 🥚 `SVGBackend` - An SVG backend of the renderer.
+- 🥚 `SVGExample` - An example application using `SVGBackend`.
+
+Icons:
+
 - ✅ Ready to Use
-  - (Nothing)
 - 🚧 Work in Progress
-  - `Tokenizer` - An HTML tokenizer ([specs](https://html.spec.whatwg.org/multipage/parsing.html#tokenization))
-  - `TreeBuilder` - An HTML tree constructor ([specs](https://html.spec.whatwg.org/multipage/parsing.html#tree-construction))
 - 🥚 To Do
-  - `Zyphy` - The main module
 
 ## Prerequisites
 
