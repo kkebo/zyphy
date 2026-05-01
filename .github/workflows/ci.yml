@@ -121,19 +121,19 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           clean: false
-      - run: swift package --package-path Benchmarks benchmark baseline update base --no-progress --quiet
+      - run: swift package --package-path Benchmarks --build-system native benchmark baseline update base --no-progress --quiet
       - name: swift package benchmark baseline check
         id: check
         run: |
           set +e
           echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
-          swift package --package-path Benchmarks benchmark baseline check base pull_request --format markdown >> "$GITHUB_OUTPUT"
+          swift package --package-path Benchmarks --build-system native benchmark baseline check base pull_request --format markdown >> "$GITHUB_OUTPUT"
           echo 'EOF' >> "$GITHUB_OUTPUT"
       - name: swift package benchmark baseline compare
         id: compare
         run: |
           echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
-          swift package --package-path Benchmarks benchmark baseline compare base pull_request --no-progress --quiet --format markdown >> "$GITHUB_OUTPUT"
+          swift package --package-path Benchmarks --build-system native benchmark baseline compare base pull_request --no-progress --quiet --format markdown >> "$GITHUB_OUTPUT"
           echo 'EOF' >> "$GITHUB_OUTPUT"
       - name: Create summary text
         id: summary
