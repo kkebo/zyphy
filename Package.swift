@@ -41,13 +41,11 @@ let package = Package(
         .target(
             name: "Tokenizer",
             dependencies: [
-                .target(name: "TokenizerMacros"),
                 .target(name: "HTMLEntities"),
                 .product(name: "DequeModule", package: "swift-collections"),
             ],
             swiftSettings: swiftSettings + [
-                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
-                .enableExperimentalFeature("CodeItemMacros"),
+                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
             ],
         ),
         .target(
@@ -58,14 +56,6 @@ let package = Package(
             swiftSettings: swiftSettings + [
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
             ],
-        ),
-        .macro(
-            name: "TokenizerMacros",
-            dependencies: [
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-            ],
-            swiftSettings: swiftSettings,
         ),
         .target(
             name: "HTMLEntities",
@@ -81,8 +71,7 @@ let package = Package(
         .testTarget(
             name: "TokenizerTests",
             dependencies: [
-                .target(name: "TokenizerMacros"),
-                .target(name: "Tokenizer"),
+                .target(name: "Tokenizer")
             ],
             exclude: [
                 "Resources/html5lib-tests/encoding",
