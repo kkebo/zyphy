@@ -23,3 +23,11 @@ updates:
       - "kkebo"
     commit-message:
       prefix: "ci"
+  - package-ecosystem: "gitsubmodule"
+    directory: "/Tests"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "kkebo"
+    commit-message:
+      prefix: "test"
