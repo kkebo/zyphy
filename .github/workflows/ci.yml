@@ -115,25 +115,25 @@ jobs:
             Benchmarks/.build
           key: ${{ runner.os }}-bench-swiftpm-${{ hashFiles('Benchmarks/Package.resolved') }}
           restore-keys: ${{ runner.os }}-bench-swiftpm-
-      - run: swift package --package-path Benchmarks --build-system native benchmark baseline update pull_request --no-progress --quiet
+      - run: swift package --package-path Benchmarks benchmark baseline update pull_request --no-progress --quiet
       - name: Switch to branch '${{ github.event.pull_request.base.ref }}'
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           clean: false
-      - run: swift package --package-path Benchmarks --build-system native benchmark baseline update base --no-progress --quiet
+      - run: swift package --package-path Benchmarks benchmark baseline update base --no-progress --quiet
       - name: swift package benchmark baseline check
         id: check
         run: |
           set +e
           echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
-          swift package --package-path Benchmarks --build-system native benchmark baseline check base pull_request --format markdown >> "$GITHUB_OUTPUT"
+          swift package --package-path Benchmarks benchmark baseline check base pull_request --format markdown >> "$GITHUB_OUTPUT"
           echo 'EOF' >> "$GITHUB_OUTPUT"
       - name: swift package benchmark baseline compare
         id: compare
         run: |
           echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
-          swift package --package-path Benchmarks --build-system native benchmark baseline compare base pull_request --no-progress --quiet --format markdown >> "$GITHUB_OUTPUT"
+          swift package --package-path Benchmarks benchmark baseline compare base pull_request --no-progress --quiet --format markdown >> "$GITHUB_OUTPUT"
           echo 'EOF' >> "$GITHUB_OUTPUT"
       - name: Create summary text
         id: summary
