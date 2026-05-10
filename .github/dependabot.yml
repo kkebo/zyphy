@@ -24,7 +24,7 @@ updates:
     commit-message:
       prefix: "ci"
   - package-ecosystem: "gitsubmodule"
-    directory: "/Tests"
+    directory: "/"
     schedule:
       interval: "weekly"
     assignees:
