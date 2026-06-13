@@ -4,6 +4,8 @@ on:
     branches: ["main"]
   pull_request:
     branches: ["main"]
+  schedule:
+    - cron: '30 21 * * *'
 permissions: {}
 defaults:
   run:
@@ -96,6 +98,28 @@ jobs:
       - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
       - run: ./scripts/ci-install-swift.sh
       - run: swift format lint -rsp .
+  scheduled_benchmark:
+    if: ${{ github.event_name == 'schedule' }}
+    needs: test-linux
+    runs-on: ubuntu-24.04-arm
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - run: ./scripts/ci-install-swift.sh
+      - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        with:
+          path: |
+            ~/.cache/org.swift.swiftpm
+            ~/.swiftpm
+            Benchmarks/.build
+          key: ${{ runner.os }}-bench-swiftpm-${{ hashFiles('Benchmarks/Package.resolved') }}
+          restore-keys: ${{ runner.os }}-bench-swiftpm-
+      - name: swift package benchmark
+        run: |
+          echo 'OUTPUT<<EOF' >> "$GITHUB_STEP_SUMMARY"
+          swift package --package-path Benchmarks benchmark --no-progress --quiet --format markdown >> "$GITHUB_STEP_SUMMARY"
+          echo 'EOF' >> "$GITHUB_STEP_SUMMARY"
   benchmark:
     if: ${{ github.event_name == 'pull_request' }}
     needs: test-linux
