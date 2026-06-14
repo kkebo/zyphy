@@ -86,10 +86,12 @@ jobs:
       pull-requests: write
     steps:
       - name: Comment PR
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b  # v3.0.1
-        with:
-          message: ${{ needs.test-linux.outputs.SUMMARY }}
-          comment-tag: coverage
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          SUMMARY: ${{ needs.test-linux.outputs.SUMMARY }}
+        run: gh pr comment "$PR_NUMBER" --body "$SUMMARY"
   lint:
     runs-on: ubuntu-24.04-arm
     permissions:
@@ -185,10 +187,12 @@ jobs:
       pull-requests: write
     steps:
       - name: Comment PR
-        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b  # v3.0.1
-        with:
-          message: ${{ needs.benchmark.outputs.SUMMARY }}
-          comment-tag: benchmark
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          SUMMARY: ${{ needs.benchmark.outputs.SUMMARY }}
+        run: gh pr comment "$PR_NUMBER" --body "$SUMMARY"
   yamllint:
     runs-on: ubuntu-24.04-arm
     permissions:
