@@ -115,11 +115,7 @@ jobs:
             Benchmarks/.build
           key: ${{ runner.os }}-bench-swiftpm-${{ hashFiles('Benchmarks/Package.resolved') }}
           restore-keys: ${{ runner.os }}-bench-swiftpm-
-      - name: swift package benchmark
-        run: |
-          echo 'OUTPUT<<EOF' >> "$GITHUB_STEP_SUMMARY"
-          swift package --package-path Benchmarks benchmark --no-progress --quiet --format markdown >> "$GITHUB_STEP_SUMMARY"
-          echo 'EOF' >> "$GITHUB_STEP_SUMMARY"
+      - run: swift package --package-path Benchmarks benchmark --no-progress --format markdown >> "$GITHUB_STEP_SUMMARY"
   benchmark:
     if: ${{ github.event_name == 'pull_request' }}
     needs: test-linux
