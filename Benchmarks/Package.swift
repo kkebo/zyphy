@@ -7,13 +7,13 @@ let package = Package(
     platforms: [.macOS(.v26), .iOS(.v26)],
     dependencies: [
         .package(name: "zyphy", path: ".."),
-        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.30.0", traits: []),
+        .package(url: "https://github.com/ordo-one/benchmark", from: "1.30.0", traits: []),
     ],
     targets: [
         .executableTarget(
             name: "MyBenchmark",
             dependencies: [
-                .product(name: "Benchmark", package: "package-benchmark"),
+                .product(name: "Benchmark", package: "benchmark"),
                 .product(name: "Tokenizer", package: "zyphy"),
             ],
             path: "Benchmarks/MyBenchmark",
@@ -28,7 +28,7 @@ let package = Package(
                 .enableUpcomingFeature("MemberImportVisibility"),
             ],
             plugins: [
-                .plugin(name: "BenchmarkPlugin", package: "package-benchmark")
+                .plugin(name: "BenchmarkPlugin", package: "benchmark")
             ],
         )
     ],
