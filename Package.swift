@@ -10,6 +10,7 @@ let swiftSettings: [SwiftSetting] = [
     .enableUpcomingFeature("InternalImportsByDefault"),
     .enableUpcomingFeature("MemberImportVisibility"),
     .enableExperimentalFeature("InlineAlways"),
+    .strictMemorySafety(),
 ]
 
 let swiftTestSettings: [SwiftSetting] = [
@@ -17,6 +18,7 @@ let swiftTestSettings: [SwiftSetting] = [
     .enableUpcomingFeature("ExistentialAny"),
     .enableUpcomingFeature("InternalImportsByDefault"),
     .enableUpcomingFeature("MemberImportVisibility"),
+    .strictMemorySafety(),
 ]
 
 let package = Package(

@@ -26,6 +26,7 @@ let package = Package(
                 .enableUpcomingFeature("ExistentialAny"),
                 .enableUpcomingFeature("InternalImportsByDefault"),
                 .enableUpcomingFeature("MemberImportVisibility"),
+                .strictMemorySafety(),
             ],
             plugins: [
                 .plugin(name: "BenchmarkPlugin", package: "benchmark")
