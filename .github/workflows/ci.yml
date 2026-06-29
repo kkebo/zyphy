@@ -29,7 +29,7 @@ jobs:
             .build
           key: ${{ runner.os }}-swiftpm-${{ hashFiles('Package.resolved') }}
           restore-keys: ${{ runner.os }}-swiftpm-
-      - run: ./scripts/ci-install-swift.sh
+      - run: ./.github/scripts/ci-install-swift.sh
       - run: swift --version
       - run: swift build --explicit-target-dependency-import-check error --build-tests --disable-xctest --enable-code-coverage
       - run: swift test --skip-build --disable-xctest --enable-code-coverage
@@ -74,7 +74,7 @@ jobs:
             .build
           key: ${{ runner.os }}-swiftpm-${{ hashFiles('Package.resolved') }}
           restore-keys: ${{ runner.os }}-swiftpm-
-      - run: ./scripts/ci-install-swift.sh
+      - run: ./.github/scripts/ci-install-swift.sh
       - run: swift --version
       - run: swift test --explicit-target-dependency-import-check error --disable-xctest
   comment-test:
@@ -98,7 +98,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-      - run: ./scripts/ci-install-swift.sh
+      - run: ./.github/scripts/ci-install-swift.sh
       - run: swift format lint -rsp .
   scheduled_benchmark:
     if: ${{ github.event_name == 'schedule' }}
@@ -108,7 +108,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-      - run: ./scripts/ci-install-swift.sh
+      - run: ./.github/scripts/ci-install-swift.sh
       - uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8  # v6.0.0
         with:
           path: |
@@ -128,7 +128,7 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
-      - run: ./scripts/ci-install-swift.sh
+      - run: ./.github/scripts/ci-install-swift.sh
       - uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8  # v6.0.0
         with:
           path: |
