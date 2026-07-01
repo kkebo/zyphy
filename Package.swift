@@ -98,11 +98,11 @@ let package = Package(
                 "Resources/html5lib-tests/tokenizer/README.md",
                 "Resources/html5lib-tests/tokenizer/unicodeCharsProblematic.test",
                 "Resources/html5lib-tests/tokenizer/xmlViolation.test",
-                "Resources/html5lib-tests/tree-construction",
                 "Resources/html5lib-tests/AUTHORS.rst",
                 "Resources/html5lib-tests/LICENSE",
                 "Resources/html5lib-tests/lint",
                 "Resources/html5lib-tests/pyproject.toml",
+                "Resources/html5lib-tests/README.md",
             ],
             resources: [
                 .process("Resources/html5lib-tests/tokenizer/test1.test"),
