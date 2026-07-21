@@ -1,13 +1,13 @@
 {
-  "originHash" : "5ec5e340f738d7fbd5bcf9b72927fb023448bf38a81f2b2066137c4a6c5ee4cb",
+  "originHash" : "7286426ac9118e4ed8eb4406695dec24972963467c07e30660b18c00e6ec06bd",
   "pins" : [
     {
       "identity" : "benchmark",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ordo-one/benchmark",
       "state" : {
-        "revision" : "4b9ef5663e9c270419351a20392bf77b007f37f6",
-        "version" : "1.35.0"
+        "revision" : "4281e1b3061f1e72de284715977cf50dda001c89",
+        "version" : "1.36.0"
       }
     },
     {
@@ -69,8 +69,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ordo-one/swift-runtime-interposer.git",
       "state" : {
-        "revision" : "7fd519fa3947bc8d29495f60fc8b6580ec361b5d",
-        "version" : "1.0.0"
+        "revision" : "7631b4611a446868f1ecc94fde10b4b14c41f711",
+        "version" : "2.0.0"
       }
     },
     {
@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-system.git",
       "state" : {
-        "revision" : "7502b711c92a17741fa625d722b0ccbd595d8ed1",
-        "version" : "1.7.2"
+        "revision" : "b5544ba79a70a0cb3563e75bf26dc198d6b40ed3",
+        "version" : "1.7.4"
       }
     },
     {
