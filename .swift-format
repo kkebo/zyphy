@@ -13,7 +13,7 @@
   "lineBreakBeforeEachArgument" : true,
   "lineBreakBeforeEachGenericRequirement" : true,
   "lineBreakBetweenDeclarationAttributes" : true,
-  "lineLength" : 121,
+  "lineLength" : 120,
   "maximumBlankLines" : 1,
   "multiElementCollectionTrailingCommas" : true,
   "multilineTrailingCommaBehavior" : "alwaysUsed",
