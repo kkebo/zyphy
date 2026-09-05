@@ -3,8 +3,11 @@ public import Tokenizer
 
 public struct TreeBuilder<Handle, Sink: TreeSink<Handle> & ~Copyable>: ~Copyable {
     public var sink: Sink
+    @export(implementation)
     private var mode: InsertionMode
 
+    @inline(always)
+    @export(implementation)
     public init(sink: consuming Sink) {
         self.sink = sink
         self.mode = .initial

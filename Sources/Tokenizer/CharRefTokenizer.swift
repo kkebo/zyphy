@@ -28,6 +28,7 @@ struct CharRefTokenizer: ~Copyable {
     private var lastMatch: Optional<(endIndex: StrSlice.Index, replaceChars: (Char, Char))>
     private let isInAttr: Bool
 
+    @inline(always)
     init(inAttr isInAttr: Bool) {
         self.state = .initial
         self.num = 0

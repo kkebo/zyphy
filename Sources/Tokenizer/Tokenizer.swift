@@ -1,21 +1,34 @@
 private import DequeModule
-private import Str
+public import Str
 
 public struct Tokenizer<Sink: ~Copyable & TokenSink>: ~Copyable {
     public var sink: Sink
     public var emitsAllErrors: Bool
+    @export(implementation)
     package var state: State
+    @export(implementation)
     private var reconsumeChar: Optional<Char>
+    @export(implementation)
     private var tempBuffer: Str
+    @export(implementation)
     private var currentComment: Str
+    @export(implementation)
     private var currentTagName: Str
+    @export(implementation)
     private var currentTagKind: TagKind
+    @export(implementation)
     private var currentAttrName: Str
+    @export(implementation)
     private var currentAttrValue: Str
+    @export(implementation)
     private var currentAttrs: [Str: Str]
+    @export(implementation)
     private var lastStartTagName: Optional<Str>
+    @export(implementation)
     private var currentDOCTYPE: DOCTYPE
 
+    @inline(always)
+    @export(implementation)
     public init(sink: consuming Sink, emitsAllErrors: Bool = false) {
         self.sink = sink
         self.emitsAllErrors = emitsAllErrors

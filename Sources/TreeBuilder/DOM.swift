@@ -3,6 +3,8 @@ public import Str
 public struct DOM: ~Copyable, Sendable {
     public var document: Node
 
+    @inline(always)
+    @export(implementation)
     public init() {
         self.document = .init(value: .document)
     }
@@ -12,6 +14,8 @@ public struct Node: Equatable, Hashable, Sendable {
     public var value: NodeValue
     public var childNodes: ContiguousArray<Self>
 
+    @inline(always)
+    @export(implementation)
     public init(value: NodeValue, childNodes: ContiguousArray<Self> = []) {
         self.value = value
         self.childNodes = childNodes

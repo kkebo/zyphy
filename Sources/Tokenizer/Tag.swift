@@ -6,6 +6,8 @@ public struct Tag: ~Copyable, Sendable {
     public var attrs: [Str: Str]
     public var selfClosing: Bool
 
+    @inline(always)
+    @export(implementation)
     public init(
         name: consuming Str,
         kind: consuming TagKind,
