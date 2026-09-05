@@ -1,4 +1,5 @@
-enum InsertionMode {
+@usableFromInline
+enum InsertionMode: Equatable, Hashable, BitwiseCopyable, Sendable {
     case initial
     case beforeHTML
     case beforeHead
