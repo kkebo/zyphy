@@ -8,7 +8,6 @@ private enum CharRefState {
     case ambiguousAmpersand
     case numeric
     case hexadecimalStart(uppercase: Bool)
-    case decimalStart
     case hexadecimal
     case decimal
     case numericEnd
@@ -48,10 +47,9 @@ struct CharRefTokenizer: ~Copyable {
         case .namedEnd(let endIndex, let replaceChars):
             self.namedEnd(endIndex: endIndex, replaceChars: replaceChars, tokenizer: &tokenizer, input: &input)
         case .ambiguousAmpersand: self.ambiguousAmpersand(tokenizer: &tokenizer, input: &input)
-        case .numeric: self.numeric(input: &input)
+        case .numeric: self.numeric(tokenizer: &tokenizer, input: &input)
         case .hexadecimalStart(let uppercase):
             self.hexadecimalStart(uppercase: uppercase, tokenizer: &tokenizer, input: &input)
-        case .decimalStart: self.decimalStart(tokenizer: &tokenizer, input: &input)
         case .hexadecimal: self.hexadecimal(tokenizer: &tokenizer, input: &input)
         case .decimal: self.decimal(tokenizer: &tokenizer, input: &input)
         case .numericEnd: self.numericEnd(tokenizer: &tokenizer, input: &input)
@@ -146,7 +144,10 @@ struct CharRefTokenizer: ~Copyable {
         } while true
     }
 
-    private mutating func numeric(input: inout BufferQueue) -> CharRefProcessResult {
+    private mutating func numeric(
+        tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
+        input: inout BufferQueue,
+    ) -> CharRefProcessResult {
         switch input.peek() {
         case "X":
             input.removeFirst()
@@ -154,8 +155,12 @@ struct CharRefTokenizer: ~Copyable {
         case "x":
             input.removeFirst()
             self.state = .hexadecimalStart(uppercase: false)
+        case ("0"..."9")?:
+            self.state = .decimal
         case _:
-            self.state = .decimalStart
+            tokenizer.emitError(.absenceDigits)
+            input.prepend("#")
+            return .doneChar("&")
         }
         return .continue
     }
@@ -172,21 +177,6 @@ struct CharRefTokenizer: ~Copyable {
         case _:
             tokenizer.emitError(.absenceDigits)
             input.prepend(uppercase ? "#X" : "#x")
-            return .doneChar("&")
-        }
-    }
-
-    private mutating func decimalStart(
-        tokenizer: inout Tokenizer<some ~Copyable & TokenSink>,
-        input: inout BufferQueue,
-    ) -> CharRefProcessResult {
-        switch input.peek() {
-        case ("0"..."9")?:
-            self.state = .decimal
-            return .continue
-        case _:
-            tokenizer.emitError(.absenceDigits)
-            input.prepend("#")
             return .doneChar("&")
         }
     }
