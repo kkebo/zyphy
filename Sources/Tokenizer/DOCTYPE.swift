@@ -6,6 +6,8 @@ public struct DOCTYPE: ~Copyable, Sendable {
     public var systemID: Optional<Str>
     public var forceQuirks: Bool
 
+    @inline(always)
+    @export(implementation)
     public init(
         name: consuming Str? = nil,
         publicID: consuming Str? = nil,
