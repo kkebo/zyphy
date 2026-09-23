@@ -12,7 +12,7 @@ defaults:
     shell: bash -euo pipefail {0}
 jobs:
   test-linux:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     permissions:
       contents: read
     steps:
@@ -58,7 +58,7 @@ jobs:
       - run: swift test --explicit-target-dependency-import-check error --disable-xctest
   comment-test:
     needs: test-linux
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     continue-on-error: true
     permissions:
       contents: write
@@ -71,7 +71,7 @@ jobs:
           name: coverage-report-lcov
       - uses: k1LoW/octocov-action@a167dc0dee441b7ffc45e1b862ab55ec0d87f278  # v1.5.2
   lint:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     permissions:
       contents: read
     steps:
@@ -81,7 +81,7 @@ jobs:
   scheduled_benchmark:
     if: ${{ github.event_name == 'schedule' }}
     needs: test-linux
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     permissions:
       contents: read
     steps:
@@ -99,7 +99,7 @@ jobs:
   benchmark:
     if: ${{ github.event_name == 'pull_request' }}
     needs: test-linux
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     outputs:
       SUMMARY: ${{ steps.summary.outputs.SUMMARY }}
     permissions:
@@ -159,7 +159,7 @@ jobs:
   comment-benchmark:
     if: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository }}
     needs: benchmark
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     continue-on-error: true
     permissions:
       pull-requests: write
@@ -172,7 +172,7 @@ jobs:
           SUMMARY: ${{ needs.benchmark.outputs.SUMMARY }}
         run: gh pr comment "$PR_NUMBER" --body "$SUMMARY"
   yamllint:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     permissions:
       contents: read
     steps:
@@ -180,7 +180,7 @@ jobs:
       - run: yamllint --version
       - run: yamllint --strict --config-file .yamllint.yml .
   shellcheck:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     permissions:
       contents: read
     steps:
@@ -189,7 +189,7 @@ jobs:
       - run: git ls-files -z '*.sh' | xargs -0 --no-run-if-empty shellcheck
   results:
     if: ${{ always() }}
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     needs: [test-linux, test-macos, lint, benchmark, yamllint, shellcheck]
     steps:
       - run: exit 1
