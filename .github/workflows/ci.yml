@@ -29,7 +29,7 @@ jobs:
           restore-keys: ${{ runner.os }}-swiftpm-
       - run: ./.github/scripts/ci-install-swift.sh
       - run: swift --version
-      - run: swift build --explicit-target-dependency-import-check error --build-tests --disable-xctest --enable-code-coverage
+      - run: swift build --explicit-target-dependency-import-check error --build-tests --disable-xctest --enable-code-coverage --force-resolved-versions
       - run: swift test --skip-build --disable-xctest --enable-code-coverage
       - run: llvm-cov export --format=lcov .build/out/Products/Debug-linux/TreeBuilderTests.so --instr-profile=.build/out/Products/Debug-linux/codecov/default.profdata --ignore-filename-regex=".build|Tests|TokenizerMacros" > coverage_report.lcov
       - uses: actions/upload-artifact@v7.0.2
@@ -55,7 +55,7 @@ jobs:
           restore-keys: ${{ runner.os }}-swiftpm-
       - run: ./.github/scripts/ci-install-swift.sh
       - run: swift --version
-      - run: swift test --explicit-target-dependency-import-check error --disable-xctest
+      - run: swift test --explicit-target-dependency-import-check error --disable-xctest --force-resolved-versions
   comment-test:
     needs: test-linux
     runs-on: ubuntu-26.04-arm
@@ -95,7 +95,7 @@ jobs:
             Benchmarks/.build
           key: ${{ runner.os }}-bench-swiftpm-${{ hashFiles('Benchmarks/Package.resolved') }}
           restore-keys: ${{ runner.os }}-bench-swiftpm-
-      - run: swift package --package-path Benchmarks benchmark --no-progress --format markdown >> "$GITHUB_STEP_SUMMARY"
+      - run: swift package --package-path Benchmarks --force-resolved-versions benchmark --no-progress --format markdown >> "$GITHUB_STEP_SUMMARY"
   benchmark:
     if: ${{ github.event_name == 'pull_request' }}
     needs: test-linux
@@ -115,25 +115,25 @@ jobs:
             Benchmarks/.build
           key: ${{ runner.os }}-bench-swiftpm-${{ hashFiles('Benchmarks/Package.resolved') }}
           restore-keys: ${{ runner.os }}-bench-swiftpm-
-      - run: swift package --package-path Benchmarks benchmark baseline update pull_request --no-progress --quiet
+      - run: swift package --package-path Benchmarks --force-resolved-versions benchmark baseline update pull_request --no-progress --quiet
       - name: Switch to branch '${{ github.event.pull_request.base.ref }}'
         uses: actions/checkout@v7.0.1
         with:
           ref: ${{ github.event.pull_request.base.ref }}
           clean: false
-      - run: swift package --package-path Benchmarks benchmark baseline update base --no-progress --quiet
+      - run: swift package --package-path Benchmarks --force-resolved-versions benchmark baseline update base --no-progress --quiet
       - name: swift package benchmark baseline check
         id: check
         run: |
           set +e
           echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
-          swift package --package-path Benchmarks benchmark baseline check base pull_request --format markdown >> "$GITHUB_OUTPUT"
+          swift package --package-path Benchmarks --force-resolved-versions benchmark baseline check base pull_request --format markdown >> "$GITHUB_OUTPUT"
           echo 'EOF' >> "$GITHUB_OUTPUT"
       - name: swift package benchmark baseline compare
         id: compare
         run: |
           echo 'OUTPUT<<EOF' >> "$GITHUB_OUTPUT"
-          swift package --package-path Benchmarks benchmark baseline compare base pull_request --no-progress --quiet --format markdown >> "$GITHUB_OUTPUT"
+          swift package --package-path Benchmarks --force-resolved-versions benchmark baseline compare base pull_request --no-progress --quiet --format markdown >> "$GITHUB_OUTPUT"
           echo 'EOF' >> "$GITHUB_OUTPUT"
       - name: Create summary text
         id: summary
