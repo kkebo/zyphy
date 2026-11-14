@@ -29,8 +29,8 @@ jobs:
           restore-keys: ${{ runner.os }}-swiftpm-
       - run: ./.github/scripts/ci-install-swift.sh
       - run: swift --version
-      - run: swift build --explicit-target-dependency-import-check error --build-tests --disable-xctest --enable-code-coverage --force-resolved-versions
-      - run: swift test --skip-build --disable-xctest --enable-code-coverage
+      - run: swift build --explicit-target-dependency-import-check error --build-tests --disable-xctest --enable-coverage --force-resolved-versions
+      - run: swift test --skip-build --disable-xctest --enable-coverage
       - run: llvm-cov export --format=lcov .build/out/Products/Debug-linux/TreeBuilderTests.so --instr-profile=.build/out/Products/Debug-linux/codecov/default.profdata --ignore-filename-regex=".build|Tests|TokenizerMacros" > coverage_report.lcov
       - uses: actions/upload-artifact@v7.0.2
         with:
