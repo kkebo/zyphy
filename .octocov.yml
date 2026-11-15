@@ -1,6 +1,10 @@
 coverage:
   paths:
-    - coverage_report.lcov
+    - zyphy.lcov
+  exclude:
+    - ".build/**"
+    - "Sources/TokenizerMacros/**"
+    - "Tests/**"
   badge:
     path: coverage.svg
 push:
