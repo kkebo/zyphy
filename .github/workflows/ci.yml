@@ -30,12 +30,11 @@ jobs:
       - run: ./.github/scripts/ci-install-swift.sh
       - run: swift --version
       - run: swift build --explicit-target-dependency-import-check error --build-tests --disable-xctest --enable-coverage --force-resolved-versions
-      - run: swift test --skip-build --disable-xctest --enable-coverage
-      - run: llvm-cov export --format=lcov .build/out/Products/Debug-linux/TreeBuilderTests.so --instr-profile=.build/out/Products/Debug-linux/codecov/default.profdata --ignore-filename-regex=".build|Tests|TokenizerMacros" > coverage_report.lcov
+      - run: swift test --skip-build --disable-xctest --enable-coverage --coverage-format lcov
       - uses: actions/upload-artifact@v7.0.2
         with:
-          name: coverage-report-lcov
-          path: coverage_report.lcov
+          name: lcov
+          path: .build/debug/codecov/zyphy.lcov
   test-macos:
     runs-on: macos-26
     permissions:
@@ -68,7 +67,7 @@ jobs:
       - uses: actions/checkout@v7.0.1
       - uses: actions/download-artifact@v8.0.2
         with:
-          name: coverage-report-lcov
+          name: lcov
       - uses: k1LoW/octocov-action@v1.5.2
   lint:
     runs-on: ubuntu-26.04-arm
