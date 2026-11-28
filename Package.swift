@@ -1,30 +1,7 @@
-// swift-tools-version: 6.3
+// swift-tools-version: 6.5
 
 import CompilerPluginSupport
 import PackageDescription
-
-let swiftSettings: [SwiftSetting] = [
-    .treatAllWarnings(as: .error),
-    .treatWarning("EmbeddedRestrictions", as: .error),
-    .enableUpcomingFeature("ExistentialAny"),
-    .enableUpcomingFeature("InternalImportsByDefault"),
-    .enableUpcomingFeature("MemberImportVisibility"),
-    .enableUpcomingFeature("InferIsolatedConformances"),
-    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-    .enableUpcomingFeature("ImmutableWeakCaptures"),
-    .strictMemorySafety(),
-]
-
-let swiftTestSettings: [SwiftSetting] = [
-    .treatAllWarnings(as: .error),
-    .enableUpcomingFeature("ExistentialAny"),
-    .enableUpcomingFeature("InternalImportsByDefault"),
-    .enableUpcomingFeature("MemberImportVisibility"),
-    .enableUpcomingFeature("InferIsolatedConformances"),
-    .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
-    .enableUpcomingFeature("ImmutableWeakCaptures"),
-    .strictMemorySafety(),
-]
 
 let package = Package(
     name: "zyphy",
@@ -35,6 +12,16 @@ let package = Package(
         .tvOS(.v26),
         .macCatalyst(.v26),
         .visionOS(.v26),
+    ],
+    defaultSwiftSettings: [
+        .treatAllWarnings(as: .error),
+        .enableUpcomingFeature("ExistentialAny"),
+        .enableUpcomingFeature("InternalImportsByDefault"),
+        .enableUpcomingFeature("MemberImportVisibility"),
+        .enableUpcomingFeature("InferIsolatedConformances"),
+        .enableUpcomingFeature("NonisolatedNonsendingByDefault"),
+        .enableUpcomingFeature("ImmutableWeakCaptures"),
+        .strictMemorySafety(),
     ],
     products: [
         .library(name: "Tokenizer", targets: ["Tokenizer"]),
@@ -52,7 +39,9 @@ let package = Package(
                 .target(name: "HTMLEntities"),
                 .product(name: "DequeModule", package: "swift-collections"),
             ],
-            swiftSettings: swiftSettings + [
+            swiftSettings: [
+                .defaults,
+                .treatWarning("EmbeddedRestrictions", as: .error),
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
                 .enableExperimentalFeature("CodeItemMacros"),
             ],
@@ -62,8 +51,10 @@ let package = Package(
             dependencies: [
                 .target(name: "Tokenizer")
             ],
-            swiftSettings: swiftSettings + [
-                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
+            swiftSettings: [
+                .defaults,
+                .treatWarning("EmbeddedRestrictions", as: .error),
+                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
             ],
         ),
         .macro(
@@ -72,18 +63,23 @@ let package = Package(
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
             ],
-            swiftSettings: swiftSettings,
         ),
         .target(
             name: "HTMLEntities",
             dependencies: [
                 .target(name: "Str")
             ],
-            swiftSettings: swiftSettings,
+            swiftSettings: [
+                .defaults,
+                .treatWarning("EmbeddedRestrictions", as: .error),
+            ],
         ),
         .target(
             name: "Str",
-            swiftSettings: swiftSettings,
+            swiftSettings: [
+                .defaults,
+                .treatWarning("EmbeddedRestrictions", as: .error),
+            ],
         ),
         .testTarget(
             name: "TokenizerTests",
@@ -118,7 +114,6 @@ let package = Package(
                 .process("Resources/html5lib-tests/tokenizer/escapeFlag.test"),
                 .process("Resources/html5lib-tests/tokenizer/domjs.test"),
             ],
-            swiftSettings: swiftTestSettings,
         ),
         .testTarget(
             name: "HTMLEntitiesTests",
@@ -128,14 +123,12 @@ let package = Package(
             resources: [
                 .process("Resources")
             ],
-            swiftSettings: swiftTestSettings,
         ),
         .testTarget(
             name: "TreeBuilderTests",
             dependencies: [
                 .target(name: "TreeBuilder")
             ],
-            swiftSettings: swiftTestSettings,
         ),
     ],
 )
